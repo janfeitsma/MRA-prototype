@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+enum ActionResult
+{
+    FAILED = 0;
+    RUNNING = 1;
+    PASSED = 2;
+}
+

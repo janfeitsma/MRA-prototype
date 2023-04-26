@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "datatypes/Player.proto";
+import "datatypes/Ball.proto";
+import "datatypes/Obstacle.proto";
+
+message WorldState
+{
+    google.protobuf.Timestamp time = 1; // absolute timestamp
+    Player robot = 2; // self
+    Ball ball = 3; // allow maximum one ball in the field/test; if there are more, then WorldModel should provide closest one
+    repeated Player teammates = 4;
+    repeated Player opponents = 5;
+    repeated Obstacle obstacles = 6; // optional entities (like a black box or suitcase for testing, some kind of forbidden zone)
+}
+
+// WorldState is a message used by many (almost all) robot components.
+// It describes the state of the entities in the game: ball, robots, humans.
+// Coordinates are all in FCS, Pose (x,y,z,rx,ry,rz), however:
+// * Players and obstacles are typically planar (no z,rx,ry),
+// * Balls can fly and typically have no orientation (no rx,ry,rz).
+
+// The component WorldModel is responsible for producing a reliable WorldState, by combining
+// a. own sensor data (vision, odometry, ...)
+// b. teammate robot WorldState and/or sensor data
+// c. external systems (such as human detection)
+// d. fake test data
+
+// Notes:
+// 1. teams (teammates, opponents) can be a mix of robots and humans.
+//    A Player can be human or robot.
+//    (Protobuf does not allow inheritance, so there is no specific Robot struct deriving from Player.)
+// 2. Obstacles are intended for static / unknown objects which are not opponents.
+
+// Out of scope:
+// * vision internals (confidence, colors)
+// * game context (refbox state, goals, yellow cards, time remaining etc) -> see GameState
+
+

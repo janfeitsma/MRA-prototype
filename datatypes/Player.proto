@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import "datatypes/Pose.proto";
+
+message Player
+{
+    // typically on the floor, so z,rx,ry unused
+    int32 id = 1; // T-shirt number
+    bool active = 2; // participating in the game (robot may be inactive when figuring out where it is)
+    bool human = 3;
+    Pose position = 4;
+    Pose velocity = 5;
+    bool hasball = 6;
+    // float energy, competence? Reasoning should take it account when choosing player to pass to
+    // radius?
+}
+

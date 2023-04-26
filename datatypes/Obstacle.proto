@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+import "datatypes/Pose.proto";
+
+message Obstacle
+{
+    // typically on the floor, so z,rx,ry unused
+    Pose position = 1;
+    Pose velocity = 2;
+    float radius = 3;
+}
+
