@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package FalconsGetballIntercept;
+
+message Params
+{
+    float actionRadius = 1; // don't bother if ball vector is too far away (return FAILED)
+}
+

@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package FalconsGetball;
+
+import "MRA/components/falcons/getball-fetch/interface/Params.proto";
+import "MRA/components/falcons/getball-intercept/interface/Params.proto";
+
+message Params
+{
+    float ballSpeedStationaryThreshold = 1;
+    FalconsGetballFetch.Params fetch = 2;
+    FalconsGetballIntercept.Params intercept = 3;
+}
+

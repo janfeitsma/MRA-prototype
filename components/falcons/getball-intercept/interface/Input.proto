@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package FalconsGetballIntercept;
+
+import "MRA/proto/WorldState.proto";
+
+message Input
+{
+    WorldState worldstate = 1;
+}
+

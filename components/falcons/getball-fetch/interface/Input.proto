@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package FalconsGetballFetch;
+
+import "MRA/proto/WorldState.proto";
+
+message Input
+{
+    WorldState worldstate = 1;
+    bool slow = 2;
+}
+

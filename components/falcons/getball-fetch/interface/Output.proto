@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package FalconsGetballFetch;
+
+import "MRA/proto/ActionResult.proto";
+import "MRA/proto/Target.proto";
+
+message Output
+{
+    ActionResult actionresult = 1;
+    Target target = 2; // in FCS
+    //bool slow = 3; // TODO: not so nice to see slow just passing through ... ? bypass, or include in Target, or ...?
+}
+

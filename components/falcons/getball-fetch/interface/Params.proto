@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package FalconsGetballFetch;
+
+message Params
+{
+    float ballSpeedThreshold = 1; // when ball speed is higher, then extrapolate target
+    float ballSpeedScaling = 2; // extrapolation factor
+}
+

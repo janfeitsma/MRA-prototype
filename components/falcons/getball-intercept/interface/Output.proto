@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package FalconsGetballIntercept;
+
+import "MRA/proto/ActionResult.proto";
+import "MRA/proto/Target.proto";
+
+message Output
+{
+    ActionResult actionresult = 1;
+    Target target = 2; // in FCS
+}
+
