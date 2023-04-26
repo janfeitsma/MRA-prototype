@@ -1,0 +1,283 @@
+#!/usr/bin/env python3
+
+'''
+Generate files for all components, so that 'bazel build' can do its job.
+
+This script is intended to help MRA developers to create a new component.
+Developers first need to define the name (folder) and interface (.proto files).
+
+Example output for a new component:
+    file component/falcons/getball-fetch/interface/BUILD has been copied (and modified) from base/codegen/template_interface.BUILD
+    file component/falcons/getball-fetch/BUILD has been copied (and modified) from base/codegen/template_implementation.BUILD
+    file component/falcons/getball-fetch/FalconsGetballFetch.hpp has been copied (and modified) from base/codegen/template_instance.hpp
+    file component/falcons/getball-fetch/tick.cpp has been copied (and modified) from base/codegen/template_tick.cpp
+    file component/falcons/getball-fetch/test.cpp has been copied (and modified) from base/codegen/template_test.cpp
+
+Example output for a finished component:
+    file component/falcons/getball-fetch/interface/BUILD already exists, skipping (content unchanged)
+    file component/falcons/getball-fetch/BUILD already exists, skipping (content unchanged)
+    file component/falcons/getball-fetch/FalconsGetballFetch.hpp already exists, skipping (content unchanged)
+    file component/falcons/getball-fetch/tick.cpp already exists, skipping (overwrite disabled)
+    file component/falcons/getball-fetch/test.cpp already exists, skipping (overwrite disabled)
+'''
+
+# python modules
+import os
+import sys
+import shutil
+import re
+import filecmp
+import glob
+import pathlib
+import argparse
+
+
+
+MRA_ROOT = pathlib.Path(__file__).parent.resolve()
+MRA_COMPONENTS_ROOT = 'components'
+
+
+
+def component_name_underscore(component: str) -> str:
+    """Mangle (relative) component name. Example: falcons/getball-intercept -> FALCONS_GETBALL_INTERCEPT"""
+    return component.replace('/', '_').replace('-', '_').upper()
+def component_name_camelcase(component: str) -> str:
+    """Mangle (relative) component name. Example: falcons/getball-intercept -> FalconsGetballIntercept"""
+    return ''.join([s.capitalize() for s in re.split('/|-', component)])
+
+def grep(pat: str, fname: str) -> list:
+    """Mimic grep utility. Return matching lines."""
+    result = []
+    for line in open(fname, 'r'):
+        if re.search(pat, line):
+            result.append(line)
+    return result
+
+
+class ComponentGenerator():
+    """
+    Perform all code generation operations for given component.
+    Given component must be a string relative to component root (incl. folder nesting).
+    """
+    def __init__(self, component: str, verbose: bool = False):
+        self.component = component # example: falcons/getball-intercept
+        self.verbose = verbose
+        self.cname_underscore = component_name_underscore(component) # example: FALCONS_GETBALL_INTERCEPT
+        self.cname_camelcase = component_name_camelcase(component) # example: FalconsGetballIntercept
+        self.template_folder = MRA_ROOT / 'base/codegen'
+        self.components_folder = MRA_ROOT / 'components'
+        self.component_folder = self.components_folder / self.component
+        self.interface_folder = os.path.join(self.component_folder, 'interface')
+        self.analyze()
+
+    def analyze(self) -> None:
+        """Analyze component."""
+        # interface parts, max 5
+        self.all_interface_parts = ['Input', 'Params', 'State', 'Output', 'Local']
+        self.interface_parts = [p for p in self.all_interface_parts if os.path.isfile(os.path.join(self.component, 'interface', p + '.proto'))]
+        # TODO? a component needs at least an Input and an Output -- or default to protobuf.Empty??
+        #for required_interface_part in ['Input', 'Output']:
+        #    if not required_interface_part in self.interface_parts:
+        #        raise Exception(f'incomplete component interface: missing file {required_interface_part}.proto')
+        # TODO: warn in case other than above 5 .proto files are detected?
+        # dependencies to other components w.r.t. MRA_ROOT
+        self.dependencies = []
+        deps_file = os.path.join(self.component, 'dependencies')
+        if os.path.isfile(deps_file):
+            self.dependencies = [ll.strip() for ll in open(deps_file).readlines()]
+        # check if package naming is consistent
+        for p in self.interface_parts:
+            pf = os.path.join(self.component, 'interface', p + '.proto')
+            expected_line = 'package {};'.format(self.cname_camelcase)
+            if not grep(expected_line, pf):
+                raise Exception(f'missing or incorrect package name: expected to find "{expected_line}" in file "{pf}"')
+
+    def run(self) -> None:
+        """Perform all the work for current component."""
+        self.make_replace_dict()
+        self.handle_interface_bazel_build()
+        self.handle_implementation_bazel_build()
+        self.handle_header_hpp()
+        self.generate_copy_files_unless_existing()
+        # TODO: cmake generators?
+
+    def notify_copy(self, src: str, tgt: str) -> None:
+        """Print an info message about a copy action."""
+        # hide full path, only report paths w.r.t. MRA root
+        src = str(src).replace(str(MRA_ROOT) + '/', '')
+        tgt = str(tgt).replace(str(MRA_ROOT) + '/', '')
+        msg = 'file {} has been copied'.format(tgt)
+        if not filecmp.cmp(src, tgt):
+            msg += ' (and modified)'
+        msg += ' from ' + str(src)
+        if self.verbose:
+            print(msg)
+
+    def notify(self, msg: str) -> None:
+        """Print an info message, or not."""
+        msg = str(msg).replace(str(MRA_ROOT) + '/', '')
+        if self.verbose:
+            print(msg)
+
+    def check_copy_and_modify(self, src: str, tgt: str, replace = None, overwrite: bool = True, check_diff: bool = True) -> None:
+        """
+        Helper function:
+        * check if target file already exists
+        * load content from source file as template
+        * apply replace dict
+        * write to target file
+        """
+        #print(f'debug copy_and_modify({src}, {tgt})')
+        content = open(src).read()
+        if os.path.isdir(tgt):
+            tgt = os.path.join(tgt, os.path.basename(src))
+        if os.path.isfile(tgt) and not overwrite:
+            self.notify('file {} already exists, skipping (overwrite disabled)'.format(tgt))
+            return
+        tgt_dir = pathlib.Path(tgt).parent
+        tgt_dir.mkdir(exist_ok=True, parents=True)
+        replace_dict = {}
+        if not replace is False:
+            replace_dict = self.replace_dict.copy()
+            if isinstance(replace, dict):
+                replace_dict.update(replace)
+            # specifics:
+            replace_dict['SOURCEFILE'] = os.path.basename(src)
+        # iterate until converged
+        change = True
+        max_it = 20
+        it = 0
+        while change:
+            it += 1
+            old_content = content
+            for (before, after) in replace_dict.items():
+                content = content.replace(before, after)
+            change = content != old_content
+            if it > max_it:
+                #fh.write(content) # write anyway, for inspection
+                #print(replace_dict)
+                raise Exception('something went wrong in iterative search-and-replace, trying to write ' + tgt)
+        # check content against existing
+        if os.path.isfile(tgt) and check_diff:
+            existing_content = open(tgt).read()
+            if content == existing_content:
+                self.notify('file {} already exists, skipping (content unchanged)'.format(tgt))
+                return
+        with open(tgt, 'w') as fh:
+            fh.write(content)
+        self.notify_copy(src, tgt)
+
+    def make_protobuf_includes(self) -> str:
+        """Snippet of code to include protobuf-generated header files into component.hpp."""
+        result = ""
+        c = self.cname_camelcase
+        cc = self.component
+        for p in self.all_interface_parts:
+            if p in self.interface_parts:
+                result += f"#include \"MRA_COMPONENTS_ROOT/{cc}/interface/{p}.pb.h\"\n"
+        return result
+
+    def make_tick_includes(self) -> str:
+        """Snippet of code to include protobuf-generated header files into tick.cpp."""
+        result = []
+        for cc in self.dependencies:
+            ccc = component_name_camelcase(cc)
+            result.append(f'#include "{ccc}.hpp"')
+        if len(result):
+            return '\n// dependent (generated) component headers:\n' + '\n'.join(result) + '\n'
+        return ''
+
+    def make_protobuf_typedefs(self) -> str:
+        """Snippet of code to typedef, improve readibility."""
+        result = ""
+        c = self.cname_camelcase
+        for p in self.all_interface_parts:
+            if p in self.interface_parts:
+                result += f"typedef {c}::{p} {p}Type;\n"
+            else:
+                result += f"typedef int {p}Type; // no .proto -> unused\n"
+        return result
+
+    def make_build_deps(self, append: str) -> str:
+        """Make a dict to be used when replacing content of template files during code generation."""
+        result = []
+        for cc in self.dependencies:
+            result.append(f'"//{cc}{append}",')
+        return '\n        '.join(result)
+
+    def make_replace_dict(self) -> None:
+        """Make a dict to be used when replacing content of template files during code generation."""
+        self.replace_dict = {
+            'MRA_COMPONENTS_ROOT': str(MRA_COMPONENTS_ROOT),
+            'COMPONENT_REL_PATH': self.component,
+            'COMPONENT_CPP_NAME_CAMELCASE': self.cname_camelcase,
+            'COMPONENT_CPP_NAME_UNDERSCORE': self.cname_underscore,
+            'DEPENDENT_HEADERS': self.make_tick_includes(),
+            'PROTOBUF_HPP_TYPE_INCLUDES': self.make_protobuf_includes(),
+            'PROTOBUF_HPP_TYPE_TYPEDEFS': self.make_protobuf_typedefs(),
+            'CODEGEN_NOTE': 'this file was produced by MRA-codegen.py from SOURCEFILE',
+            'BAZEL_INTERFACE_DEPENDENCIES': self.make_build_deps('/interface:interface_proto'),
+            'BAZEL_IMPLEMENTATION_DEPENDENCIES': self.make_build_deps(':implementation'),
+        }
+
+    def handle_interface_bazel_build(self) -> None:
+        """Generate bazel BUILD for interface (protobuf)."""
+        src = self.template_folder / 'template_interface.BUILD'
+        tgt = os.path.join(self.interface_folder, 'BUILD') # don't use 'interface' or is_component gets confused
+        self.check_copy_and_modify(src, tgt)
+
+    def handle_implementation_bazel_build(self) -> None:
+        """Generate bazel BUILD for the implementation."""
+        src = self.template_folder / 'template_implementation.BUILD'
+        tgt = os.path.join(self.component_folder, 'BUILD')
+        self.check_copy_and_modify(src, tgt)
+
+    def handle_header_hpp(self) -> None:
+        """Generate C++ header file, using generated protobuf types and deriving from base class."""
+        src = self.template_folder / 'template_instance.hpp'
+        tgt = os.path.join(self.component_folder, self.cname_camelcase + '.hpp')
+        self.check_copy_and_modify(src, tgt)
+
+    def generate_copy_files_unless_existing(self) -> None:
+        """Copy implementation file(s) to the component folder, create from template if not existing."""
+        tgt = self.component_folder
+        for f in ['tick.cpp', 'test.cpp']:
+            src = self.template_folder / ('template_' + f)
+            self.check_copy_and_modify(src, os.path.join(tgt, f), overwrite=False)
+
+
+def is_component(d: str) -> bool:
+    """Guess if a folder is a component. Allow nesting."""
+    return os.path.isdir(os.path.join(d, 'interface'))
+
+
+def find_components() -> list:
+    """Find all component folders."""
+    result = glob.glob(os.path.join(MRA_COMPONENTS_ROOT + '/**'), recursive=True) # relative paths
+    result = [d for d in result if is_component(d)]
+    result = [d.lstrip(MRA_COMPONENTS_ROOT + '/') for d in result] # strip components prefix
+    return result
+
+
+def main(quiet=False) -> None:
+    """Perform the work for all detected components."""
+    os.chdir(MRA_ROOT)
+    components = find_components()
+    for cc in components:
+        ComponentGenerator(cc, not quiet).run()
+
+
+def parse_args(args: list) -> argparse.Namespace:
+    """Use argparse to parse command line arguments."""
+    descriptionTxt = __doc__
+    exampleTxt = ""
+    class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
+        pass
+    parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=CustomFormatter)
+    parser.add_argument('-q', '--quiet', help='suppress output on what is happening', action='store_true')
+    return parser.parse_args(args)
+
+
+if __name__ == '__main__':
+    main(**vars(parse_args(sys.argv[1:])))
+
