@@ -1,0 +1,35 @@
+workspace(name = "MRA")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# Google protobuf
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "25680843adf0c3302648d35f744e38cc3b6b05a6c77a927de5aea3e1c2e36106",
+    strip_prefix = "protobuf-3.19.4",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.19.4.zip"],
+    # note: on Ubuntu20, opencv DNN libraries depend on an older conflicting protobuf version
+)
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+protobuf_deps()
+
+# JSON
+http_archive(
+    name = "nlohmann_json",
+    build_file = "//dependencies/bazel:BUILD.nlohmann_json",
+    sha256 = "b1b92b169e42b5dc2a51b644ba3b3a414e2451d580331d43801244c7e863f060",
+    strip_prefix = "json-a6ee8bf9d94ef783f21f955d4125d5f3924d2c8e",
+    urls = ["https://github.com/nlohmann/json/archive/a6ee8bf9d94ef783f21f955d4125d5f3924d2c8e.tar.gz"],
+    workspace_file_content = 'workspace(name = "nlohmann_json")',
+)
+
+# gtest
+http_archive(
+    name = "com_google_googletest",
+    sha256 = "0fb00ff413f6b9b80ccee44a374ca7a18af7315aea72a43c62f2acd1ca74e9b5",
+    strip_prefix = "googletest-f13bbe2992d188e834339abe6f715b2b2f840a77",
+    urls = [
+        "https://github.com/google/googletest/archive/f13bbe2992d188e834339abe6f715b2b2f840a77.tar.gz",
+    ],
+)
+
