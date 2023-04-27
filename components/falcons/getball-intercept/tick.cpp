@@ -1,4 +1,4 @@
-// this file was produced by codegen.py from template_tick.cpp
+// this file was produced by MRA-codegen.py from template_tick.cpp
 // with the intent of letting user add the implementation here
 
 // generated component header:

@@ -1,14 +1,14 @@
-// this file was produced by codegen.py from template_instance.hpp
+// this file was produced by MRA-codegen.py from template_instance.hpp
 // it should NOT be modified by user
 
-#ifndef _BEAST_MRA_FALCONS_GETBALL_FETCH_HPP
-#define _BEAST_MRA_FALCONS_GETBALL_FETCH_HPP
+#ifndef _MRA_FALCONS_GETBALL_FETCH_HPP
+#define _MRA_FALCONS_GETBALL_FETCH_HPP
 
 #include "abstract_interface.hpp"
 
-#include "MRA/components/falcons/getball-fetch/interface/Input.pb.h"
-#include "MRA/components/falcons/getball-fetch/interface/Params.pb.h"
-#include "MRA/components/falcons/getball-fetch/interface/Output.pb.h"
+#include "components/falcons/getball-fetch/interface/Input.pb.h"
+#include "components/falcons/getball-fetch/interface/Params.pb.h"
+#include "components/falcons/getball-fetch/interface/Output.pb.h"
 
 
 namespace FalconsGetballFetch

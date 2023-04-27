@@ -1,4 +1,4 @@
-// this file was produced by codegen.py from template_tick.cpp
+// this file was produced by MRA-codegen.py from template_tick.cpp
 // with the intent of letting user add the implementation here
 
 // generated component header:
@@ -64,8 +64,8 @@ int FalconsGetballFetch::FalconsGetballFetch::tick
             float ball_speed = sqrt(vx * vx + vy * vy);
 
             // prepare outputs
-            XYRZ current = ws.robot().position();
-            XYRZ target = ws.robot().position();
+            Pose current = ws.robot().position();
+            Pose target = ws.robot().position();
 
             // if speed is low enough, then just drive on top of the ball
             if (ball_speed < params.ballspeedthreshold())

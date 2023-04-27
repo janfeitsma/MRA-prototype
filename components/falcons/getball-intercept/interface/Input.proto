@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package FalconsGetballIntercept;
 
-import "MRA/proto/WorldState.proto";
+import "datatypes/WorldState.proto";
 
 message Input
 {

@@ -1,4 +1,4 @@
-// this file was produced by codegen.py from template_test.cpp
+// this file was produced by MRA-codegen.py from template_test.cpp
 // with the intent of allowing user to add custom tests
 
 

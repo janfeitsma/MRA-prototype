@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package FalconsGetballFetch;
 
-import "MRA/proto/ActionResult.proto";
-import "MRA/proto/Target.proto";
+import "datatypes/ActionResult.proto";
+import "datatypes/Target.proto";
 
 message Output
 {

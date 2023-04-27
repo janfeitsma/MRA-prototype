@@ -1,10 +1,11 @@
-// this file was produced by codegen.py from template_test.cpp
+// this file was produced by MRA-codegen.py from template_test.cpp
 // with the intent of allowing user to add custom tests
 
 
 // Include testframework
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "test_factory.hpp"
 using namespace ::testing;
 
 // System under test:

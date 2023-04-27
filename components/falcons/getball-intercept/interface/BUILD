@@ -1,4 +1,4 @@
-# this file was produced by codegen.py from template_interface.BUILD
+# this file was produced by MRA-codegen.py from template_interface.BUILD
 # it should NOT be modified by user
 
 proto_library(
@@ -6,7 +6,7 @@ proto_library(
     srcs = glob(["*.proto"]),
     visibility = ["//visibility:public"],
     deps = [
-        "//MRA/proto:MRA_proto_lib",
+        "//datatypes:MRA_proto",
         
     ],
 )
