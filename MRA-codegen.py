@@ -7,18 +7,18 @@ This script is intended to help MRA developers to create a new component.
 Developers first need to define the name (folder) and interface (.proto files).
 
 Example output for a new component:
-    file component/falcons/getball-fetch/interface/BUILD has been copied (and modified) from base/codegen/template_interface.BUILD
-    file component/falcons/getball-fetch/BUILD has been copied (and modified) from base/codegen/template_implementation.BUILD
-    file component/falcons/getball-fetch/FalconsGetballFetch.hpp has been copied (and modified) from base/codegen/template_instance.hpp
-    file component/falcons/getball-fetch/tick.cpp has been copied (and modified) from base/codegen/template_tick.cpp
-    file component/falcons/getball-fetch/test.cpp has been copied (and modified) from base/codegen/template_test.cpp
+    file components/falcons/getball-fetch/interface/BUILD has been copied (and modified) from base/codegen/template_interface.BUILD
+    file components/falcons/getball-fetch/BUILD has been copied (and modified) from base/codegen/template_implementation.BUILD
+    file components/falcons/getball-fetch/FalconsGetballFetch.hpp has been copied (and modified) from base/codegen/template_instance.hpp
+    file components/falcons/getball-fetch/tick.cpp has been copied (and modified) from base/codegen/template_tick.cpp
+    file components/falcons/getball-fetch/test.cpp has been copied (and modified) from base/codegen/template_test.cpp
 
 Example output for a finished component:
-    file component/falcons/getball-fetch/interface/BUILD already exists, skipping (content unchanged)
-    file component/falcons/getball-fetch/BUILD already exists, skipping (content unchanged)
-    file component/falcons/getball-fetch/FalconsGetballFetch.hpp already exists, skipping (content unchanged)
-    file component/falcons/getball-fetch/tick.cpp already exists, skipping (overwrite disabled)
-    file component/falcons/getball-fetch/test.cpp already exists, skipping (overwrite disabled)
+    file components/falcons/getball-fetch/interface/BUILD already exists, skipping (content unchanged)
+    file components/falcons/getball-fetch/BUILD already exists, skipping (content unchanged)
+    file components/falcons/getball-fetch/FalconsGetballFetch.hpp already exists, skipping (content unchanged)
+    file components/falcons/getball-fetch/tick.cpp already exists, skipping (overwrite disabled)
+    file components/falcons/getball-fetch/test.cpp already exists, skipping (overwrite disabled)
 '''
 
 # python modules
@@ -35,7 +35,7 @@ import argparse
 
 MRA_ROOT = pathlib.Path(__file__).parent.resolve()
 MRA_COMPONENTS_ROOT = 'components'
-
+DEFAULT_VERBOSE_LEVEL = 1
 
 
 def component_name_underscore(component: str) -> str:
@@ -59,9 +59,9 @@ class ComponentGenerator():
     Perform all code generation operations for given component.
     Given component must be a string relative to component root (incl. folder nesting).
     """
-    def __init__(self, component: str, verbose: bool = False):
+    def __init__(self, component: str, verbosity: int = DEFAULT_VERBOSE_LEVEL):
         self.component = component # example: falcons/getball-intercept
-        self.verbose = verbose
+        self.verbosity = verbosity
         self.cname_underscore = component_name_underscore(component) # example: FALCONS_GETBALL_INTERCEPT
         self.cname_camelcase = component_name_camelcase(component) # example: FalconsGetballIntercept
         self.template_folder = MRA_ROOT / 'base/codegen'
@@ -74,7 +74,7 @@ class ComponentGenerator():
         """Analyze component."""
         # interface parts, max 5
         self.all_interface_parts = ['Input', 'Params', 'State', 'Output', 'Local']
-        self.interface_parts = [p for p in self.all_interface_parts if os.path.isfile(os.path.join(self.component, 'interface', p + '.proto'))]
+        self.interface_parts = [p for p in self.all_interface_parts if os.path.isfile(os.path.join(self.component_folder, 'interface', p + '.proto'))]
         # TODO? a component needs at least an Input and an Output -- or default to protobuf.Empty??
         #for required_interface_part in ['Input', 'Output']:
         #    if not required_interface_part in self.interface_parts:
@@ -82,12 +82,12 @@ class ComponentGenerator():
         # TODO: warn in case other than above 5 .proto files are detected?
         # dependencies to other components w.r.t. MRA_ROOT
         self.dependencies = []
-        deps_file = os.path.join(self.component, 'dependencies')
+        deps_file = os.path.join(self.component_folder, 'dependencies')
         if os.path.isfile(deps_file):
             self.dependencies = [ll.strip() for ll in open(deps_file).readlines()]
         # check if package naming is consistent
         for p in self.interface_parts:
-            pf = os.path.join(self.component, 'interface', p + '.proto')
+            pf = os.path.join(self.component_folder, 'interface', p + '.proto')
             expected_line = 'package {};'.format(self.cname_camelcase)
             if not grep(expected_line, pf):
                 raise Exception(f'missing or incorrect package name: expected to find "{expected_line}" in file "{pf}"')
@@ -101,7 +101,7 @@ class ComponentGenerator():
         self.generate_copy_files_unless_existing()
         # TODO: cmake generators?
 
-    def notify_copy(self, src: str, tgt: str) -> None:
+    def notify_copy(self, src: str, tgt: str, level: int = 1) -> None:
         """Print an info message about a copy action."""
         # hide full path, only report paths w.r.t. MRA root
         src = str(src).replace(str(MRA_ROOT) + '/', '')
@@ -110,13 +110,13 @@ class ComponentGenerator():
         if not filecmp.cmp(src, tgt):
             msg += ' (and modified)'
         msg += ' from ' + str(src)
-        if self.verbose:
+        if level <= self.verbosity:
             print(msg)
 
-    def notify(self, msg: str) -> None:
+    def notify(self, msg: str, level: int = 1) -> None:
         """Print an info message, or not."""
         msg = str(msg).replace(str(MRA_ROOT) + '/', '')
-        if self.verbose:
+        if level <= self.verbosity:
             print(msg)
 
     def check_copy_and_modify(self, src: str, tgt: str, replace = None, overwrite: bool = True, check_diff: bool = True) -> None:
@@ -132,7 +132,7 @@ class ComponentGenerator():
         if os.path.isdir(tgt):
             tgt = os.path.join(tgt, os.path.basename(src))
         if os.path.isfile(tgt) and not overwrite:
-            self.notify('file {} already exists, skipping (overwrite disabled)'.format(tgt))
+            self.notify('file {} already exists, skipping (overwrite disabled)'.format(tgt), level=2)
             return
         tgt_dir = pathlib.Path(tgt).parent
         tgt_dir.mkdir(exist_ok=True, parents=True)
@@ -161,7 +161,7 @@ class ComponentGenerator():
         if os.path.isfile(tgt) and check_diff:
             existing_content = open(tgt).read()
             if content == existing_content:
-                self.notify('file {} already exists, skipping (content unchanged)'.format(tgt))
+                self.notify('file {} already exists, skipping (content unchanged)'.format(tgt), level=2)
                 return
         with open(tgt, 'w') as fh:
             fh.write(content)
@@ -259,12 +259,12 @@ def find_components() -> list:
     return result
 
 
-def main(quiet=False) -> None:
+def main(verbosity: int = DEFAULT_VERBOSE_LEVEL) -> None:
     """Perform the work for all detected components."""
     os.chdir(MRA_ROOT)
     components = find_components()
     for cc in components:
-        ComponentGenerator(cc, not quiet).run()
+        ComponentGenerator(cc, verbosity).run()
 
 
 def parse_args(args: list) -> argparse.Namespace:
@@ -274,7 +274,7 @@ def parse_args(args: list) -> argparse.Namespace:
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
         pass
     parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=CustomFormatter)
-    parser.add_argument('-q', '--quiet', help='suppress output on what is happening', action='store_true')
+    parser.add_argument('-v', '--verbosity', help='set verbosity level, 0 is entirely quiet, 2 is fully verbose', type=int, default=DEFAULT_VERBOSE_LEVEL)
     return parser.parse_args(args)
 
 
