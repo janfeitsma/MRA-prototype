@@ -1,5 +1,5 @@
-#ifndef _BEAST_MRA_TEST_FACTORY_HPP
-#define _BEAST_MRA_TEST_FACTORY_HPP
+#ifndef _MRA_BASE_TEST_FACTORY_HPP
+#define _MRA_BASE_TEST_FACTORY_HPP
 
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
@@ -11,14 +11,13 @@ using namespace ::testing;
 #include <fstream>
 #include <iostream>
 
-#define MRA_ROOT std::string("/home/jan/hobby/BEAST/MRA") // TODO make robust
 
 namespace TestFactory
 {
 
 std::string read_filename_as_string(std::string filename)
 {
-    std::ifstream infile(MRA_ROOT + "/" + filename);
+    std::ifstream infile(filename);
     if (!infile)
     {
         std::filesystem::path cwd = std::filesystem::current_path();
@@ -99,4 +98,4 @@ typename Tc::OutputType run_testvector(std::string tv_filename)
 
 }; // namespace TestFactory
 
-#endif // _BEAST_MRA_TEST_FACTORY_HPP
+#endif // _MRA_BASE_TEST_FACTORY_HPP

@@ -1,0 +1,12 @@
+{
+    "worldstate":
+    {
+        "robot": {"id": 1, "active": true, "position": {"x": -0.01, "y": -8.69, "rz":  1.62}, "hasball": false},
+        "robot": {"id": 2, "active": true, "position": {"x":  1.53, "y": -2.93, "rz":  1.22}, "hasball": false},
+        "robot": {"id": 3, "active": true, "position": {"x":  0.70, "y": -6.02, "rz":  1.68}, "hasball": false},
+        "robot": {"id": 4, "active": true, "position": {"x": -2.02, "y": -0.03, "rz":  0.01}, "hasball": false},
+        "robot": {"id": 5, "active": true, "position": {"x":  1.09, "y":  0.03, "rz":  3.14}, "hasball": false},
+        "ball": {"position": {"x": 0.07, "y": -0.02}}
+    }
+}
+

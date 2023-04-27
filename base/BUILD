@@ -4,6 +4,9 @@ cc_library(
     hdrs = [
         "test_factory.hpp",
     ],
+    deps = [
+        "//testdata:common_testdata",
+    ],
     visibility = ["//visibility:public"],
 )
 

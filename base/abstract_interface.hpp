@@ -1,5 +1,5 @@
-#ifndef _BEAST_MRA_BASE_INTERFACE_HPP
-#define _BEAST_MRA_BASE_INTERFACE_HPP
+#ifndef _MRA_BASE_ABSTRACT_INTERFACE_HPP
+#define _MRA_BASE_ABSTRACT_INTERFACE_HPP
 
 template <typename Ti, typename Tp, typename Ts, typename To, typename Tl>
 class MRAInterface
@@ -26,5 +26,5 @@ public:
 
 }; // template class MRAInterface
 
-#endif // _BEAST_MRA_BASE_INTERFACE_HPP
+#endif // _MRA_BASE_ABSTRACT_INTERFACE_HPP
 
