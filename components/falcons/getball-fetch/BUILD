@@ -14,7 +14,7 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         "//components/falcons/getball-fetch/interface:interface",
-        
+        "//libraries/geometry",
     ],
 )
 

@@ -4,6 +4,9 @@
 // generated component header:
 #include "FalconsGetballFetch.hpp"
 
+// dependent libraries:
+#include "geometry.hpp"
+
 using namespace MRA;
 
 // custom includes, if any
@@ -60,31 +63,18 @@ int FalconsGetballFetch::FalconsGetballFetch::tick
         // check if not any failure mode was triggered
         if (output.actionresult() == RUNNING)
         {
-            // calculate ball speed
-            float vx = ws.ball().velocity().x();
-            float vy = ws.ball().velocity().y();
-            float ball_speed = sqrt(vx * vx + vy * vy);
-
-            // prepare outputs
-            Pose current = ws.robot().position();
-            Pose target = ws.robot().position();
+            float ball_speed = geometry::vectorsize(ws.ball().velocity());
 
             // if speed is low enough, then just drive on top of the ball
-            if (ball_speed < params.ballspeedthreshold())
-            {
-                target.set_x(ws.ball().position().x());
-                target.set_y(ws.ball().position().y());
-            }
-            else // otherwise: try to catch up, by making use of ball velocity vector
-            {
-                target.set_x(ws.ball().position().x() + ws.ball().velocity().x() * params.ballspeedscaling());
-                target.set_y(ws.ball().position().y() + ws.ball().velocity().y() * params.ballspeedscaling());
-            }
+            // otherwise: try to catch up, by making use of ball velocity vector
+            float factor = params.ballspeedscaling() * (ball_speed >= params.ballspeedthreshold());
 
-            // set robot facing angle towards ball
-            target.set_rz(atan2(target.y() - current.y(), target.x() - current.x()));
+            // arithmetic operators on Pose are defined in geometry.hpp
+            Pose target = ws.ball().position() + ws.ball().velocity() * factor;
 
-            // TODO: this code could be cleaned up a bit by factoring out some geometry library, Vector2D, operations etc.
+            // set target, robot facing angle towards ball
+            Pose current = ws.robot().position();
+            target.set_rz(geometry::calc_rz_between(current, target));
 
             // write output
             output.mutable_target()->mutable_position()->set_x(target.x());
