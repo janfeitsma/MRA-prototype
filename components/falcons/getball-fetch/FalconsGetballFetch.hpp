@@ -11,13 +11,13 @@
 #include "components/falcons/getball-fetch/interface/Output.pb.h"
 
 
-namespace FalconsGetballFetch
+namespace MRA::FalconsGetballFetch
 {
 
-typedef FalconsGetballFetch::Input InputType;
-typedef FalconsGetballFetch::Params ParamsType;
+typedef MRA::FalconsGetballFetch::Input InputType;
+typedef MRA::FalconsGetballFetch::Params ParamsType;
 typedef int StateType; // no .proto -> unused
-typedef FalconsGetballFetch::Output OutputType;
+typedef MRA::FalconsGetballFetch::Output OutputType;
 typedef int LocalType; // no .proto -> unused
 
 
@@ -69,7 +69,7 @@ public:
 
 }; // class FalconsGetballFetch
 
-} // namespace FalconsGetballFetch
+} // namespace MRA::FalconsGetballFetch
 
 #endif
 

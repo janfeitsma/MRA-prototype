@@ -12,7 +12,7 @@ using namespace ::testing;
 #include <iostream>
 
 
-namespace TestFactory
+namespace MRA::TestFactory
 {
 
 std::string read_filename_as_string(std::string filename)
@@ -96,6 +96,6 @@ typename Tc::OutputType run_testvector(std::string tv_filename)
     return actual_output;
 }
 
-}; // namespace TestFactory
+}; // namespace MRA::TestFactory
 
 #endif // _MRA_BASE_TEST_FACTORY_HPP

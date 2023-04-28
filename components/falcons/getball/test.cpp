@@ -10,6 +10,7 @@ using namespace ::testing;
 
 // System under test:
 #include "FalconsGetball.hpp"
+using namespace MRA;
 
 
 // Basic tick shall run OK and return error_value 0.

@@ -4,6 +4,8 @@
 // generated component header:
 #include "FalconsGetballFetch.hpp"
 
+using namespace MRA;
+
 // custom includes, if any
 #include <cmath>
 

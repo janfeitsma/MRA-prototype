@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package FalconsGetballIntercept;
+package MRA.FalconsGetballIntercept;
 
 import "datatypes/WorldState.proto";
 

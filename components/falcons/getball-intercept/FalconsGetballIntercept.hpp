@@ -11,13 +11,13 @@
 #include "components/falcons/getball-intercept/interface/Output.pb.h"
 
 
-namespace FalconsGetballIntercept
+namespace MRA::FalconsGetballIntercept
 {
 
-typedef FalconsGetballIntercept::Input InputType;
-typedef FalconsGetballIntercept::Params ParamsType;
+typedef MRA::FalconsGetballIntercept::Input InputType;
+typedef MRA::FalconsGetballIntercept::Params ParamsType;
 typedef int StateType; // no .proto -> unused
-typedef FalconsGetballIntercept::Output OutputType;
+typedef MRA::FalconsGetballIntercept::Output OutputType;
 typedef int LocalType; // no .proto -> unused
 
 
@@ -69,7 +69,7 @@ public:
 
 }; // class FalconsGetballIntercept
 
-} // namespace FalconsGetballIntercept
+} // namespace MRA::FalconsGetballIntercept
 
 #endif
 

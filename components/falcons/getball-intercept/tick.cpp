@@ -4,6 +4,8 @@
 // generated component header:
 #include "FalconsGetballIntercept.hpp"
 
+using namespace MRA;
+
 // custom includes, if any
 // ...
 

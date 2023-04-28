@@ -8,6 +8,8 @@
 #include "FalconsGetballFetch.hpp"
 #include "FalconsGetballIntercept.hpp"
 
+using namespace MRA;
+
 // custom includes, if any
 #include <cmath>
 

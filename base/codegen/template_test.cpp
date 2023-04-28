@@ -10,7 +10,7 @@ using namespace ::testing;
 
 // System under test:
 #include "COMPONENT_CPP_NAME_CAMELCASE.hpp"
-
+using namespace MRA;
 
 // Basic tick shall run OK and return error_value 0.
 TEST(COMPONENT_CPP_NAME_CAMELCASETest, basicTick)

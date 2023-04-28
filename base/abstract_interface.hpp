@@ -1,6 +1,9 @@
 #ifndef _MRA_BASE_ABSTRACT_INTERFACE_HPP
 #define _MRA_BASE_ABSTRACT_INTERFACE_HPP
 
+namespace MRA
+{
+
 template <typename Ti, typename Tp, typename Ts, typename To, typename Tl>
 class MRAInterface
 {
@@ -25,6 +28,8 @@ public:
     ) = 0;
 
 }; // template class MRAInterface
+
+} // namespace MRA
 
 #endif // _MRA_BASE_ABSTRACT_INTERFACE_HPP
 

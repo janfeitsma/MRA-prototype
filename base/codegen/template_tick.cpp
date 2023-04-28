@@ -4,6 +4,8 @@
 // generated component header:
 #include "COMPONENT_CPP_NAME_CAMELCASE.hpp"
 DEPENDENT_HEADERS
+using namespace MRA;
+
 // custom includes, if any
 // ...
 

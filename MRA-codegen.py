@@ -88,7 +88,7 @@ class ComponentGenerator():
         # check if package naming is consistent
         for p in self.interface_parts:
             pf = os.path.join(self.component_folder, 'interface', p + '.proto')
-            expected_line = 'package {};'.format(self.cname_camelcase)
+            expected_line = 'package MRA.{};'.format(self.cname_camelcase)
             if not grep(expected_line, pf):
                 raise Exception(f'missing or incorrect package name: expected to find "{expected_line}" in file "{pf}"')
 
@@ -193,7 +193,7 @@ class ComponentGenerator():
         c = self.cname_camelcase
         for p in self.all_interface_parts:
             if p in self.interface_parts:
-                result += f"typedef {c}::{p} {p}Type;\n"
+                result += f"typedef MRA::{c}::{p} {p}Type;\n"
             else:
                 result += f"typedef int {p}Type; // no .proto -> unused\n"
         return result
