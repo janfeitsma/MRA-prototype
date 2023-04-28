@@ -80,11 +80,20 @@ class ComponentGenerator():
         #    if not required_interface_part in self.interface_parts:
         #        raise Exception(f'incomplete component interface: missing file {required_interface_part}.proto')
         # TODO: warn in case other than above 5 .proto files are detected?
-        # dependencies to other components w.r.t. MRA_ROOT
-        self.dependencies = []
+        # dependencies to other libraries / components w.r.t. MRA_ROOT
+        self.component_dependencies = []
+        self.library_dependencies = []
         deps_file = os.path.join(self.component_folder, 'dependencies')
         if os.path.isfile(deps_file):
-            self.dependencies = [ll.strip() for ll in open(deps_file).readlines()]
+            for dep in [ll.strip() for ll in open(deps_file).readlines()]:
+                if not os.path.isdir(dep):
+                    raise Exception(f'invalid dependency, folder not found: "{dep}" in file "{deps_file}"')
+                if dep.startswith('components'):
+                    self.component_dependencies.append(dep)
+                elif dep.startswith('libraries'):
+                    self.library_dependencies.append(dep)
+                else:
+                    raise Exception(f'invalid dependency, expected dependency to start with either "components" or "libraries": "{dep}" in file "{deps_file}"')
         # check if package naming is consistent
         for p in self.interface_parts:
             pf = os.path.join(self.component_folder, 'interface', p + '.proto')
@@ -178,11 +187,12 @@ class ComponentGenerator():
         return result
 
     def make_tick_includes(self) -> str:
-        """Snippet of code to include protobuf-generated header files into tick.cpp."""
+        """Snippet of code to include header files into tick.cpp."""
         result = []
-        for cc in self.dependencies:
+        for cc in self.component_dependencies:
             ccc = component_name_camelcase(cc)
             result.append(f'#include "{ccc}.hpp"')
+        # TODO: also handle self.library_dependencies?
         if len(result):
             return '\n// dependent (generated) component headers:\n' + '\n'.join(result) + '\n'
         return ''
@@ -198,11 +208,20 @@ class ComponentGenerator():
                 result += f"typedef int {p}Type; // no .proto -> unused\n"
         return result
 
-    def make_build_deps(self, append: str) -> str:
+    def make_build_deps_interface(self) -> str:
         """Make a dict to be used when replacing content of template files during code generation."""
         result = []
-        for cc in self.dependencies:
-            result.append(f'"//{cc}{append}",')
+        for dep in self.component_dependencies:
+            result.append(f'"//{dep}/interface:interface_proto",')
+        return '\n        '.join(result)
+
+    def make_build_deps_implementation(self) -> str:
+        """Make a dict to be used when replacing content of template files during code generation."""
+        result = []
+        for dep in self.component_dependencies:
+            result.append(f'"//{dep}:implementation",')
+        for dep in self.library_dependencies:
+            result.append(f'"//{dep}",')
         return '\n        '.join(result)
 
     def make_replace_dict(self) -> None:
@@ -216,8 +235,8 @@ class ComponentGenerator():
             'PROTOBUF_HPP_TYPE_INCLUDES': self.make_protobuf_includes(),
             'PROTOBUF_HPP_TYPE_TYPEDEFS': self.make_protobuf_typedefs(),
             'CODEGEN_NOTE': 'this file was produced by MRA-codegen.py from SOURCEFILE',
-            'BAZEL_INTERFACE_DEPENDENCIES': self.make_build_deps('/interface:interface_proto'),
-            'BAZEL_IMPLEMENTATION_DEPENDENCIES': self.make_build_deps(':implementation'),
+            'BAZEL_INTERFACE_DEPENDENCIES': self.make_build_deps_interface(),
+            'BAZEL_IMPLEMENTATION_DEPENDENCIES': self.make_build_deps_implementation(),
         }
 
     def handle_interface_bazel_build(self) -> None:
