@@ -80,6 +80,12 @@ class ComponentGenerator():
         #    if not required_interface_part in self.interface_parts:
         #        raise Exception(f'incomplete component interface: missing file {required_interface_part}.proto')
         # TODO: warn in case other than above 5 .proto files are detected?
+        # Params.proto also requires DefaultParams.json (workaround for protobuf v3 not supporting default values anymore ...)
+        if 'Params' in self.interface_parts:
+            f = os.path.join(self.component_folder, 'interface', 'DefaultParams.json')
+            if not os.path.isfile(f):
+                raise Exception(f'required file is missing: {f}')
+            # TODO: strict checks on correctness & completeness? (allow empty file?)
         # dependencies to other libraries / components w.r.t. MRA_ROOT
         self.component_dependencies = []
         self.library_dependencies = []

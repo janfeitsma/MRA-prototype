@@ -5,6 +5,7 @@
 #define _MRA_COMPONENT_CPP_NAME_UNDERSCORE_HPP
 
 #include "abstract_interface.hpp"
+#include "params_loader.hpp"
 
 PROTOBUF_HPP_TYPE_INCLUDES
 
@@ -35,7 +36,7 @@ public:
         StateType s;
         OutputType o;
         LocalType l;
-        return tick(0.0, InputType(), ParamsType(), s, o, l);
+        return tick(0.0, InputType(), MRA::LoadDefaultParams<ParamsType>("components/COMPONENT_REL_PATH/interface/DefaultParams.json"), s, o, l);
     };
 
     int tick(
@@ -45,7 +46,7 @@ public:
     {
         StateType s;
         LocalType l;
-        return tick(0.0, input, ParamsType(), s, output, l);
+        return tick(0.0, input, MRA::LoadDefaultParams<ParamsType>("components/COMPONENT_REL_PATH/interface/DefaultParams.json"), s, output, l);
     };
 
     int tick(

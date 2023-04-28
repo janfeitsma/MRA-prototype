@@ -12,8 +12,18 @@ proto_library(
 )
 
 cc_proto_library(
-    name = "interface",
+    name = "interface_cc_proto",
     visibility = ["//visibility:public"],
-    deps = [":interface_proto"],
+    deps = [
+        ":interface_proto",
+    ],
 )
 
+cc_library(
+    name = "interface",
+    data = glob(["*DefaultParams.json"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        ":interface_cc_proto",
+    ],
+)

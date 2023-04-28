@@ -5,6 +5,7 @@
 #define _MRA_FALCONS_GETBALL_HPP
 
 #include "abstract_interface.hpp"
+#include "params_loader.hpp"
 
 #include "components/falcons/getball/interface/Input.pb.h"
 #include "components/falcons/getball/interface/Params.pb.h"
@@ -43,7 +44,7 @@ public:
         StateType s;
         OutputType o;
         LocalType l;
-        return tick(0.0, InputType(), ParamsType(), s, o, l);
+        return tick(0.0, InputType(), MRA::LoadDefaultParams<ParamsType>("components/falcons/getball/interface/DefaultParams.json"), s, o, l);
     };
 
     int tick(
@@ -53,7 +54,7 @@ public:
     {
         StateType s;
         LocalType l;
-        return tick(0.0, input, ParamsType(), s, output, l);
+        return tick(0.0, input, MRA::LoadDefaultParams<ParamsType>("components/falcons/getball/interface/DefaultParams.json"), s, output, l);
     };
 
     int tick(
