@@ -3,26 +3,12 @@
 
 #include <nlohmann/json.hpp>
 #include <google/protobuf/util/json_util.h>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
 
 
 namespace MRA
 {
 
-std::string read_file_as_string(std::string filename)
-{
-    std::ifstream infile(filename);
-    if (!infile)
-    {
-        std::filesystem::path cwd = std::filesystem::current_path();
-        throw std::runtime_error("file " + filename + " not found at " + std::string(cwd));
-    }
-    std::ostringstream sstr;
-    sstr << infile.rdbuf();
-    return sstr.str();
-}
+std::string read_file_as_string(std::string filename);
 
 template <typename T>
 std::string convert_proto_to_json_str(T const &tproto)

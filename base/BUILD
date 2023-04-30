@@ -5,6 +5,9 @@ cc_library(
         "params_loader.hpp",
         "json_convert.hpp",
     ],
+    srcs = [
+        "json_convert.cpp",
+    ],
     deps = [
         "@nlohmann_json",
     ],
