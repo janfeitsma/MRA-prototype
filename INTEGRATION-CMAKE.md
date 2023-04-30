@@ -5,14 +5,14 @@ Author (Jan) does not want to come back and learn cmake, after having migrated a
 
 This page tries to describe how to setup MRA for your CMake build system.
 
-For general C++ coding examples using MRA: see [here](Integration.md#Coding).
+For general C++ coding examples using MRA: see [here](INTEGRATION.md#Coding).
 
 The following chapters describe how to make `@MRA` available in your repository's CMake configuration.
-1. [use only](#Use%20only): no explicit) git checkout, just download and use the code.
-2. [use & develop via subrepo](#Use%20%26%20develop%20via%20subrepo): setup a git sub-repository.
-3. [use & develop via standalone repo](#Use%20%26%20develop%20via%20standalone%20repo): refer to a git repository checkout elsewhere on your system.
+1. [use only](#Use-only): no (explicit) git checkout, just download and use the code.
+2. [use & develop via subrepo](#Use--develop-via-subrepo): setup a git sub-repository.
+3. [use & develop via standalone repo](#Use--develop-via-standalone-repo): refer to a git repository checkout elsewhere on your system.
 
-The [CMakeLists.txt](#CMakeLists.txt) chapter describes how to depend on targets defined by MRA repo.
+The [CMakeLists.txt](#cmakeliststxt) chapter describes how to depend on targets defined by MRA repo.
 
 ## Use only
 
