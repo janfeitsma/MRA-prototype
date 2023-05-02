@@ -7,7 +7,7 @@ import "datatypes/Target.proto";
 
 message Output
 {
-    ActionResult actionresult = 1;
-    Target target = 2; // in FCS
+    MRA.Datatypes.ActionResult actionresult = 1;
+    MRA.Datatypes.Target target = 2; // in FCS
 }
 

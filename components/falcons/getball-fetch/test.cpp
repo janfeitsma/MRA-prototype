@@ -41,7 +41,7 @@ TEST(FalconsGetballFetchTest, robotInactive)
 
     // Assert
     EXPECT_EQ(error_value, 0);
-    EXPECT_EQ(output.actionresult(), FAILED);
+    EXPECT_EQ(output.actionresult(), MRA::Datatypes::FAILED);
 }
 
 // Move towards stationary ball in positive x direction.
@@ -60,7 +60,7 @@ TEST(FalconsGetballFetchTest, getStationaryBall)
 
     // Assert
     EXPECT_EQ(error_value, 0);
-    EXPECT_EQ(output.actionresult(), RUNNING);
+    EXPECT_EQ(output.actionresult(), MRA::Datatypes::RUNNING);
     EXPECT_EQ(output.target().position().x(), 2.0);
 }
 
@@ -79,7 +79,7 @@ TEST(FalconsGetballFetchTest, hasBallPassed)
 
     // Assert
     EXPECT_EQ(error_value, 0);
-    EXPECT_EQ(output.actionresult(), PASSED);
+    EXPECT_EQ(output.actionresult(), MRA::Datatypes::PASSED);
     // TODO: what do we require on target? target==current or not? prevent move. Current: target shall be empty
     std::string json_output;
     google::protobuf::util::MessageToJsonString(output, &json_output);
@@ -93,7 +93,7 @@ TEST(FalconsGetballFetchTest, matchKickoff)
     // The factory will run a tick with provided data and compare against expected output
     auto output = TestFactory::run_testvector<FalconsGetballFetch::FalconsGetballFetch>(std::string("components/falcons/getball-fetch/testdata/kickoff_prepare.json"));
 
-    EXPECT_EQ(output.actionresult(), RUNNING);
+    EXPECT_EQ(output.actionresult(), MRA::Datatypes::RUNNING);
 }
 
 int main(int argc, char **argv)

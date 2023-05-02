@@ -2,13 +2,13 @@
 #include <cmath>
 
 // vectorsize: sqrt(x*x + y*y + z*z)
-double MRA::geometry::vectorsize(Pose const &p)
+double MRA::geometry::vectorsize(MRA::Datatypes::Pose const &p)
 {
     return sqrt(p.x() * p.x() + p.y() * p.y() + p.z() * p.z());
 }
 
 // relative angle
-double MRA::geometry::calc_rz_between(Pose const &from, Pose const &to)
+double MRA::geometry::calc_rz_between(MRA::Datatypes::Pose const &from, MRA::Datatypes::Pose const &to)
 {
     return clip_rot(atan2(to.y() - from.y(), to.x() - from.x()));
 }
