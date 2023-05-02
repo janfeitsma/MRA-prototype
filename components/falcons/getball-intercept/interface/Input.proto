@@ -6,6 +6,6 @@ import "datatypes/WorldState.proto";
 
 message Input
 {
-    WorldState worldstate = 1;
+    MRA.Datatypes.WorldState worldstate = 1;
 }
 

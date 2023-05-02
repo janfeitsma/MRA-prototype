@@ -32,23 +32,23 @@ int FalconsGetballFetch::FalconsGetballFetch::tick
     if (ws.robot().hasball())
     {
         // the only success is robot having the ball
-        output.set_actionresult(PASSED);
+        output.set_actionresult(MRA::Datatypes::PASSED);
     }
     else
     {
         // initialize output before failure-mode checks
-        output.set_actionresult(RUNNING);
+        output.set_actionresult(MRA::Datatypes::RUNNING);
 
         // fail when robot is inactive
         if (!ws.robot().active())
         {
-            output.set_actionresult(FAILED);
+            output.set_actionresult(MRA::Datatypes::FAILED);
         }
 
         // fail when there is no ball
         if (!ws.has_ball())
         {
-            output.set_actionresult(FAILED);
+            output.set_actionresult(MRA::Datatypes::FAILED);
         }
 
         // fail when teammember has the ball
@@ -56,12 +56,12 @@ int FalconsGetballFetch::FalconsGetballFetch::tick
         {
             if (teammember.hasball())
             {
-                output.set_actionresult(FAILED);
+                output.set_actionresult(MRA::Datatypes::FAILED);
             }
         }
 
         // check if not any failure mode was triggered
-        if (output.actionresult() == RUNNING)
+        if (output.actionresult() == MRA::Datatypes::RUNNING)
         {
             float ball_speed = geometry::vectorsize(ws.ball().velocity());
 
@@ -70,10 +70,10 @@ int FalconsGetballFetch::FalconsGetballFetch::tick
             float factor = params.ballspeedscaling() * (ball_speed >= params.ballspeedthreshold());
 
             // arithmetic operators on Pose are defined in geometry.hpp
-            Pose target = ws.ball().position() + ws.ball().velocity() * factor;
+            MRA::Datatypes::Pose target = ws.ball().position() + ws.ball().velocity() * factor;
 
             // set target, robot facing angle towards ball
-            Pose current = ws.robot().position();
+            MRA::Datatypes::Pose current = ws.robot().position();
             target.set_rz(geometry::calc_rz_between(current, target));
 
             // write output

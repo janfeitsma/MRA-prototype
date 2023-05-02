@@ -7,16 +7,10 @@ namespace MRA::geometry
 {
 
 // vectorsize: sqrt(x*x + y*y + z*z)
-double vectorsize(Pose const &p);
-
-// convert Pose to XY
-//XY pose_to_xy(Pose const &p);
-
-// convert XY to Pose
-//Pose xy_to_pose(XY const &xy);
+double vectorsize(MRA::Datatypes::Pose const &p);
 
 // relative angle
-double calc_rz_between(Pose const &from, Pose const &to);
+double calc_rz_between(MRA::Datatypes::Pose const &from, MRA::Datatypes::Pose const &to);
 
 } // namespace MRA::geometry
 
@@ -24,9 +18,9 @@ double calc_rz_between(Pose const &from, Pose const &to);
 double clip_rot(double rot);
 
 // add two Pose objects
-inline Pose operator+(Pose const &lhs, Pose const &rhs)
+inline MRA::Datatypes::Pose operator+(MRA::Datatypes::Pose const &lhs, MRA::Datatypes::Pose const &rhs)
 {
-    Pose result;
+    MRA::Datatypes::Pose result;
     result.set_x(lhs.x() + rhs.x());
     result.set_y(lhs.y() + rhs.y());
     result.set_z(lhs.z() + rhs.z());
@@ -37,9 +31,9 @@ inline Pose operator+(Pose const &lhs, Pose const &rhs)
 }
 
 // multiply a Pose object with a scalar
-inline Pose operator*(Pose const &p, double f)
+inline MRA::Datatypes::Pose operator*(MRA::Datatypes::Pose const &p, double f)
 {
-    Pose result;
+    MRA::Datatypes::Pose result;
     result.set_x(p.x() * f);
     result.set_y(p.y() * f);
     result.set_z(p.z() * f);
