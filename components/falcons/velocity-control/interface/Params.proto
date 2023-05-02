@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package MRA.FalconsVelocityControl;
+
+message SPG
+{
+    bool synchronizeRotation = 1; // true means smearing out the rotation (non-greedy), but not always facing ball
+    float weightFactorClosedLoopVel = 2;
+    float weightFactorClosedLoopPos = 3;
+    float latencyOffset = 4;
+    bool convergenceWorkaround = 5;
+}
+
+message XYRzLimits
+{
+    float X = 1;
+    float Y = 2;
+    float Rz = 3;
+    float Yforward = 4; // optional Y split, ballHandling is easier driving forward than backward
+    float Ybackward = 5;
+}
+
+message Limits
+{
+    string name = 1;
+    XYRzLimits maxVel = 2;
+    XYRzLimits maxAcc = 3;
+    XYRzLimits maxDec = 4;
+    XYRzLimits accThreshold = 5;
+}
+
+message Params
+{
+    SPG spg = 1;
+    repeated Limits limits = 2; // array, content corresponds with motionProfile input
+    // NOTE: it is allowed to omit items in defaultParams, then defaults from limits[0] will be used
+}
+

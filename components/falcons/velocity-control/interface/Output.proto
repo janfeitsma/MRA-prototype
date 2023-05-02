@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package MRA.FalconsVelocityControl;
+
+import "datatypes/ActionResult.proto";
+import "datatypes/Pose.proto";
+
+message Output
+{
+    MRA.Datatypes.ActionResult actionresult = 1;
+    MRA.Datatypes.Pose velocity = 2; // in RCS
+}
+
