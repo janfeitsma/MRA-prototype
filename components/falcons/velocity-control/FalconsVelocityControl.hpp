@@ -9,7 +9,9 @@
 
 #include "components/falcons/velocity-control/interface/Input.pb.h"
 #include "components/falcons/velocity-control/interface/Params.pb.h"
+#include "components/falcons/velocity-control/interface/State.pb.h"
 #include "components/falcons/velocity-control/interface/Output.pb.h"
+#include "components/falcons/velocity-control/interface/Local.pb.h"
 
 
 namespace MRA::FalconsVelocityControl
@@ -17,9 +19,9 @@ namespace MRA::FalconsVelocityControl
 
 typedef MRA::FalconsVelocityControl::Input InputType;
 typedef MRA::FalconsVelocityControl::Params ParamsType;
-typedef int StateType; // no .proto -> unused
+typedef MRA::FalconsVelocityControl::State StateType;
 typedef MRA::FalconsVelocityControl::Output OutputType;
-typedef int LocalType; // no .proto -> unused
+typedef MRA::FalconsVelocityControl::Local LocalType;
 
 
 class FalconsVelocityControl: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>
