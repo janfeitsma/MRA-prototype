@@ -92,6 +92,8 @@ class ComponentGenerator():
         deps_file = os.path.join(self.component_folder, 'dependencies')
         if os.path.isfile(deps_file):
             for dep in [ll.strip() for ll in open(deps_file).readlines()]:
+                if len(dep) == 0:
+                    continue
                 if not os.path.isdir(dep):
                     raise Exception(f'invalid dependency, folder not found: "{dep}" in file "{deps_file}"')
                 if dep.startswith('components'):
