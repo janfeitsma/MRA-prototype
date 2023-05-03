@@ -6,8 +6,8 @@
 
 using namespace MRA;
 
-// custom includes, if any
-// ...
+// internals
+#include "internal/include/VelocityControl.hpp"
 
 
 int FalconsVelocityControl::FalconsVelocityControl::tick
@@ -24,7 +24,23 @@ int FalconsVelocityControl::FalconsVelocityControl::tick
 
     // user implementation goes here
 
-
+    // relay to internal implementation which is a stripped version of the package `velocityControl` from falcons/code
+    // making use of ReflexxesTypeII trajectory generation library
+    VelocityControl controller;
+    controller.data.timestamp = timestamp;
+    controller.data.input = input;
+    controller.data.config = params;
+    controller.data.state = state;
+    //try
+    //{
+        controller.iterate();
+        output = controller.data.output;
+        local = controller.data.diag;
+    //}
+    //catch
+    //{
+    //    error_value = 1;
+    //}
 
     return error_value;
 }

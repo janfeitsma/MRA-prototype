@@ -4,33 +4,17 @@
  *  Created on: Oct, 2020
  *      Author: Erik Kouters
  */
-#include <boost/bind/bind.hpp>
 
 // own package
-#include "VelocitySetpointControllers.hpp"
 #include "VelocityControl.hpp"
+
+/* TODO
+#include "VelocitySetpointControllers.hpp"
 #include "VelocityControlAlgorithms.hpp"
+*/
 
-
-VelocityControl::VelocityControl(vcCFI *vcConfigInterface, ppCFI *ppConfigInterface, exCFI *exConfigInterface, InputInterface *inputInterface, OutputInterface *outputInterface)
+VelocityControl::VelocityControl()
 {
-    _vcConfigInterface = vcConfigInterface;
-    _ppConfigInterface = ppConfigInterface;
-    _exConfigInterface = exConfigInterface;
-    _inputInterface = inputInterface;
-    _outputInterface = outputInterface;
-    if (_vcConfigInterface != NULL)
-    {
-        _vcConfigInterface->get(data.vcConfig);
-    }
-    if (_ppConfigInterface != NULL)
-    {
-        _ppConfigInterface->get(data.ppConfig);
-    }
-    if (_exConfigInterface != NULL)
-    {
-        _exConfigInterface->get(data.exConfig);
-    }
 }
 
 VelocityControl::~VelocityControl()
@@ -39,28 +23,13 @@ VelocityControl::~VelocityControl()
 
 void VelocityControl::iterate()
 {
-
-    // clear intermediate and output data, retrieve configuration
-    prepare();
-
-    // get inputs from input interface
-    getInputs();
-
-    // configure motion profile limits based on motionType and on ball possession
-    data.configureLimits();
-
-    // calculate
-    data.timestamp = ftime::now();
-    calculate();
-
-    // write outputs to output interface
-    setOutputs();
-
 }
 
-void VelocityControl::calculate()
+/* TODO below
+
+void VelocityControl::iterate()
 {
-    // this function assumes all inputs are set (see iterate() wrapper)
+    // this function assumes all required inputs (Inputs, Params, State) are set
 
     // when was the last time VelocityControl was poked?
     double age = data.timestamp - data.previousTimestamp;
@@ -255,4 +224,5 @@ AbstractVelocitySetpointController *VelocityControl::setupAndGetVelocitySetpoint
     return getVelocitySetpointController();
 }
 
+*/
 

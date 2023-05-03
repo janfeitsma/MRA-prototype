@@ -2,33 +2,11 @@ cc_library(
     name = "VelocityControl",
     srcs = [
         "src/VelocityControl.cpp",
-        "src/VelocityControlData.cpp",
-        "src/facilities/vcgeometry.cpp",
-        "src/controllers/StopVelocitySetpointController.cpp",
-        "src/controllers/LinearVelocitySetpointController.cpp",
-        "src/controllers/PIDVelocitySetpointController.cpp",
-        "src/controllers/SPGVelocitySetpointController.cpp",
-        "src/algorithms/CalculateDeltas.cpp",
-        "src/algorithms/SelectVelocityController.cpp",
-        "src/algorithms/CalculateVelocity.cpp",
-        "src/algorithms/CalculateAccelerating.cpp",
-        "src/algorithms/Deadzone.cpp",
-        "src/algorithms/ApplyLimits.cpp",
-        "src/algorithms/ApplyTokyoDrift.cpp",
-        "src/algorithms/ShiftBallOffset.cpp",
-        "src/algorithms/UnShiftBallOffset.cpp",
-    ] + [
         "include/MRAbridge.hpp",
-        "include/VelocitySetpointControllers.hpp",
-        "include/VelocityControlAlgorithms.hpp",
-        "include/AbstractVelocitySetpointController.hpp",
         "include/VelocityControlData.hpp",
-        "include/facilities/vcgeometry.hpp",
-        "include/facilities/PIDController.hpp",
-        "include/SPGVelocitySetpointController.hpp",
+    ],
+    hdrs = [
         "include/VelocityControl.hpp",
-        "include/facilities/clipping.hpp",
-
     ],
     includes = [
         "include",
@@ -36,6 +14,7 @@ cc_library(
     deps = [
         "//libraries/geometry",
         "//libraries/reflexxes",
+        "//components/falcons/velocity-control/interface:interface",
         #"@boost//:thread",
     ],
     visibility = ["//visibility:public"],
