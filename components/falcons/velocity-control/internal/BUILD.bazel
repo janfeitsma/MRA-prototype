@@ -1,0 +1,115 @@
+# falcons-velocityControl
+
+
+cc_library(
+    name = "vcRtdbAdapters",
+    srcs = [
+        "src/adapters/vcRTDBInputAdapter.cpp",
+        "src/adapters/vcRTDBOutputAdapter.cpp",
+        "src/adapters/vcConfigRTDBAdapter.cpp",
+    ] + [
+        "include/int/adapters/vcRTDBInputAdapter.hpp",
+        "include/int/adapters/vcRTDBOutputAdapter.hpp",
+        "include/int/adapters/vcConfigRTDBAdapter.hpp",
+        "include/int/InputInterface.hpp",
+        "include/int/OutputInterface.hpp",
+        
+    ],
+    includes = ["include"],
+    deps = [
+        "//packages/facilities/common",
+        "//packages/facilities/configuration",
+        "//packages/facilities/environment",
+        "//packages/facilities/sharedTypes",
+        "//packages/worldModel:wmClient",
+    ],
+)
+
+cc_library(
+    name = "VelocityControl",
+    srcs = [
+        "src/VelocityControl.cpp",
+        "src/VelocityControlData.cpp",
+        "src/facilities/vcgeometry.cpp",
+        "src/controllers/StopVelocitySetpointController.cpp",
+        "src/controllers/LinearVelocitySetpointController.cpp",
+        "src/controllers/PIDVelocitySetpointController.cpp",
+        "src/controllers/SPGVelocitySetpointController.cpp",
+        "src/algorithms/CalculateDeltas.cpp",
+        "src/algorithms/SelectVelocityController.cpp",
+        "src/algorithms/CalculateVelocity.cpp",
+        "src/algorithms/CalculateAccelerating.cpp",
+        "src/algorithms/Deadzone.cpp",
+        "src/algorithms/ApplyLimits.cpp",
+        "src/algorithms/ApplyTokyoDrift.cpp",
+        "src/algorithms/ShiftBallOffset.cpp",
+        "src/algorithms/UnShiftBallOffset.cpp",
+    ] + [
+        "include/int/VelocitySetpointControllers.hpp",
+        "include/int/VelocityControlAlgorithms.hpp",
+        "include/int/AbstractVelocitySetpointController.hpp",
+        "include/int/VelocityControlData.hpp",
+        "include/int/facilities/vcgeometry.hpp",
+        "include/int/facilities/PIDController.hpp",
+        "include/int/SPGVelocitySetpointController.hpp",
+        "include/int/VelocityControl.hpp",
+        "include/int/facilities/clipping.hpp",
+
+    ],
+    includes = ["include", "include/int", "external/ReflexxesTypeII/include"],
+    deps = [
+        "//externals/ReflexxesTypeII",
+        ":vcRtdbAdapters",
+        "//packages/facilities/common",
+        "//packages/facilities/configuration",
+        "//packages/facilities/tracing",
+        "//packages/facilities/diagnostics",
+        "//packages/facilities/rtdb",
+        "//packages/facilities/environment",
+        "//packages/worldModel:wmClient",
+        "//packages/velocityTransform:vtClient",
+        "@boost//:thread",
+    ],
+)
+
+cc_library(
+    name = "velocityControlClient",
+    srcs = [
+        "src/VelocityControlClient.cpp",
+    ],
+    hdrs = [
+        "include/ext/VelocityControlClient.hpp",
+    ],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":VelocityControl",
+    ],
+)
+
+cc_binary(
+    name = "velocityControlNode",
+    srcs = [
+        "src/main.cpp",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":velocityControlClient",
+    ],
+)
+
+cc_test(
+    name = "velocityControlTest",
+    srcs = [
+        "tst/velocityControlTest.cpp",
+        "tst/velocityControlTestDefaults.cpp",
+        "tst/velocityControlTestDefaults.hpp",
+    ],
+    deps = [
+        ":VelocityControl",
+        "//packages/velocityTransform:vtClient",
+        "@com_google_googletest//:gtest_main",
+        "@boost//:thread",
+    ],
+    timeout = "short",
+)
