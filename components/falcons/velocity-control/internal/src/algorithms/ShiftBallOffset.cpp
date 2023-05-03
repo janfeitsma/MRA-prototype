@@ -11,7 +11,6 @@
 
 void ShiftBallOffset::execute(VelocityControlData &data)
 {
-    TRACE_FUNCTION("");
 
     // add ball offset, if applicable
     if (data.robot.hasBall && data.ppConfig.forwardDriving.applyLimitsToBall)

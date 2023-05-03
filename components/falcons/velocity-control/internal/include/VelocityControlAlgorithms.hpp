@@ -11,7 +11,6 @@
 
 #include "VelocityControlData.hpp"
 #include "AbstractVelocitySetpointController.hpp"
-#include "tracing.hpp"
 
 /*!
  * \brief is the abstract class that each VelocityControl algorithm should inherit.

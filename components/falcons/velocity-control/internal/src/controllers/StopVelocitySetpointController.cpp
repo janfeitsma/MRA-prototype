@@ -10,7 +10,6 @@
 
 bool StopVelocitySetpointController::calculate(VelocityControlData &data, Velocity2D &resultVelocity)
 {
-    TRACE_FUNCTION("");
     resultVelocity.x = 0.0;
     resultVelocity.y = 0.0;
     resultVelocity.phi = 0.0;

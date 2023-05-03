@@ -11,11 +11,6 @@
 
 void ApplyLimits::execute(VelocityControlData &data)
 {
-    TRACE_FUNCTION("");
-
-    // trace limits
-    TRACE("using limits: %s", tostr(data.currentMotionTypeConfig).c_str());
-
     // get inputs
     Velocity2D unclippedVelocitySetpoint = data.resultVelocityRcs;
     Velocity2D previousVelocitySetpoint = data.previousVelocityRcs;

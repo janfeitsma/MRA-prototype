@@ -6,7 +6,6 @@
  */
 
 #include "SPGVelocitySetpointController.hpp"
-#include "tracing.hpp"
 
 #include <algorithm>
 
@@ -21,9 +20,6 @@ SPGVelocitySetpointController::~SPGVelocitySetpointController()
 
 bool SPGVelocitySetpointController::calculate(VelocityControlData &data, Velocity2D &resultVelocity)
 {
-    TRACE_FUNCTION("");
-    TRACE("limits = %s", tostr(data.currentMotionTypeConfig.limits).c_str());
-
     // Type II Reflexxes Motion Library
     // note that this variant does not support jerk control
 
@@ -55,12 +51,8 @@ bool SPGVelocitySetpointController::calculate(VelocityControlData &data, Velocit
     float w_vel = data.currentMotionTypeConfig.setPointGenerator.weightFactorClosedLoopVel;
     Velocity2D weightedCurrentVelocityFCS = data.currentVelocityFcs * w_vel + data.previousVelocitySetpointFcs * (1.0-w_vel);
 
-    TRACE("currentPosFCS=%s -- previousPosSetpointFCS=%s", data.currentPositionFcs.tostr(), data.previousPositionSetpointFcs.tostr());
-    TRACE("weightedCurrentPosFCS=%s", weightedCurrentPositionFCS.tostr());
-
     _deltaPositionRCS = Position2D(data.targetPositionFcs).transform_fcs2rcs(weightedCurrentPositionFCS);
     _deltaPositionRCS.phi = project_angle_mpi_pi(data.targetPositionFcs.phi - weightedCurrentPositionFCS.phi); // EKPC: this works, but I have no idea why
-    TRACE("deltaPositionRCS=%s", _deltaPositionRCS.tostr());
     _currentVelocityRCS = Velocity2D(weightedCurrentVelocityFCS).transform_fcs2rcs(weightedCurrentPositionFCS);
     _targetVelocityRCS = Velocity2D(data.targetVelocityFcs).transform_fcs2rcs(weightedCurrentPositionFCS);
 
@@ -71,41 +63,35 @@ bool SPGVelocitySetpointController::calculate(VelocityControlData &data, Velocit
     bool recalculate = false;
     if (isDofAccelerating(data, resultVelocity, 0, data.currentMotionTypeConfig.limits.accThresholdX))
     {
-        TRACE("accelerating in X direction, will recalculate with tighter limit");
         recalculate = true;
         spgLimits.ax = data.currentMotionTypeConfig.limits.maxAccX;
     }
     if (isDofAccelerating(data, resultVelocity, 1, data.currentMotionTypeConfig.limits.accThresholdY))
     {
-        TRACE("accelerating in Y direction, will recalculate with tighter limit");
         recalculate = true;
         spgLimits.ay = (resultVelocity.y < 0.0) ? data.currentMotionTypeConfig.limits.maxAccYbackward : data.currentMotionTypeConfig.limits.maxAccYforward;
     }
     if (isDofAccelerating(data, resultVelocity, 2, data.currentMotionTypeConfig.limits.accThresholdRz))
     {
-        TRACE("accelerating in Rz, will recalculate with tighter limit");
         recalculate = true;
         spgLimits.aRz = data.currentMotionTypeConfig.limits.maxAccRz;
     }
     if (resultVelocity.y < 0.0)
     {
-        TRACE("driving backwards, will recalculate with tighter limit");
         recalculate = true;
         spgLimits.vy = data.currentMotionTypeConfig.limits.maxVelYbackward;
     }
 
-    TRACE("resultVelocity = %s", resultVelocity.tostr());
 
     // recalculate?
     if (recalculate)
     {
-        TRACE("recalculating");
         result = calculateSPG(data, spgLimits, resultPosition, resultVelocity);
     }
 
-    TRACE("resultVelocity = %s", resultVelocity.tostr());
 
     // check if motor limits are not exceeded.
+    /* disabled - in MRA context, we must not depend on vtClient
     for(int i = 0; i < 10; i++)
     {
         if (data.vtClient.exceedsMotorLimits( pose(resultVelocity.x, resultVelocity.y, resultVelocity.phi) ))
@@ -114,17 +100,14 @@ bool SPGVelocitySetpointController::calculate(VelocityControlData &data, Velocit
             spgLimits.vx *= 0.8;
             spgLimits.vy *= 0.8;
             spgLimits.vRz *= 0.8;
-            TRACE("recalculating -- motor limits exceeded");
             result = calculateSPG(data, spgLimits, resultPosition, resultVelocity);
         }
         else
         {
             break;
         }
-        TRACE("resultVelocity = %s", resultVelocity.tostr());
     }
-
-    TRACE("SPG done: resultVelocity = %s", resultVelocity.tostr());
+    */
 
     // Done -- store values for next iteration
 
@@ -163,20 +146,17 @@ bool SPGVelocitySetpointController::isDofAccelerating(const VelocityControlData 
     {
         // newVelocity - currentVelocity < threshold
         // e.g., -2.0 - -1.0 = -1.0 < (-threshold)
-        TRACE("%8.4f - %8.4f < (-%8.4f)", newVelocity.at(dof), currentVelocity.at(dof), threshold);
         return (newVelocity.at(dof) - currentVelocity.at(dof)) < (-threshold);
     }
     else if (currentVelocity.at(dof) > 0.0)
     {
         // newVelocity - currentVelocity > threshold
         // e.g., 2.0 - 1.0 = 1.0 > threshold
-        TRACE("%8.4f - %8.4f > %8.4f", newVelocity.at(dof), currentVelocity.at(dof), threshold);
         return (newVelocity.at(dof) - currentVelocity.at(dof)) > threshold;
     }
     else
     {
         // currentVelocity == 0.0
-        TRACE("abs(%8.4f) > %8.4f", newVelocity.at(dof), threshold);
         return abs(newVelocity.at(dof)) > threshold;
     }
 
@@ -223,7 +203,6 @@ bool SPGVelocitySetpointController::calculateSPG(VelocityControlData& data, SpgL
 
 bool SPGVelocitySetpointController::calculatePosXYRzPhaseSynchronized(VelocityControlData& data, const SpgLimits& spgLimits, Position2D& resultPosition, Velocity2D &resultVelocity)
 {
-    TRACE_FUNCTION("");
 
     // initialize
     ReflexxesAPI                *RML = NULL;
@@ -243,27 +222,22 @@ bool SPGVelocitySetpointController::calculatePosXYRzPhaseSynchronized(VelocityCo
     IP->CurrentPositionVector->VecData      [0] = 0.0; // instead of steering from current to target,
     IP->CurrentPositionVector->VecData      [1] = 0.0; // we steer from zero to delta, so we can better configure
     IP->CurrentPositionVector->VecData      [2] = 0.0; // controlling FCS or RCS
-    TRACE("CurrentPositionVector=(%8.4f, %8.4f, %8.4f)", IP->CurrentPositionVector->VecData[0], IP->CurrentPositionVector->VecData[1], IP->CurrentPositionVector->VecData[2]);
 
     IP->CurrentVelocityVector->VecData      [0] = _currentVelocityRCS.x;
     IP->CurrentVelocityVector->VecData      [1] = _currentVelocityRCS.y;
     IP->CurrentVelocityVector->VecData      [2] = _currentVelocityRCS.phi;
-    TRACE("CurrentVelocityVector=(%8.4f, %8.4f, %8.4f)", IP->CurrentVelocityVector->VecData[0], IP->CurrentVelocityVector->VecData[1], IP->CurrentVelocityVector->VecData[2]);
 
     IP->CurrentAccelerationVector->VecData  [0] = 0.0; // not relevant, due to limitation of TypeII library
     IP->CurrentAccelerationVector->VecData  [1] = 0.0;
     IP->CurrentAccelerationVector->VecData  [2] = 0.0;
-    TRACE("CurrentAccelerationVector=(%8.4f, %8.4f, %8.4f)", IP->CurrentAccelerationVector->VecData[0], IP->CurrentAccelerationVector->VecData[1], IP->CurrentAccelerationVector->VecData[2]);
 
     IP->MaxVelocityVector->VecData          [0] = spgLimits.vx;
     IP->MaxVelocityVector->VecData          [1] = spgLimits.vy;
     IP->MaxVelocityVector->VecData          [2] = spgLimits.vRz;
-    TRACE("MaxVelocityVector=(%8.4f, %8.4f, %8.4f)", IP->MaxVelocityVector->VecData[0], IP->MaxVelocityVector->VecData[1], IP->MaxVelocityVector->VecData[2]);
 
     IP->MaxAccelerationVector->VecData      [0] = spgLimits.ax;
     IP->MaxAccelerationVector->VecData      [1] = spgLimits.ay;
     IP->MaxAccelerationVector->VecData      [2] = spgLimits.aRz;
-    TRACE("MaxAccelerationVector=(%8.4f, %8.4f, %8.4f)", IP->MaxAccelerationVector->VecData[0], IP->MaxAccelerationVector->VecData[1], IP->MaxAccelerationVector->VecData[2]);
 
     IP->MaxJerkVector->VecData              [0] = 0.0; // not used in TypeII library
     IP->MaxJerkVector->VecData              [1] = 0.0;
@@ -272,12 +246,10 @@ bool SPGVelocitySetpointController::calculatePosXYRzPhaseSynchronized(VelocityCo
     IP->TargetPositionVector->VecData       [0] = _deltaPositionRCS.x;  // steering from currentPos = 0,
     IP->TargetPositionVector->VecData       [1] = _deltaPositionRCS.y;  // to targetPos = deltaPos
     IP->TargetPositionVector->VecData       [2] = _deltaPositionRCS.phi;
-    TRACE("TargetPositionVector=(%8.4f, %8.4f, %8.4f)", IP->TargetPositionVector->VecData[0], IP->TargetPositionVector->VecData[1], IP->TargetPositionVector->VecData[2]);
 
     IP->TargetVelocityVector->VecData       [0] = _targetVelocityRCS.x;
     IP->TargetVelocityVector->VecData       [1] = _targetVelocityRCS.y;
     IP->TargetVelocityVector->VecData       [2] = _targetVelocityRCS.phi;
-    TRACE("TargetVelocityVector=(%8.4f, %8.4f, %8.4f)", IP->TargetVelocityVector->VecData[0], IP->TargetVelocityVector->VecData[1], IP->TargetVelocityVector->VecData[2]);
 
     IP->SelectionVector->VecData            [0] = true;
     IP->SelectionVector->VecData            [1] = true;
@@ -285,13 +257,9 @@ bool SPGVelocitySetpointController::calculatePosXYRzPhaseSynchronized(VelocityCo
 
     // call the Reflexxes Online Trajectory Generation algorithm
     int r1 = RML->RMLPosition(*IP, OP, Flags);
-    TRACE("trajectory calculated, r=%d", r1);
-    TRACE("NewVelocityVector=(%8.4f, %8.4f, %8.4f)", OP->NewVelocityVector->VecData[0], OP->NewVelocityVector->VecData[1], OP->NewVelocityVector->VecData[2]);
-    TRACE("NewAccelerationVector=(%8.4f, %8.4f, %8.4f)", OP->NewAccelerationVector->VecData[0], OP->NewAccelerationVector->VecData[1], OP->NewAccelerationVector->VecData[2]);
     if (r1 < 0)
     {
         // error state
-        TRACE_ERROR("ERROR during SPG computation");
         return false;
     }
 
@@ -299,8 +267,6 @@ bool SPGVelocitySetpointController::calculatePosXYRzPhaseSynchronized(VelocityCo
     // latency correction: evaluate the trajectory at some offset
     double timeOffset = data.dt + _config.latencyOffset;
     int r2 = RML->RMLPositionAtAGivenSampleTime(timeOffset, OP);
-    TRACE("trajectory evaluated with time offset %.3fs, r=%d", timeOffset, r2);
-    TRACE("NewVelocityVector=(%8.4f, %8.4f, %8.4f)", OP->NewVelocityVector->VecData[0], OP->NewVelocityVector->VecData[1], OP->NewVelocityVector->VecData[2]);
 
     // convert outputs
     resultPosition.x   = OP->NewPositionVector->VecData[0];
@@ -358,7 +324,6 @@ bool SPGVelocitySetpointController::calculatePosXYRzPhaseSynchronized(VelocityCo
     {
         if (r1 == ReflexxesAPI::RML_FINAL_STATE_REACHED)
         {
-            TRACE("applying short-stroke convergence workaround using LinearVelocitySetpointController");
 
             // Used by LinearVelocity calculation
             data.deltaPositionRcs = _deltaPositionRCS;
@@ -377,7 +342,6 @@ bool SPGVelocitySetpointController::calculatePosXYRzPhaseSynchronized(VelocityCo
 }
 bool SPGVelocitySetpointController::calculatePosXYPhaseSynchronized(VelocityControlData& data, SpgLimits const &spgLimits, Position2D& resultPosition, Velocity2D &resultVelocity)
 {
-    TRACE_FUNCTION("");
 
     // initialize
     ReflexxesAPI                *RML = NULL;
@@ -396,47 +360,36 @@ bool SPGVelocitySetpointController::calculatePosXYPhaseSynchronized(VelocityCont
     // set-up the input parameters
     IP->CurrentPositionVector->VecData      [0] = 0.0; // instead of steering from current to target,
     IP->CurrentPositionVector->VecData      [1] = 0.0; // we steer from zero to delta, so we can better configure
-    TRACE("CurrentPositionVector=(%8.4f, %8.4f)", IP->CurrentPositionVector->VecData[0], IP->CurrentPositionVector->VecData[1]);
 
     IP->CurrentVelocityVector->VecData      [0] = _currentVelocityRCS.x;
     IP->CurrentVelocityVector->VecData      [1] = _currentVelocityRCS.y;
-    TRACE("CurrentVelocityVector=(%8.4f, %8.4f)", IP->CurrentVelocityVector->VecData[0], IP->CurrentVelocityVector->VecData[1]);
 
     IP->CurrentAccelerationVector->VecData  [0] = 0.0; // not relevant, due to limitation of TypeII library
     IP->CurrentAccelerationVector->VecData  [1] = 0.0;
-    TRACE("CurrentAccelerationVector=(%8.4f, %8.4f)", IP->CurrentAccelerationVector->VecData[0], IP->CurrentAccelerationVector->VecData[1]);
 
     IP->MaxVelocityVector->VecData          [0] = spgLimits.vx;
     IP->MaxVelocityVector->VecData          [1] = spgLimits.vy;
-    TRACE("MaxVelocityVector=(%8.4f, %8.4f)", IP->MaxVelocityVector->VecData[0], IP->MaxVelocityVector->VecData[1]);
 
     IP->MaxAccelerationVector->VecData      [0] = spgLimits.ax;
     IP->MaxAccelerationVector->VecData      [1] = spgLimits.ay;
-    TRACE("MaxAccelerationVector=(%8.4f, %8.4f)", IP->MaxAccelerationVector->VecData[0], IP->MaxAccelerationVector->VecData[1]);
 
     IP->MaxJerkVector->VecData              [0] = 0.0; // not used in TypeII library
     IP->MaxJerkVector->VecData              [1] = 0.0;
 
     IP->TargetPositionVector->VecData       [0] = _deltaPositionRCS.x;  // steering from currentPos = 0,
     IP->TargetPositionVector->VecData       [1] = _deltaPositionRCS.y;  // to targetPos = deltaPos
-    TRACE("TargetPositionVector=(%8.4f, %8.4f)", IP->TargetPositionVector->VecData[0], IP->TargetPositionVector->VecData[1]);
 
     IP->TargetVelocityVector->VecData       [0] = _targetVelocityRCS.x;
     IP->TargetVelocityVector->VecData       [1] = _targetVelocityRCS.y;
-    TRACE("TargetVelocityVector=(%8.4f, %8.4f)", IP->TargetVelocityVector->VecData[0], IP->TargetVelocityVector->VecData[1]);
 
     IP->SelectionVector->VecData            [0] = true;
     IP->SelectionVector->VecData            [1] = true;
 
     // call the Reflexxes Online Trajectory Generation algorithm
     int r1 = RML->RMLPosition(*IP, OP, Flags);
-    TRACE("trajectory calculated, r=%d", r1);
-    TRACE("NewVelocityVector=(%8.4f, %8.4f)", OP->NewVelocityVector->VecData[0], OP->NewVelocityVector->VecData[1]);
-    TRACE("NewAccelerationVector=(%8.4f, %8.4f)", OP->NewAccelerationVector->VecData[0], OP->NewAccelerationVector->VecData[1]);
     if (r1 < 0)
     {
         // error state
-        TRACE_ERROR("ERROR during SPG computation");
         return false;
     }
 
@@ -444,8 +397,6 @@ bool SPGVelocitySetpointController::calculatePosXYPhaseSynchronized(VelocityCont
     // latency correction: evaluate the trajectory at some offset
     double timeOffset = data.dt + _config.latencyOffset;
     int r2 = RML->RMLPositionAtAGivenSampleTime(timeOffset, OP);
-    TRACE("trajectory evaluated with time offset %.3fs, r=%d", timeOffset, r2);
-    TRACE("NewVelocityVector=(%8.4f, %8.4f, %8.4f)", OP->NewVelocityVector->VecData[0], OP->NewVelocityVector->VecData[1]);
 
     // convert outputs
     resultPosition.x = OP->NewPositionVector->VecData[0];
@@ -493,7 +444,6 @@ bool SPGVelocitySetpointController::calculatePosXYPhaseSynchronized(VelocityCont
     {
         if (r1 == ReflexxesAPI::RML_FINAL_STATE_REACHED)
         {
-            TRACE("applying short-stroke convergence workaround using LinearVelocitySetpointController");
 
             // Used by LinearVelocity calculation
             data.deltaPositionRcs = _deltaPositionRCS;
@@ -510,7 +460,6 @@ bool SPGVelocitySetpointController::calculatePosXYPhaseSynchronized(VelocityCont
 }
 bool SPGVelocitySetpointController::calculatePosRzNonSynchronized(VelocityControlData& data, SpgLimits const &spgLimits, Position2D& resultPosition, Velocity2D &resultVelocity)
 {
-    TRACE_FUNCTION("");
 
     // initialize
     ReflexxesAPI                *RML = NULL;
@@ -528,39 +477,28 @@ bool SPGVelocitySetpointController::calculatePosRzNonSynchronized(VelocityContro
 
     // set-up the input parameters
     IP->CurrentPositionVector->VecData      [0] = 0.0; // controlling FCS or RCS
-    TRACE("CurrentPositionVector=(%8.4f)", IP->CurrentPositionVector->VecData[0]);
 
     IP->CurrentVelocityVector->VecData      [0] = _currentVelocityRCS.phi;
-    TRACE("CurrentVelocityVector=(%8.4f)", IP->CurrentVelocityVector->VecData[0]);
 
     IP->CurrentAccelerationVector->VecData  [0] = 0.0;
-    TRACE("CurrentAccelerationVector=(%8.4f)", IP->CurrentAccelerationVector->VecData[0]);
 
     IP->MaxVelocityVector->VecData          [0] = spgLimits.vRz;
-    TRACE("MaxVelocityVector=(%8.4f)", IP->MaxVelocityVector->VecData[0]);
 
     IP->MaxAccelerationVector->VecData      [0] = spgLimits.aRz;
-    TRACE("MaxAccelerationVector=(%8.4f)", IP->MaxAccelerationVector->VecData[0]);
 
     IP->MaxJerkVector->VecData              [0] = 0.0;
 
     IP->TargetPositionVector->VecData       [0] = _deltaPositionRCS.phi;
-    TRACE("TargetPositionVector=(%8.4f)", IP->TargetPositionVector->VecData[0]);
 
     IP->TargetVelocityVector->VecData       [0] = _targetVelocityRCS.phi;
-    TRACE("TargetVelocityVector=(%8.4f)", IP->TargetVelocityVector->VecData[0]);
 
     IP->SelectionVector->VecData            [0] = true;
 
     // call the Reflexxes Online Trajectory Generation algorithm
     int r1 = RML->RMLPosition(*IP, OP, Flags);
-    TRACE("trajectory calculated, r=%d", r1);
-    TRACE("NewVelocityVector=(%8.4f)", OP->NewVelocityVector->VecData[0]);
-    TRACE("NewAccelerationVector=(%8.4f)", OP->NewAccelerationVector->VecData[0]);
     if (r1 < 0)
     {
         // error state
-        TRACE_ERROR("ERROR during SPG computation");
         return false;
     }
 
@@ -568,8 +506,6 @@ bool SPGVelocitySetpointController::calculatePosRzNonSynchronized(VelocityContro
     // latency correction: evaluate the trajectory at some offset
     double timeOffset = data.dt + _config.latencyOffset;
     int r2 = RML->RMLPositionAtAGivenSampleTime(timeOffset, OP);
-    TRACE("trajectory evaluated with time offset %.3fs, r=%d", timeOffset, r2);
-    TRACE("NewVelocityVector=(%8.4f)", OP->NewVelocityVector->VecData[0]);
 
     // convert outputs
     resultPosition.phi = OP->NewPositionVector->VecData[0];
@@ -607,7 +543,6 @@ bool SPGVelocitySetpointController::calculatePosRzNonSynchronized(VelocityContro
     {
         if (r1 == ReflexxesAPI::RML_FINAL_STATE_REACHED)
         {
-            TRACE("applying short-stroke convergence workaround using LinearVelocitySetpointController");
 
             // Used by LinearVelocity calculation
             data.deltaPositionRcs = _deltaPositionRCS;
@@ -625,7 +560,6 @@ bool SPGVelocitySetpointController::calculatePosRzNonSynchronized(VelocityContro
 
 bool SPGVelocitySetpointController::calculateVelXYRzPhaseSynchronized(VelocityControlData& data, SpgLimits const &spgLimits, Position2D& resultPosition, Velocity2D &resultVelocity)
 {
-    TRACE_FUNCTION("");
 
     // initialize
     ReflexxesAPI                *RML = NULL;
@@ -644,22 +578,18 @@ bool SPGVelocitySetpointController::calculateVelXYRzPhaseSynchronized(VelocityCo
     IP->CurrentPositionVector->VecData      [0] = 0.0; // instead of steering from current to target,
     IP->CurrentPositionVector->VecData      [1] = 0.0; // we steer from zero to delta, so we can better configure
     IP->CurrentPositionVector->VecData      [2] = 0.0; // controlling FCS or RCS
-    TRACE("CurrentPositionVector=(%8.4f, %8.4f, %8.4f)", IP->CurrentPositionVector->VecData[0], IP->CurrentPositionVector->VecData[1], IP->CurrentPositionVector->VecData[2]);
 
     IP->CurrentVelocityVector->VecData      [0] = _currentVelocityRCS.x;
     IP->CurrentVelocityVector->VecData      [1] = _currentVelocityRCS.y;
     IP->CurrentVelocityVector->VecData      [2] = _currentVelocityRCS.phi;
-    TRACE("CurrentVelocityVector=(%8.4f, %8.4f, %8.4f)", IP->CurrentVelocityVector->VecData[0], IP->CurrentVelocityVector->VecData[1], IP->CurrentVelocityVector->VecData[2]);
 
     IP->CurrentAccelerationVector->VecData  [0] = 0.0; // not relevant, due to limitation of TypeII library
     IP->CurrentAccelerationVector->VecData  [1] = 0.0;
     IP->CurrentAccelerationVector->VecData  [2] = 0.0;
-    TRACE("CurrentAccelerationVector=(%8.4f, %8.4f, %8.4f)", IP->CurrentAccelerationVector->VecData[0], IP->CurrentAccelerationVector->VecData[1], IP->CurrentAccelerationVector->VecData[2]);
 
     IP->MaxAccelerationVector->VecData      [0] = spgLimits.ax;
     IP->MaxAccelerationVector->VecData      [1] = spgLimits.ay;
     IP->MaxAccelerationVector->VecData      [2] = spgLimits.aRz;
-    TRACE("MaxAccelerationVector=(%8.4f, %8.4f, %8.4f)", IP->MaxAccelerationVector->VecData[0], IP->MaxAccelerationVector->VecData[1], IP->MaxAccelerationVector->VecData[2]);
 
     IP->MaxJerkVector->VecData              [0] = 0.0; // not used in TypeII library
     IP->MaxJerkVector->VecData              [1] = 0.0;
@@ -668,7 +598,6 @@ bool SPGVelocitySetpointController::calculateVelXYRzPhaseSynchronized(VelocityCo
     IP->TargetVelocityVector->VecData       [0] = std::clamp(_targetVelocityRCS.x,   (double) -spgLimits.vx,  (double) spgLimits.vx);
     IP->TargetVelocityVector->VecData       [1] = std::clamp(_targetVelocityRCS.y,   (double) -spgLimits.vy,  (double) spgLimits.vy);
     IP->TargetVelocityVector->VecData       [2] = std::clamp(_targetVelocityRCS.phi, (double) -spgLimits.vRz, (double) spgLimits.vRz);
-    TRACE("TargetVelocityVector=(%8.4f, %8.4f, %8.4f)", IP->TargetVelocityVector->VecData[0], IP->TargetVelocityVector->VecData[1], IP->TargetVelocityVector->VecData[2]);
 
     IP->SelectionVector->VecData            [0] = true;
     IP->SelectionVector->VecData            [1] = true;
@@ -676,13 +605,9 @@ bool SPGVelocitySetpointController::calculateVelXYRzPhaseSynchronized(VelocityCo
 
     // call the Reflexxes Online Trajectory Generation algorithm
     int r1 = RML->RMLVelocity(*IP, OP, Flags);
-    TRACE("trajectory calculated, r=%d", r1);
-    TRACE("NewVelocityVector=(%8.4f, %8.4f, %8.4f)", OP->NewVelocityVector->VecData[0], OP->NewVelocityVector->VecData[1], OP->NewVelocityVector->VecData[2]);
-    TRACE("NewAccelerationVector=(%8.4f, %8.4f, %8.4f)", OP->NewAccelerationVector->VecData[0], OP->NewAccelerationVector->VecData[1], OP->NewAccelerationVector->VecData[2]);
     if (r1 < 0)
     {
         // error state
-        TRACE_ERROR("ERROR during SPG computation");
         return false;
     }
     else if (r1 == ReflexxesAPI::RMLResultValue::RML_FINAL_STATE_REACHED)
@@ -698,12 +623,9 @@ bool SPGVelocitySetpointController::calculateVelXYRzPhaseSynchronized(VelocityCo
         // latency correction: evaluate the trajectory at some offset
         double timeOffset = data.dt + _config.latencyOffset;
         int r2 = RML->RMLVelocityAtAGivenSampleTime(timeOffset, OP);
-        TRACE("trajectory evaluated with time offset %.3fs, r=%d", timeOffset, r2);
-        TRACE("NewVelocityVector=(%8.4f, %8.4f, %8.4f)", OP->NewVelocityVector->VecData[0], OP->NewVelocityVector->VecData[1], OP->NewVelocityVector->VecData[2]);
         if (r2 < 0)
         {
             // error state
-            TRACE_ERROR("ERROR during SPG computation");
             return false;
         }
         else if (r2 == ReflexxesAPI::RMLResultValue::RML_FINAL_STATE_REACHED)
@@ -720,7 +642,6 @@ bool SPGVelocitySetpointController::calculateVelXYRzPhaseSynchronized(VelocityCo
                 || std::isnan(OP->NewVelocityVector->VecData[2]))
             {
                 // unknown why results are nan
-                TRACE("Reflexxes returned nan");
                 return false;
             }
 

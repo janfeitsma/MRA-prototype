@@ -16,7 +16,6 @@ CalculateVelocity::CalculateVelocity(boost::function<AbstractVelocitySetpointCon
 
 void CalculateVelocity::execute(VelocityControlData &data)
 {
-    TRACE_FUNCTION("");
 
     // pathPlanning library should ensure some controller is configured
     // we trigger this just-in-time operation via a callback, which makes it possible
@@ -30,7 +29,6 @@ void CalculateVelocity::execute(VelocityControlData &data)
     if (!success)
     {
         resultVelocity = Velocity2D(0.0, 0.0, 0.0);
-        TRACE_WARNING("velocity setpoint calculation failed");
     }
 
     if (data.robotPosVelMoveType == robotPosVelEnum::POSVEL || data.robotPosVelMoveType == robotPosVelEnum::POS_ONLY)
@@ -56,6 +54,5 @@ void CalculateVelocity::execute(VelocityControlData &data)
     data.previousTimestamp = data.timestamp;
     data.previousVelocityRcs = data.resultVelocityRcs;
 
-    TRACE("vx=%8.4f vy=%8.4f vphi=%8.4f (RCS) success=%d", data.resultVelocityRcs.x, data.resultVelocityRcs.y, data.resultVelocityRcs.phi, success);
 }
 

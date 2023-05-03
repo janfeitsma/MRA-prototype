@@ -10,7 +10,6 @@
 
 bool PIDVelocitySetpointController::calculate(VelocityControlData &data, Velocity2D &resultVelocity)
 {
-    TRACE_FUNCTION("");
 
     // 3 degrees of freedom are treated independently
     // in RCS or FCS, depending on configuration
@@ -44,12 +43,10 @@ bool PIDVelocitySetpointController::calculate(VelocityControlData &data, Velocit
         if (data.vcSetpointConfig.coordinateSystem == CoordinateSystemEnum::RCS)
         {
             delta = data.deltaPositionRcs;
-            TRACE("controlling velocity in RCS");
         }
         else
         {
             delta = data.deltaPositionFcs;
-            TRACE("controlling velocity in FCS");
         }
 
         resultVelocity.x = _controllerX.calculate(delta.x);

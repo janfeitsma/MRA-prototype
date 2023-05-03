@@ -12,13 +12,11 @@
 #include "VelocityControlAlgorithms.hpp"
 
 // other Falcons packages
-#include "tracing.hpp"
 #include "cDiagnostics.hpp"
 
 
 VelocityControl::VelocityControl(vcCFI *vcConfigInterface, ppCFI *ppConfigInterface, exCFI *exConfigInterface, InputInterface *inputInterface, OutputInterface *outputInterface)
 {
-    TRACE_FUNCTION("");
     _vcConfigInterface = vcConfigInterface;
     _ppConfigInterface = ppConfigInterface;
     _exConfigInterface = exConfigInterface;
@@ -44,7 +42,6 @@ VelocityControl::~VelocityControl()
 
 void VelocityControl::iterate()
 {
-    TRACE_FUNCTION("");
 
     // clear intermediate and output data, retrieve configuration
     prepare();
@@ -62,16 +59,11 @@ void VelocityControl::iterate()
     // write outputs to output interface
     setOutputs();
 
-    WRITE_TRACE;
 }
 
 void VelocityControl::calculate()
 {
     // this function assumes all inputs are set (see iterate() wrapper)
-
-    TRACE_FUNCTION("");
-
-    data.traceInputs();
 
     // when was the last time VelocityControl was poked?
     double age = data.timestamp - data.previousTimestamp;
@@ -80,7 +72,6 @@ void VelocityControl::calculate()
         // too long ago, probably robot was standing still for a while
         // (in which case execution architecture causes components to not be poked)
         // -> reset velocity in order to properly limit acceleration
-        TRACE("Resetting previousVelocityRcs to (0, 0, 0)");
         data.previousVelocityRcs = Velocity2D(0.0, 0.0, 0.0);
         data.previousVelocitySetpointFcs = Velocity2D(0.0, 0.0, 0.0);
     }
@@ -118,13 +109,10 @@ void VelocityControl::calculate()
             (*it)->execute(data);
         }
     }
-
-    data.traceOutputs();
 }
 
 void VelocityControl::getInputs()
 {
-    TRACE_FUNCTION("");
     // configuration is handled at construction and upon change
     if (_inputInterface != NULL)
     {
@@ -171,7 +159,6 @@ void VelocityControl::getInputs()
 
 void VelocityControl::setOutputs()
 {
-    TRACE_FUNCTION("");
     if (_outputInterface != NULL)
     {
         robotVelocity sp;
@@ -214,7 +201,6 @@ diagVelocityControl VelocityControl::makeDiagnostics()
 
 void VelocityControl::prepare()
 {
-    TRACE_FUNCTION("");
     data.reset();
 
     // new configuration?
@@ -247,12 +233,10 @@ void VelocityControl::prepare()
     {
         data.dt = 1.0 / 20;
     }
-    TRACE("nominalFrequency=%.1f dt=%.4fs", data.exConfig.frequency, data.dt);
 }
 
 void VelocityControl::clearVelocitySetpointController()
 {
-    TRACE_FUNCTION("");
     if (_velocitySetpointController != NULL)
     {
         delete _velocitySetpointController;
@@ -263,14 +247,12 @@ void VelocityControl::clearVelocitySetpointController()
 
 void VelocityControl::setupVelocitySetpointController()
 {
-    TRACE_FUNCTION("");
     bool needReInit = (_velocitySetpointController == NULL) ||
         (data.vcSetpointConfig.type != _currentVelocitySetpointControllerType);
     // perform the re-init?
     if (needReInit)
     {
         clearVelocitySetpointController();
-        TRACE("switching to velocitySetpointControllerType %s", enum2str(data.vcSetpointConfig.type));
         switch (data.vcSetpointConfig.type)
         {
             case VelocitySetpointControllerTypeEnum::NONE:
@@ -285,13 +267,10 @@ void VelocityControl::setupVelocitySetpointController()
             case VelocitySetpointControllerTypeEnum::SPG:
                 if (data.vcSetpointConfig.coordinateSystem == CoordinateSystemEnum::FCS)
                 {
-                    TRACE_ERROR("combination of configuration parameters is not supported: SPG and FCS");
                 }
-                TRACE("SPG config = %s", tostr(data.currentMotionTypeConfig.setPointGenerator).c_str());
                 _velocitySetpointController = new SPGVelocitySetpointController(data.currentMotionTypeConfig.setPointGenerator);
                 break;
             default:
-                TRACE_ERROR("unknown configuration enum value (%d)", (int)data.vcSetpointConfig.type);
         }
         _currentVelocitySetpointControllerType = data.vcSetpointConfig.type;
     }
@@ -299,16 +278,13 @@ void VelocityControl::setupVelocitySetpointController()
 
 AbstractVelocitySetpointController *VelocityControl::getVelocitySetpointController()
 {
-    TRACE_FUNCTION("");
     return _velocitySetpointController;
 }
 
 AbstractVelocitySetpointController *VelocityControl::setupAndGetVelocitySetpointController()
 {
     // this function should be called just-in-time, from CalculateVelocity
-    TRACE_FUNCTION("");
     setupVelocitySetpointController();
-    TRACE("using velocitySetpointControllerType %s", enum2str(_currentVelocitySetpointControllerType));
     return getVelocitySetpointController();
 }
 

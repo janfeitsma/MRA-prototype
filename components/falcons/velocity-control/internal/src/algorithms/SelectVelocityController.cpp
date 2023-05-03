@@ -10,7 +10,6 @@
 
 void SelectVelocityController::execute(VelocityControlData &data)
 {
-    TRACE_FUNCTION("");
 
     // get delta
     float distanceToSubTarget = data.deltaPositionFcs.xy().size();

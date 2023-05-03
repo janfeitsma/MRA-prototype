@@ -11,7 +11,6 @@
 
 void CalculateDeltas::execute(VelocityControlData &data)
 {
-    TRACE_FUNCTION("");
 
     // get uncorrected data
     data.targetPositionFcs = Position2D(data.target.pos.x, data.target.pos.y, data.target.pos.Rz);
@@ -35,18 +34,15 @@ void CalculateDeltas::execute(VelocityControlData &data)
     //data.deltaPositionFcs = data.targetPositionFcs - data.weightedCurrentPositionFcs;
     //data.deltaPositionFcs.phi = project_angle_mpi_pi(data.deltaPositionFcs.phi);
     //// TODO: simplify these operations, see #14
-    //TRACE("deltaPositionFcs%s", data.deltaPositionFcs.tostr());
 
     //// delta position RCS
     //data.deltaPositionRcs = Position2D(data.targetPositionFcs).transform_fcs2rcs(data.weightedCurrentPositionFcs);
     //data.deltaPositionRcs.phi = data.deltaPositionFcs.phi;
-    //TRACE("deltaPositionRcs%s", data.deltaPositionRcs.tostr());
 
     //// delta velocity RCS
     //Velocity2D currentVelocityRcs = data.weightedCurrentVelocityFcs;
     //data.weightedCurrentVelocityRcs = currentVelocityRcs.transform_fcs2rcs(data.weightedCurrentPositionFcs);
     //Velocity2D targetVelocityRcs = Velocity2D(data.target.vel.x, data.target.vel.y, data.target.vel.Rz);
     //data.deltaVelocityRcs = targetVelocityRcs - currentVelocityRcs;
-    //TRACE("currentVelocityRcs=%s, targetVelocityRcs=%s, deltaVelocityRcs=%s", currentVelocityRcs.tostr(), targetVelocityRcs.tostr(), data.deltaVelocityRcs.tostr());
 }
 

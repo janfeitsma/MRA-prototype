@@ -14,8 +14,6 @@
 // MRA-libraries
 #include "MRAbridge.hpp"
 
-#include "cVelocityTransformClient.hpp"
-
 // sharedTypes TODO
 #include "ConfigVelocityControl.hpp"
 #include "ConfigPathPlanning.hpp"
@@ -33,7 +31,6 @@
 struct VelocityControlData
 {
     // inputs
-    cVelocityTransformClient    vtClient;
     ConfigVelocityControl       vcConfig;
     ConfigPathPlanning          ppConfig;
     ConfigExecution             exConfig;
@@ -84,8 +81,6 @@ struct VelocityControlData
 
     // functions
     void reset();
-    void traceInputs();
-    void traceOutputs();
     void configureLimits();
 };
 

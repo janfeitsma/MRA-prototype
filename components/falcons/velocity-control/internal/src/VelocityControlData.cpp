@@ -6,13 +6,11 @@
  */
 
 #include "VelocityControlData.hpp"
-#include "tracing.hpp"
 #include "generated_enum2str.hpp"
 
 
 void VelocityControlData::reset()
 {
-    TRACE_FUNCTION("");
     // clear calculation results and internal data; inputs are overridden at start of iteration
     // make sure all diagnostics related items are cleared here, otherwise you might end up diagnosing data from an older iteration
     deltaPositionFcs = Position2D(0.0, 0.0, 0.0);
@@ -29,20 +27,6 @@ void VelocityControlData::reset()
     motionType = motionTypeEnum::INVALID;
 }
 
-void VelocityControlData::traceInputs()
-{
-    TRACE_FUNCTION("");
-    TRACE("robotPos=[%6.2f, %6.2f, %6.2f] robotVel=[%6.2f, %6.2f, %6.2f]", robot.position.x, robot.position.y, robot.position.Rz, robot.velocity.x, robot.velocity.y, robot.velocity.Rz);
-    TRACE("targetPos=[%6.2f, %6.2f, %6.2f] motionType=%s", target.pos.x, target.pos.y, target.pos.Rz, enum2str(motionType));
-    TRACE("previousVelocityRcs=%s", previousVelocityRcs.tostr());
-}
-
-void VelocityControlData::traceOutputs()
-{
-    TRACE_FUNCTION("");
-    TRACE("ROBOT_VELOCITY_SETPOINT=[%6.2f, %6.2f, %6.2f]", resultVelocityRcs.x, resultVelocityRcs.y, resultVelocityRcs.phi);
-}
-
 void VelocityControlData::configureLimits()
 {
     auto it = vcConfig.motionTypes.find( enum2str(motionType) );
@@ -54,6 +38,5 @@ void VelocityControlData::configureLimits()
     }
     currentMotionTypeConfig = vcConfig.motionTypes.at( enum2str(motionType) );
 
-    TRACE("limits have been configured to: %s", tostr(currentMotionTypeConfig).c_str());
 }
 
