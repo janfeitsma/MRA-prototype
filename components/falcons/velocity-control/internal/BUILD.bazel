@@ -1,6 +1,3 @@
-# falcons-velocityControl
-
-
 cc_library(
     name = "VelocityControl",
     srcs = [
@@ -35,11 +32,11 @@ cc_library(
     includes = [
         "include",
         "include/int",
-        "external/ReflexxesTypeII/include",
     ],
     deps = [
-        "//externals/ReflexxesTypeII",
-        "@boost//:thread",
+        "//libraries/reflexxes",
+        #"@boost//:thread",
     ],
+    visibility = ["//visibility:public"],
 )
 
