@@ -2,30 +2,6 @@
 
 
 cc_library(
-    name = "vcRtdbAdapters",
-    srcs = [
-        "src/adapters/vcRTDBInputAdapter.cpp",
-        "src/adapters/vcRTDBOutputAdapter.cpp",
-        "src/adapters/vcConfigRTDBAdapter.cpp",
-    ] + [
-        "include/int/adapters/vcRTDBInputAdapter.hpp",
-        "include/int/adapters/vcRTDBOutputAdapter.hpp",
-        "include/int/adapters/vcConfigRTDBAdapter.hpp",
-        "include/int/InputInterface.hpp",
-        "include/int/OutputInterface.hpp",
-        
-    ],
-    includes = ["include"],
-    deps = [
-        "//packages/facilities/common",
-        "//packages/facilities/configuration",
-        "//packages/facilities/environment",
-        "//packages/facilities/sharedTypes",
-        "//packages/worldModel:wmClient",
-    ],
-)
-
-cc_library(
     name = "VelocityControl",
     srcs = [
         "src/VelocityControl.cpp",
@@ -56,60 +32,14 @@ cc_library(
         "include/int/facilities/clipping.hpp",
 
     ],
-    includes = ["include", "include/int", "external/ReflexxesTypeII/include"],
+    includes = [
+        "include",
+        "include/int",
+        "external/ReflexxesTypeII/include",
+    ],
     deps = [
         "//externals/ReflexxesTypeII",
-        ":vcRtdbAdapters",
-        "//packages/facilities/common",
-        "//packages/facilities/configuration",
-        "//packages/facilities/tracing",
-        "//packages/facilities/diagnostics",
-        "//packages/facilities/rtdb",
-        "//packages/facilities/environment",
-        "//packages/worldModel:wmClient",
-        "//packages/velocityTransform:vtClient",
         "@boost//:thread",
     ],
 )
 
-cc_library(
-    name = "velocityControlClient",
-    srcs = [
-        "src/VelocityControlClient.cpp",
-    ],
-    hdrs = [
-        "include/ext/VelocityControlClient.hpp",
-    ],
-    includes = ["include"],
-    visibility = ["//visibility:public"],
-    deps = [
-        ":VelocityControl",
-    ],
-)
-
-cc_binary(
-    name = "velocityControlNode",
-    srcs = [
-        "src/main.cpp",
-    ],
-    visibility = ["//visibility:public"],
-    deps = [
-        ":velocityControlClient",
-    ],
-)
-
-cc_test(
-    name = "velocityControlTest",
-    srcs = [
-        "tst/velocityControlTest.cpp",
-        "tst/velocityControlTestDefaults.cpp",
-        "tst/velocityControlTestDefaults.hpp",
-    ],
-    deps = [
-        ":VelocityControl",
-        "//packages/velocityTransform:vtClient",
-        "@com_google_googletest//:gtest_main",
-        "@boost//:thread",
-    ],
-    timeout = "short",
-)
