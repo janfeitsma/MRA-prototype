@@ -8,7 +8,8 @@
 #ifndef CLIPPING_HPP_
 #define CLIPPING_HPP_
 
-#include "falconsCommon.hpp"
+// MRA-libraries
+#include "MRAbridge.hpp"
 
 
 // adapter for template clip()
@@ -30,7 +31,6 @@ bool gclip(T &v, T const p, float r, char const *label = "")
         // normalize
         delta *= r / fabs(delta);
         v = p + delta;
-        TRACE("clipping %s from %6.2f to %6.2f", label, fabs(vo), fabs(v));
         return true;
     }
     return false;

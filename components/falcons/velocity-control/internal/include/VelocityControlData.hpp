@@ -11,12 +11,12 @@
 // system
 #include <vector>
 
-// other Falcons packages
-#include "falconsCommon.hpp" // TODO disentangle (move Position2D etc. to geometry package? #14)
+// MRA-libraries
+#include "MRAbridge.hpp"
 
 #include "cVelocityTransformClient.hpp"
 
-// sharedTypes
+// sharedTypes TODO
 #include "ConfigVelocityControl.hpp"
 #include "ConfigPathPlanning.hpp"
 #include "ConfigExecution.hpp"

@@ -8,11 +8,11 @@
 #ifndef VELOCITYCONTROL_SPGVELOCITYSETPOINTCONTROLLER_HPP_
 #define VELOCITYCONTROL_SPGVELOCITYSETPOINTCONTROLLER_HPP_
 
-// other packages
-#include "falconsCommon.hpp" // Velocity2D, TODO #14
-
 // own package
 #include "VelocitySetpointControllers.hpp"
+
+// MRA-libraries
+#include "MRAbridge.hpp"
 
 // external
 #include <ReflexxesAPI.h>
