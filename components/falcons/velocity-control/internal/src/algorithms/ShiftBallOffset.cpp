@@ -5,8 +5,8 @@
  *      Author: Jan Feitsma
  */
 
-#include "int/VelocityControlAlgorithms.hpp"
-#include "int/facilities/vcgeometry.hpp"
+#include "VelocityControlAlgorithms.hpp"
+#include "facilities/vcgeometry.hpp"
 
 
 void ShiftBallOffset::execute(VelocityControlData &data)

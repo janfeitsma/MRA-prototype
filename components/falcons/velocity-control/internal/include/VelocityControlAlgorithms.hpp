@@ -9,8 +9,8 @@
 #define VELOCITYCONTROL_ALGORITHMS_HPP_
 
 
-#include "int/VelocityControlData.hpp"
-#include "int/AbstractVelocitySetpointController.hpp"
+#include "VelocityControlData.hpp"
+#include "AbstractVelocitySetpointController.hpp"
 #include "tracing.hpp"
 
 /*!

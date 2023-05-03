@@ -5,7 +5,7 @@
  *      Author: Jan Feitsma
  */
 
-#include "int/VelocityControlAlgorithms.hpp"
+#include "VelocityControlAlgorithms.hpp"
 #include "cDiagnostics.hpp"
 
 

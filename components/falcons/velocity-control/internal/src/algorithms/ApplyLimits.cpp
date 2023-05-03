@@ -5,8 +5,8 @@
  *      Author: Jan Feitsma
  */
 
-#include "int/VelocityControlAlgorithms.hpp"
-#include "int/facilities/clipping.hpp"
+#include "VelocityControlAlgorithms.hpp"
+#include "facilities/clipping.hpp"
 
 
 void ApplyLimits::execute(VelocityControlData &data)

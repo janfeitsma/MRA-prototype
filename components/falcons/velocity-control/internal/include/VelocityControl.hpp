@@ -15,12 +15,12 @@
 #include "ConfigInterface.hpp"
 
 // VelocityControl interfaces
-#include "int/InputInterface.hpp"
-#include "int/OutputInterface.hpp"
-#include "int/AbstractVelocitySetpointController.hpp"
+#include "InputInterface.hpp"
+#include "OutputInterface.hpp"
+#include "AbstractVelocitySetpointController.hpp"
 
 // data struct
-#include "int/VelocityControlData.hpp"
+#include "VelocityControlData.hpp"
 
 // use a short alias
 using vcCFI = ConfigInterface<ConfigVelocityControl>;

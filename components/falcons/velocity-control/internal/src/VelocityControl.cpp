@@ -7,9 +7,9 @@
 #include <boost/bind/bind.hpp>
 
 // own package
-#include "int/VelocitySetpointControllers.hpp"
-#include "int/VelocityControl.hpp"
-#include "int/VelocityControlAlgorithms.hpp"
+#include "VelocitySetpointControllers.hpp"
+#include "VelocityControl.hpp"
+#include "VelocityControlAlgorithms.hpp"
 
 // other Falcons packages
 #include "tracing.hpp"

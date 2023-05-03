@@ -5,7 +5,7 @@
  *      Author: Jan Feitsma
  */
 
-#include "int/VelocitySetpointControllers.hpp"
+#include "VelocitySetpointControllers.hpp"
 
 
 bool StopVelocitySetpointController::calculate(VelocityControlData &data, Velocity2D &resultVelocity)

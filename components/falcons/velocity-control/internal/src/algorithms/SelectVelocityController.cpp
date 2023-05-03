@@ -5,7 +5,7 @@
  *      Author: Jan Feitsma
  */
 
-#include "int/VelocityControlAlgorithms.hpp"
+#include "VelocityControlAlgorithms.hpp"
 
 
 void SelectVelocityController::execute(VelocityControlData &data)

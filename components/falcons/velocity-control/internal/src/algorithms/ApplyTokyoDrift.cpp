@@ -5,8 +5,8 @@
  *      Author: Erik Kouters
  */
 
-#include "int/VelocityControlAlgorithms.hpp"
-#include "int/facilities/vcgeometry.hpp"
+#include "VelocityControlAlgorithms.hpp"
+#include "facilities/vcgeometry.hpp"
 
 
 void ApplyTokyoDrift::execute(VelocityControlData &data)

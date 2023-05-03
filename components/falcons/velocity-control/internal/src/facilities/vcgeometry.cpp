@@ -5,7 +5,7 @@
  *      Author: Jan Feitsma
  */
 
-#include "int/facilities/vcgeometry.hpp"
+#include "facilities/vcgeometry.hpp"
 
 
 Position2D addRcsToFcs(Position2D const &posRcs, Position2D const &posFcs)

@@ -5,7 +5,7 @@
  *      Author: Jan Feitsma
  */
 
-#include "int/VelocityControlData.hpp"
+#include "VelocityControlData.hpp"
 #include "tracing.hpp"
 #include "generated_enum2str.hpp"
 

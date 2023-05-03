@@ -5,7 +5,7 @@
  *      Author: Jan Feitsma
  */
 
-#include "int/SPGVelocitySetpointController.hpp"
+#include "SPGVelocitySetpointController.hpp"
 #include "tracing.hpp"
 
 #include <algorithm>
