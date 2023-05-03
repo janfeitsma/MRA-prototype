@@ -6,7 +6,6 @@
  */
 
 #include "VelocityControlAlgorithms.hpp"
-#include "cDiagnostics.hpp"
 
 
 void Deadzone::execute(VelocityControlData &data)

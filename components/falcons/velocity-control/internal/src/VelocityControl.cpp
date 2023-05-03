@@ -11,9 +11,6 @@
 #include "VelocityControl.hpp"
 #include "VelocityControlAlgorithms.hpp"
 
-// other Falcons packages
-#include "cDiagnostics.hpp"
-
 
 VelocityControl::VelocityControl(vcCFI *vcConfigInterface, ppCFI *ppConfigInterface, exCFI *exConfigInterface, InputInterface *inputInterface, OutputInterface *outputInterface)
 {
@@ -166,37 +163,7 @@ void VelocityControl::setOutputs()
         sp.y = data.resultVelocityRcs.y;
         sp.Rz = data.resultVelocityRcs.phi;
         _outputInterface->setVelocity(sp);
-        _outputInterface->setDiagnostics(makeDiagnostics());
     }
-}
-
-diagVelocityControl VelocityControl::makeDiagnostics()
-{
-    // data adapter
-    diagVelocityControl result;
-    result.accelerationRCS = data.accelerationRcs;
-    result.accelerationClipping.resize(3);
-    result.isAccelerating.resize(3);
-    result.deadzone.resize(3);
-    for (int dof = 0; dof < 3; ++dof)
-    {
-        result.isAccelerating[dof] = data.isAccelerating[dof];
-        result.accelerationClipping[dof] = data.accelerationClipping[dof];
-        result.deadzone[dof] = data.deadzone[dof];
-    }
-    result.shortStroke = data.shortStroke;
-
-    // SPG diag data
-    result.currentPosition = data.spgCurrentPosition;
-    result.currentVelocity = data.spgCurrentVelocity;
-    result.maxVelocity = data.spgMaxVelocity;
-    result.maxAcceleration = data.spgMaxAcceleration;
-    result.targetPosition = data.spgTargetPosition;
-    result.targetVelocity = data.spgTargetVelocity;
-    result.newPosition = data.spgNewPosition;
-    result.newVelocity = data.spgNewVelocity;
-
-    return result;
 }
 
 void VelocityControl::prepare()

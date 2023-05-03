@@ -53,7 +53,6 @@ public:
 private:
     // helper functions
     void getInputs();
-    diagVelocityControl makeDiagnostics();
     void setupVelocitySetpointController();
     AbstractVelocitySetpointController *getVelocitySetpointController();
     AbstractVelocitySetpointController *setupAndGetVelocitySetpointController();

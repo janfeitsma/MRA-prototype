@@ -6,7 +6,6 @@
  */
 
 #include "VelocityControlAlgorithms.hpp"
-#include "cDiagnostics.hpp"
 
 
 CalculateVelocity::CalculateVelocity(boost::function<AbstractVelocitySetpointController *(void)> callback)
