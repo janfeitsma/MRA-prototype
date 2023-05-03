@@ -9,9 +9,12 @@
 #define VELOCITYCONTROL_PIDCONTROLLER_HPP_
 
 
-
-#include "PIDTerms.hpp" // sharedTypes
-
+struct PIDTerms
+{
+    float proportional = 0.0;
+    float integral = 0.0;
+    float derivative = 0.0;
+};
 
 struct PIDParams
 {
