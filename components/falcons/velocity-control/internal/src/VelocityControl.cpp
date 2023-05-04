@@ -1,8 +1,8 @@
 /*
  * VelocityControl.cpp
  *
- *  Created on: Oct, 2020
- *      Author: Erik Kouters
+ *  Created on: May 2023
+ *      Author: Jan Feitsma
  */
 
 // own package
@@ -23,25 +23,20 @@ VelocityControl::~VelocityControl()
 
 void VelocityControl::iterate()
 {
+    // this function assumes all required inputs (Inputs, Params, State) are set under "data"
+
+    // when was the last time VelocityControl was poked?
+    double age = 2.0; //data.timestamp - data.state.timestamp(); // TODO: MRA::libraries::time (for Timestamp and Duration conversions, operations)
+    if (age > data.config.timeout())
+    {
+        // last tick was too long ago, probably robot has been standing still for a while
+        // -> reset state.velocity in order to properly limit acceleration
+        data.state.mutable_velocityrcs()->Clear();
+        data.state.mutable_velocitysetpointfcs()->Clear();
+    }
 }
 
 /* TODO below
-
-void VelocityControl::iterate()
-{
-    // this function assumes all required inputs (Inputs, Params, State) are set
-
-    // when was the last time VelocityControl was poked?
-    double age = data.timestamp - data.previousTimestamp;
-    if (age > 2*data.dt)
-    {
-        // too long ago, probably robot was standing still for a while
-        // (in which case execution architecture causes components to not be poked)
-        // -> reset velocity in order to properly limit acceleration
-        data.previousVelocityRcs = Velocity2D(0.0, 0.0, 0.0);
-        data.previousVelocitySetpointFcs = Velocity2D(0.0, 0.0, 0.0);
-    }
-
     // configure the sequence of algorithms
     std::vector<VelocityControlAlgorithm *> algorithms; // previously known as 'blocks'
 

@@ -2,7 +2,13 @@ syntax = "proto3";
 
 package MRA.FalconsVelocityControl;
 
+import "google/protobuf/timestamp.proto";
+import "datatypes/Pose.proto";
+
 message State
 {
+    google.protobuf.Timestamp timestamp = 1;
+    MRA.Datatypes.Pose velocityRCS = 2;
+    MRA.Datatypes.Pose velocitySetpointFCS = 3;
 }
 

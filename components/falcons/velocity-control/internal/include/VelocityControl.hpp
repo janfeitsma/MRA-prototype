@@ -1,8 +1,8 @@
 /*
  * VelocityControl.hpp
  *
- *  Created on: Oct, 2020
- *      Author: Erik Kouters
+ *  Created on: May 2023
+ *      Author: Jan Feitsma
  */
 
 #ifndef VELOCITYCONTROL_HPP_
