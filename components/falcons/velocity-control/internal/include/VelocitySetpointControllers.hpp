@@ -10,7 +10,7 @@
 
 // own package
 #include "AbstractVelocitySetpointController.hpp"
-#include "facilities/PIDController.hpp" // TODO move to a common package?
+//#include "facilities/PIDController.hpp" // PID not supported in MRA context
 
 // MRA-libraries
 #include "MRAbridge.hpp"
@@ -31,6 +31,7 @@ public:
     bool calculate(VelocityControlData &data, Velocity2D &resultVelocity);
 };
 
+/* // PID not supported in MRA context
 // used on robot up to and including 2019
 class PIDVelocitySetpointController : public AbstractVelocitySetpointController
 {
@@ -44,6 +45,7 @@ private:
     PIDController _controllerY;
     PIDController _controllerRz;
 };
+*/
 
 // SetPointGenerator, using Reflexxes motion control library
 #include "SPGVelocitySetpointController.hpp"

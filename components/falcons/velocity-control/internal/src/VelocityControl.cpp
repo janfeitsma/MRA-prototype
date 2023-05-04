@@ -192,9 +192,10 @@ void VelocityControl::setupVelocitySetpointController()
             case VelocitySetpointControllerTypeEnum::LINEAR:
                 _velocitySetpointController = new LinearVelocitySetpointController();
                 break;
-            case VelocitySetpointControllerTypeEnum::PID:
-                _velocitySetpointController = new PIDVelocitySetpointController(data.currentMotionTypeConfig.pid);
-                break;
+            // PID not supported in MRA context
+            //case VelocitySetpointControllerTypeEnum::PID:
+            //    _velocitySetpointController = new PIDVelocitySetpointController(data.currentMotionTypeConfig.pid);
+            //    break;
             case VelocitySetpointControllerTypeEnum::SPG:
                 if (data.vcSetpointConfig.coordinateSystem == CoordinateSystemEnum::FCS)
                 {

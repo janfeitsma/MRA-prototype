@@ -19,7 +19,7 @@ add_library(VelocityControl src/VelocityControl.cpp
                             src/facilities/vcgeometry.cpp
                             src/controllers/StopVelocitySetpointController.cpp
                             src/controllers/LinearVelocitySetpointController.cpp
-                            src/controllers/PIDVelocitySetpointController.cpp
+                            #src/controllers/PIDVelocitySetpointController.cpp
                             src/controllers/SPGVelocitySetpointController.cpp
                             src/algorithms/CalculateDeltas.cpp
                             src/algorithms/SelectVelocityController.cpp
