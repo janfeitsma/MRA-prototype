@@ -1,9 +1,71 @@
 cc_library(
+    name = "data",
+    hdrs = [
+        "include/VelocityControlData.hpp",
+        "include/MRAbridge.hpp",
+    ],
+    includes = [
+        "include",
+    ],
+    deps = [
+        "//components/falcons/velocity-control/interface:interface",
+        "//libraries/geometry",
+    ],
+)
+
+cc_library(
+    name = "common_headers",
+    hdrs = [
+        "include/AbstractVelocitySetpointController.hpp",
+    ],
+)
+
+cc_library(
+    name = "facilities",
+    hdrs = [
+        "include/facilities/vcgeometry.hpp",
+    ],
+)
+
+cc_library(
+    name = "algorithms",
+    srcs = [
+        "src/algorithms/CalculateDeltas.cpp",
+        "src/algorithms/SelectVelocityController.cpp",
+        "src/algorithms/ShiftBallOffset.cpp",
+        "src/algorithms/UnShiftBallOffset.cpp",
+        "src/algorithms/Deadzone.cpp",
+    ],
+    hdrs = [
+        "include/VelocityControlAlgorithms.hpp",
+    ],
+    includes = [
+        "include",
+    ],
+    deps = [
+        ":data",
+        ":facilities",
+        ":common_headers",
+    ],
+)
+
+cc_library(
+    name = "controllers",
+    srcs = [
+        "include/SPGVelocitySetpointController.hpp",
+    ],
+    hdrs = [
+        "include/VelocitySetpointControllers.hpp",
+    ],
+    deps = [
+        ":common_headers",
+    ],
+)
+
+cc_library(
     name = "VelocityControl",
     srcs = [
         "src/VelocityControl.cpp",
-        "include/MRAbridge.hpp",
-        "include/VelocityControlData.hpp",
     ],
     hdrs = [
         "include/VelocityControl.hpp",
@@ -12,9 +74,10 @@ cc_library(
         "include",
     ],
     deps = [
-        "//libraries/geometry",
+        ":data",
+        ":controllers",
+        ":algorithms",
         "//libraries/reflexxes",
-        "//components/falcons/velocity-control/interface:interface",
         #"@boost//:thread",
     ],
     visibility = ["//visibility:public"],
