@@ -63,8 +63,8 @@ int FalconsGetballFetch::FalconsGetballFetch::tick
         // check if not any failure mode was triggered
         if (output.actionresult() == MRA::Datatypes::RUNNING)
         {
-            MRA::Geometry::Pose ball_position(ws.ball().position());
-            MRA::Geometry::Pose ball_velocity(ws.ball().velocity());
+            MRA::Geometry::Position ball_position(ws.ball().position());
+            MRA::Geometry::Velocity ball_velocity(ws.ball().velocity());
 
             // if speed is low enough, then just drive on top of the ball
             // otherwise: try to catch up, by making use of ball velocity vector
@@ -72,8 +72,8 @@ int FalconsGetballFetch::FalconsGetballFetch::tick
             float factor = params.ballspeedscaling() * (ball_speed >= params.ballspeedthreshold());
 
             // set target, robot facing angle towards ball
-            MRA::Geometry::Pose target = ball_position + ball_velocity * factor;
-            target.rz = MRA::Geometry::calc_rz_between(ws.robot().position(), target);
+            MRA::Geometry::Position target = ball_position + ball_velocity * factor;
+            target.faceAwayFrom(ws.robot().position());
 
             // write output
             output.mutable_target()->mutable_position()->set_x(target.x);

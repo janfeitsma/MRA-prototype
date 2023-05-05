@@ -3,7 +3,10 @@
 
 #include "datatypes/Pose.pb.h"
 
-// MRA::Geometry::Pose is a class that adds operations to protobuf MRA::Datatypes::Pose
+// MRA::Geometry::Pose is a base class that adds operations to protobuf MRA::Datatypes::Pose
+// MRA::Geometry::Velocity is special version of Pose that adds coordinate transformations
+// MRA::Geometry::Position is special version of Pose that adds coordinate transformations, 
+//    ensuring angles are within valid range [0,2pi) using clip_2pi
 
 namespace MRA::Geometry
 {
@@ -25,18 +28,19 @@ public:
     ~Pose();
 
     // basic operations
-    double size() const;
+    double size() const; // sqrt(x^2+y^2+z^2)
 
     // arithmetic operators
     Pose operator+(const Pose& other) const;
     Pose& operator+=(const Pose& other);
     Pose operator*(double f) const;
 
+    // functions call clip, left to be implemented by Position
+    void clip() {};
+
 }; // class Pose
 
-// clip rotation/angle to [0, 2pi) according to MSL coordinate system specification
-double clip_rot(double rot);
-
-} // namespace MRA::geometry
+} // namespace MRA::Geometry
 
 #endif // #ifndef _MRA_LIBRARIES_GEOMETRY_POSE_HPP
+
