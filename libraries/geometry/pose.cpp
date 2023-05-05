@@ -3,6 +3,7 @@
 
 using namespace MRA::Geometry;
 
+
 // constructors, destructor
 Pose::Pose(double x_, double y_, double z_, double rx_, double ry_, double rz_)
 {
@@ -12,7 +13,7 @@ Pose::Pose(double x_, double y_, double z_, double rx_, double ry_, double rz_)
     rx = rx_;
     ry = ry_;
     rz = rz_;
-    clip();
+    wrap_angles();
 }
 
 Pose::Pose(const MRA::Datatypes::Pose& p)
@@ -23,7 +24,7 @@ Pose::Pose(const MRA::Datatypes::Pose& p)
     rx = p.rx();
     ry = p.ry();
     rz = p.rz();
-    clip();
+    wrap_angles();
 }
 
 Pose::~Pose()
@@ -38,7 +39,9 @@ double Pose::size() const
 
 Pose Pose::operator+(const Pose& other) const
 {
-    return Pose(x + other.x, y + other.y, z + other.z, rx + other.rx, ry + other.ry, rz + other.rz);
+    Pose result(x + other.x, y + other.y, z + other.z, rx + other.rx, ry + other.ry, rz + other.rz);
+    result.wrap_angles();
+    return result;
 }
 
 Pose& Pose::operator+=(const Pose& other)
@@ -49,12 +52,32 @@ Pose& Pose::operator+=(const Pose& other)
     rx += other.rx;
     ry += other.ry;
     rz += other.rz;
-    clip();
+    wrap_angles();
     return *this;
 }
 
 Pose Pose::operator*(double f) const
 {
-    return Pose(x * f, y * f, z * f, rx * f, ry * f, rz * f);
+    Pose result(x * f, y * f, z * f, rx * f, ry * f, rz * f);
+    result.wrap_angles();
+    return result;
+}
+
+Pose& Pose::operator*=(double f)
+{
+    x *= f;
+    y *= f;
+    z *= f;
+    rx *= f;
+    ry *= f;
+    rz *= f;
+    wrap_angles();
+    return *this;
+}
+
+void Pose::wrap_angles()
+{
+    // do nothing for Pose
+    // but Position is supposed to override
 }
 

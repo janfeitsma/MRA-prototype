@@ -5,11 +5,11 @@
 namespace MRA::Geometry
 {
 
-// clip rotation/angle to [0, 2pi) for standardized coordinates
-double clip_2pi(double rot);
+// wrap rotation/angle to [0, 2pi) for standardized coordinates
+double wrap_2pi(double rot);
 
-// clip rotation/angle to [-pi, pi) for subsequent abs()-and-compare
-double clip_pi(double rot);
+// wrap rotation/angle to [-pi, pi) for subsequent abs()-and-compare
+double wrap_pi(double rot);
 
 } // namespace MRA::Geometry
 

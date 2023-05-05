@@ -6,7 +6,7 @@
 // MRA::Geometry::Pose is a base class that adds operations to protobuf MRA::Datatypes::Pose
 // MRA::Geometry::Velocity is special version of Pose that adds coordinate transformations
 // MRA::Geometry::Position is special version of Pose that adds coordinate transformations, 
-//    ensuring angles are within valid range [0,2pi) using clip_2pi
+//    ensuring angles are wrapped to [-pi,pi)
 
 namespace MRA::Geometry
 {
@@ -31,12 +31,13 @@ public:
     double size() const; // sqrt(x^2+y^2+z^2)
 
     // arithmetic operators
-    Pose operator+(const Pose& other) const;
-    Pose& operator+=(const Pose& other);
-    Pose operator*(double f) const;
+    virtual Pose operator+(const Pose& other) const;
+    virtual Pose& operator+=(const Pose& other);
+    virtual Pose operator*(double f) const;
+    virtual Pose& operator*=(double f);
 
-    // functions call clip, left to be implemented by Position
-    void clip() {};
+    // functions call wrap_angles, left to be implemented by Position
+    virtual void wrap_angles();
 
 }; // class Pose
 
