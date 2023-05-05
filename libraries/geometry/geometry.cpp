@@ -1,23 +1,8 @@
 #include "geometry.hpp"
 #include <cmath>
 
-// vectorsize: sqrt(x*x + y*y + z*z)
-double MRA::geometry::vectorsize(MRA::Datatypes::Pose const &p)
+// calculate angle between two positions
+double MRA::Geometry::calc_rz_between(MRA::Geometry::Pose const &from, MRA::Geometry::Pose const &to)
 {
-    return sqrt(p.x() * p.x() + p.y() * p.y() + p.z() * p.z());
-}
-
-// relative angle
-double MRA::geometry::calc_rz_between(MRA::Datatypes::Pose const &from, MRA::Datatypes::Pose const &to)
-{
-    return clip_rot(atan2(to.y() - from.y(), to.x() - from.x()));
-}
-
-// clip rotation/angle to [0, 2pi) according to MSL coordinate system specification
-double clip_rot(double rot)
-{
-    double b = 2 * M_PI;
-    double result = fmod(rot, b);
-    if (result < 0) result += b; // ensure positive
-    return result;
+    return MRA::Geometry::clip_rot(atan2(to.y - from.y, to.x - from.x));
 }
