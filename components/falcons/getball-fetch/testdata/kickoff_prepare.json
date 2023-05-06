@@ -1,5 +1,5 @@
 {
     "Input": "testdata/worldstate_kickoff_prepare.json",
-    "Output": {"actionresult": "RUNNING", "target": {"position": {"x": 0.07, "y": -0.02, "rz": 3.19057298}}}
+    "Output": {"actionresult": "RUNNING", "target": {"position": {"x": 0.07, "y": -0.02, "rz": -3.09261227}}}
 }
 
