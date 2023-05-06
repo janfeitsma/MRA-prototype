@@ -36,8 +36,6 @@ public:
     bool calculate(VelocityControlData &data);
 
 private:
-    SpgConfig _config;
-
     bool calculateSPG(VelocityControlData& data, SpgLimits const &spgLimits, Position2D& resultPosition, Velocity2D &resultVelocity);
     bool isDofAccelerating(const VelocityControlData &data, const Velocity2D& resultVelocity, int dof, float threshold);
 
@@ -49,12 +47,10 @@ private:
     // Velocity SPG
     bool calculateVelXYRzPhaseSynchronized(VelocityControlData& data, SpgLimits const &spgLimits, Position2D& resultPosition, Velocity2D &resultVelocity);
 
-    // data stored for open loop
+    // internal data stored for open loop
     Position2D _deltaPositionRCS;
     Velocity2D _currentVelocityRCS;
     Velocity2D _targetVelocityRCS;
-
-    // SPG with Velocity setpoint
 
 };
 

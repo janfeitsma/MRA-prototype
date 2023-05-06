@@ -8,28 +8,23 @@
 #include "VelocitySetpointControllers.hpp"
 
 
-bool LinearVelocitySetpointController::calculate(VelocityControlData &data, Velocity2D &resultVelocity)
+bool LinearVelocitySetpointController::calculate(VelocityControlData &data)
 {
+    // data should be filled in beforehand
 
-    Position2D deltaPosition; // in RCS or FCS depending on configuration
+    // prevent division by zero
+    if (data.config.dt() == 0) return false;
 
-    if (data.vcSetpointConfig.coordinateSystem == CoordinateSystemEnum::RCS)
-    {
-        deltaPosition = data.deltaPositionRcs;
-    }
-    else
-    {
-        deltaPosition = data.deltaPositionFcs;
-    }
+    // calculate delta in FCS
+    Position2D deltaPosition = data.targetPositionFcs - data.currentPositionFcs;
 
-    // XY
-    Vector2D v = deltaPosition.xy() / data.dt;
-    resultVelocity.x = v.x;
-    resultVelocity.y = v.y;
-    // Rz
-    float dRz = deltaPosition.phi;
-    resultVelocity.phi = dRz / data.dt;
+    // divide by dt
+    Velocity2D resultVelocityFcs(deltaPosition / data.config.dt());
 
+    // transform to RCS
+    data.resultVelocityRcs = resultVelocityFcs.transformFcsToRcs(data.currentPositionFcs);
+
+    // typically ApplyLimits should be called afterwards
 
     return true;
 }

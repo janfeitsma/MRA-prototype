@@ -9,8 +9,7 @@
 #define VELOCITYCONTROL_ABSTRACTVELOCITYSETPOINTCONTROLLER_HPP_
 
 
-// forward declaration
-class VelocityControlData;
+#include "VelocityControlData.hpp"
 
 
 // abstract base class for specific controllers, like PID, TokyoDrift, Linear, ...

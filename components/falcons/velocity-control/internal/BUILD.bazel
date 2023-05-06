@@ -24,7 +24,8 @@ cc_library(
     name = "controllers",
     srcs = [
         "include/SPGVelocitySetpointController.hpp",
-        #"src/controllers/SPGVelocitySetpointController.cpp",
+        "src/controllers/LinearVelocitySetpointController.cpp",
+        "src/controllers/SPGVelocitySetpointController.cpp",
     ],
     hdrs = [
         "include/VelocitySetpointControllers.hpp",
