@@ -56,6 +56,25 @@ Pose& Pose::operator+=(Pose const &other)
     return *this;
 }
 
+Pose Pose::operator-(Pose const &other) const
+{
+    Pose result(x - other.x, y - other.y, z - other.z, rx - other.rx, ry - other.ry, rz - other.rz);
+    result.wrap_angles();
+    return result;
+}
+
+Pose& Pose::operator-=(Pose const &other)
+{
+    x -= other.x;
+    y -= other.y;
+    z -= other.z;
+    rx -= other.rx;
+    ry -= other.ry;
+    rz -= other.rz;
+    wrap_angles();
+    return *this;
+}
+
 Pose Pose::operator*(double f) const
 {
     Pose result(x * f, y * f, z * f, rx * f, ry * f, rz * f);
@@ -73,6 +92,16 @@ Pose& Pose::operator*=(double f)
     rz *= f;
     wrap_angles();
     return *this;
+}
+
+Pose Pose::operator/(double f) const
+{
+    return operator*(1.0 / f);
+}
+
+Pose& Pose::operator/=(double f)
+{
+    return operator*=(1.0 / f);
 }
 
 void Pose::wrap_angles()

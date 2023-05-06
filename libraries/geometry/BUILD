@@ -46,6 +46,7 @@ cc_library(
     ],
     srcs = [
         "velocity.cpp",
+        "tmp_vector2d.hpp",
     ],
     visibility = ["//visibility:public"],
     deps = [

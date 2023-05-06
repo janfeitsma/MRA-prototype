@@ -11,8 +11,13 @@ namespace MRA::Geometry
 class Velocity: public Pose
 {
 public:
-    Velocity() : Pose() {};
-    Velocity(const Pose& p) : Pose(p) {};
+    Velocity(double x_=0.0, double y_=0.0, double z_=0.0, double rx_=0.0, double ry_=0.0, double rz_=0.0);
+    Velocity(MRA::Geometry::Pose const &p);
+    Velocity(MRA::Datatypes::Pose const &p);
+
+    // transform (planar) between RCS and FCS using refpos in FCS
+    Velocity& transformRcsToFcs(Velocity const &refpos);
+    Velocity& transformFcsToRcs(Velocity const &refpos);
 
 }; // class Velocity: public Pose
 

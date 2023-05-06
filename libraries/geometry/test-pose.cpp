@@ -150,6 +150,45 @@ TEST(MRAGeometryPoseTest, operatorPlusAssign)
     EXPECT_EQ(p2.x, 1.0);
 }
 
+TEST(MRAGeometryPoseTest, operatorMinus)
+{
+    // Arrange
+    auto p1 = Pose(4.0, 6.0, 8.0, -1.0, -2.0, -3.0);
+    auto p2 = Pose(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+
+    // Act
+    auto p = p1 - p2;
+
+    // Assert
+    EXPECT_EQ(p.x, 3.0);
+    EXPECT_EQ(p.y, 4.0);
+    EXPECT_EQ(p.z, 5.0);
+    EXPECT_EQ(p.rx, -5.0);
+    EXPECT_EQ(p.ry, -7.0);
+    EXPECT_EQ(p.rz, -9.0);
+    EXPECT_EQ(p1.x, 4.0);
+    EXPECT_EQ(p2.x, 1.0);
+}
+
+TEST(MRAGeometryPoseTest, operatorMinusAssign)
+{
+    // Arrange
+    auto p = Pose(4.0, 6.0, 8.0, -1.0, -2.0, -3.0);
+    auto p2 = Pose(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+
+    // Act
+    p -= p2;
+
+    // Assert
+    EXPECT_EQ(p.x, 3.0);
+    EXPECT_EQ(p.y, 4.0);
+    EXPECT_EQ(p.z, 5.0);
+    EXPECT_EQ(p.rx, -5.0);
+    EXPECT_EQ(p.ry, -7.0);
+    EXPECT_EQ(p.rz, -9.0);
+    EXPECT_EQ(p2.x, 1.0);
+}
+
 TEST(MRAGeometryPoseTest, operatorTimesScalar)
 {
     // Arrange
@@ -183,6 +222,41 @@ TEST(MRAGeometryPoseTest, operatorTimesScalarAssign)
     EXPECT_EQ(p.rx, 8.0);
     EXPECT_EQ(p.ry, 10.0);
     EXPECT_EQ(p.rz, 12.0);
+}
+
+TEST(MRAGeometryPoseTest, operatorDivideScalar)
+{
+    // Arrange
+    auto p1 = Pose(2.0, 4.0, 6.0, 8.0, 10.0, 12.0);
+
+    // Act
+    auto p = p1 / 2;
+
+    // Assert
+    EXPECT_EQ(p.x, 1.0);
+    EXPECT_EQ(p.y, 2.0);
+    EXPECT_EQ(p.z, 3.0);
+    EXPECT_EQ(p.rx, 4.0);
+    EXPECT_EQ(p.ry, 5.0);
+    EXPECT_EQ(p.rz, 6.0);
+    EXPECT_EQ(p1.x, 2.0);
+}
+
+TEST(MRAGeometryPoseTest, operatorDivideScalarAssign)
+{
+    // Arrange
+    auto p = Pose(2.0, 4.0, 6.0, 8.0, 10.0, 12.0);
+
+    // Act
+    p /= 2;
+
+    // Assert
+    EXPECT_EQ(p.x, 1.0);
+    EXPECT_EQ(p.y, 2.0);
+    EXPECT_EQ(p.z, 3.0);
+    EXPECT_EQ(p.rx, 4.0);
+    EXPECT_EQ(p.ry, 5.0);
+    EXPECT_EQ(p.rz, 6.0);
 }
 
 int main(int argc, char **argv)

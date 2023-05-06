@@ -36,8 +36,12 @@ public:
     // arithmetic operators
     virtual Pose operator+(Pose const&other) const;
     virtual Pose& operator+=(Pose const&other);
+    virtual Pose operator-(Pose const&other) const;
+    virtual Pose& operator-=(Pose const&other);
     virtual Pose operator*(double f) const;
     virtual Pose& operator*=(double f);
+    virtual Pose operator/(double f) const;
+    virtual Pose& operator/=(double f);
 
     // functions call wrap_angles, left to be implemented by Position
     virtual void wrap_angles();

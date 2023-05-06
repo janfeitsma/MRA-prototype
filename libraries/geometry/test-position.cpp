@@ -167,6 +167,45 @@ TEST(MRAGeometryPositionTest, operatorPlusAssign)
     EXPECT_EQ(p2.x, 1.0);
 }
 
+TEST(MRAGeometryPositionTest, operatorMinus)
+{
+    // Arrange
+    auto p1 = Position(4.0, 6.0, 8.0, -1.0, -2.0, -3.0);
+    auto p2 = Position(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+
+    // Act
+    Position p = p1 - p2;
+
+    // Assert
+    EXPECT_EQ(p.x, 3.0);
+    EXPECT_EQ(p.y, 4.0);
+    EXPECT_EQ(p.z, 5.0);
+    EXPECT_FLOAT_EQ(p.rx, 1.2831854); // wrapped
+    EXPECT_FLOAT_EQ(p.ry, -0.7168147); // wrapped
+    EXPECT_FLOAT_EQ(p.rz, -2.7168148); // wrapped
+    EXPECT_EQ(p1.x, 4.0);
+    EXPECT_EQ(p2.x, 1.0);
+}
+
+TEST(MRAGeometryPositionTest, operatorMinusAssign)
+{
+    // Arrange
+    auto p = Position(4.0, 6.0, 8.0, -1.0, -2.0, -3.0);
+    auto p2 = Position(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+
+    // Act
+    p -= p2;
+
+    // Assert
+    EXPECT_EQ(p.x, 3.0);
+    EXPECT_EQ(p.y, 4.0);
+    EXPECT_EQ(p.z, 5.0);
+    EXPECT_FLOAT_EQ(p.rx, 1.2831854); // wrapped
+    EXPECT_FLOAT_EQ(p.ry, -0.7168147); // wrapped
+    EXPECT_FLOAT_EQ(p.rz, -2.7168148); // wrapped
+    EXPECT_EQ(p2.x, 1.0);
+}
+
 TEST(MRAGeometryPositionTest, operatorTimesScalar)
 {
     // Arrange
@@ -200,6 +239,41 @@ TEST(MRAGeometryPositionTest, operatorTimesScalarAssign)
     EXPECT_FLOAT_EQ(p.rx, 1.7168146); // wrapped
     EXPECT_FLOAT_EQ(p.ry, -2.5663707); // wrapped
     EXPECT_FLOAT_EQ(p.rz, -0.5663707); // wrapped
+}
+
+TEST(MRAGeometryPositionTest, operatorDivideScalar)
+{
+    // Arrange
+    auto p1 = Position(2.0, 4.0, 6.0, 8.0, 10.0, 12.0);
+
+    // Act
+    Position p = p1 / 2;
+
+    // Assert
+    EXPECT_EQ(p.x, 1.0);
+    EXPECT_EQ(p.y, 2.0);
+    EXPECT_EQ(p.z, 3.0);
+    EXPECT_FLOAT_EQ(p.rx, 0.8584073); // wrapped
+    EXPECT_FLOAT_EQ(p.ry, -1.283185); // wrapped
+    EXPECT_FLOAT_EQ(p.rz, -0.2831853); // wrapped
+    EXPECT_EQ(p1.x, 2.0);
+}
+
+TEST(MRAGeometryPositionTest, operatorDivideScalarAssign)
+{
+    // Arrange
+    auto p = Position(2.0, 4.0, 6.0, 8.0, 10.0, 12.0);
+
+    // Act
+    p /= 2;
+
+    // Assert
+    EXPECT_EQ(p.x, 1.0);
+    EXPECT_EQ(p.y, 2.0);
+    EXPECT_EQ(p.z, 3.0);
+    EXPECT_FLOAT_EQ(p.rx, 0.8584073); // wrapped
+    EXPECT_FLOAT_EQ(p.ry, -1.283185); // wrapped
+    EXPECT_FLOAT_EQ(p.rz, -0.2831853); // wrapped
 }
 
 TEST(MRAGeometryPositionTest, transformRcsToFcsNominal)
