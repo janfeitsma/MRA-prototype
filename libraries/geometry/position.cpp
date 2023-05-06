@@ -17,7 +17,7 @@ Position::Position(double x_, double y_, double z_, double rx_, double ry_, doub
     wrap_angles();
 }
 
-Position::Position(const MRA::Datatypes::Pose& p)
+Position::Position(MRA::Datatypes::Pose const &p)
 {
     x = p.x();
     y = p.y();
@@ -28,7 +28,7 @@ Position::Position(const MRA::Datatypes::Pose& p)
     wrap_angles();
 }
 
-Position::Position(const MRA::Geometry::Pose& p)
+Position::Position(MRA::Geometry::Pose const &p)
 {
     x = p.x;
     y = p.y;
@@ -47,56 +47,53 @@ void Position::wrap_angles()
     rz = wrap_pi(rz);
 }
 
-void Position::faceAwayFrom(Position const &p)
-{
-    rz = atan2(y - p.y, x - p.x);
-    wrap_angles();
-}
-
-void Position::faceTowards(Position const &p)
-{
-    rz = atan2(p.y - y, p.x - x);
-    wrap_angles();
-}
-
 // add RCS offset to a FCS pose
-void Position::addRcsToFcs(Position const &p)
+Position& Position::addRcsToFcs(Position const &p)
 {
-}
-/*
-Position2D addRcsToFcs(Position2D const &posRcs, Position2D const &posFcs)
-{
-    // return posFcs with posRcs offset added
-    // TODO (#14): awkward old Position2D API ... we should actually improve the core Position2D class ...
-    Position2D result = posRcs;
-    result.transform_rcs2fcs(posFcs);
-    result.phi = posFcs.phi;
-    return result;
-}
-*/
-/*
-Position2D& Position2D::transform_fcs2rcs(const Position2D& robotpos)
-{  
-    // first ttranslate, then rotate
-    double angle = (M_PI_2 - robotpos.phi);
-    Vector2D xynew = (Vector2D(x, y) - robotpos.xy()).rotate(angle);
-    x = xynew.x;
-    y = xynew.y;
-    phi = phi + angle;
-    phi = project_angle_0_2pi(phi);
-    return (*this);
+    Position result = p;
+    result.transformRcsToFcs(*this);
+    *this = result;
+    return *this;
 }
 
-Position2D& Position2D::transform_rcs2fcs(const Position2D& robotpos)
+#include "tmp_vector2d.hpp" // TODO: get rid of this (comes from Falcons legacy), make it nicer or consider using Eigen
+
+// transform (planar) between RCS and FCS using reference pos in FCS
+Position& Position::transformRcsToFcs(Position const &refpos)
 {
     // first rotate, then translate
-    double angle = - (M_PI_2 - robotpos.phi);
+    double angle = refpos.rz;
     Vector2D xyrot = (Vector2D(x, y)).rotate(angle);
-    x = xyrot.x + robotpos.x;
-    y = xyrot.y + robotpos.y;
-    phi = phi + angle;
-    phi = project_angle_0_2pi(phi);
-    return (*this);
+    x = xyrot.x + refpos.x;
+    y = xyrot.y + refpos.y;
+    rz += angle;
+    wrap_angles();
+    return *this;
 }
-*/
+
+Position& Position::transformFcsToRcs(Position const &refpos)
+{
+    // first translate, then rotate
+    double angle = -refpos.rz;
+    Vector2D xynew = (Vector2D(x, y) - Vector2D(refpos.x, refpos.y)).rotate(angle);
+    x = xynew.x;
+    y = xynew.y;
+    rz += angle;
+    wrap_angles();
+    return *this;
+}
+
+Position& Position::faceAwayFrom(Position const &p)
+{
+    rz = atan2(y - p.y, x - p.x);
+    wrap_angles(); // technically not needed as long as we stick to [-pi,pi)
+    return *this;
+}
+
+Position& Position::faceTowards(Position const &p)
+{
+    rz = atan2(p.y - y, p.x - x);
+    wrap_angles(); // technically not needed as long as we stick to [-pi,pi)
+    return *this;
+}
 

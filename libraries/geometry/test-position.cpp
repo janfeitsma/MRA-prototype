@@ -202,6 +202,168 @@ TEST(MRAGeometryPositionTest, operatorTimesScalarAssign)
     EXPECT_FLOAT_EQ(p.rz, -0.5663707); // wrapped
 }
 
+TEST(MRAGeometryPositionTest, transformRcsToFcsNominal)
+{
+    // Arrange
+    auto pf = Position();
+    auto pr = Position();
+
+    // Act
+    Position p = pf.transformRcsToFcs(pr);
+
+    // Assert
+    EXPECT_EQ(p.x, 0.0);
+    EXPECT_EQ(p.y, 0.0);
+    EXPECT_EQ(p.z, 0.0);
+    EXPECT_EQ(p.rx, 0.0);
+    EXPECT_EQ(p.ry, 0.0);
+    EXPECT_EQ(p.rz, 0.0);
+    EXPECT_EQ(pf.x, 0.0);
+    EXPECT_EQ(pr.x, 0.0);
+}
+
+TEST(MRAGeometryPositionTest, transformFcsToRcsNominal)
+{
+    // Arrange
+    auto pf = Position();
+    auto pr = Position();
+
+    // Act
+    Position p = pf.transformFcsToRcs(pr);
+
+    // Assert
+    EXPECT_EQ(p.x, 0.0);
+    EXPECT_EQ(p.y, 0.0);
+    EXPECT_EQ(p.z, 0.0);
+    EXPECT_EQ(p.rx, 0.0);
+    EXPECT_EQ(p.ry, 0.0);
+    EXPECT_EQ(p.rz, 0.0);
+    EXPECT_EQ(pf.x, 0.0);
+    EXPECT_EQ(pr.x, 0.0);
+}
+
+TEST(MRAGeometryPositionTest, transformRcsToFcsBasic1)
+{
+    // Arrange
+    auto pf = Position(1.0, 2.0, 3.0, 0.1, 0.2, 0.3);
+    auto pr = Position();
+
+    // Act
+    Position p = pf.transformRcsToFcs(pr);
+
+    // Assert
+    EXPECT_EQ(p.x, 1.0);
+    EXPECT_EQ(p.y, 2.0);
+    EXPECT_EQ(p.z, 3.0);
+    EXPECT_EQ(p.rx, 0.1);
+    EXPECT_EQ(p.ry, 0.2);
+    EXPECT_EQ(p.rz, 0.3);
+    EXPECT_EQ(pf.x, 1.0);
+    EXPECT_EQ(pr.x, 0.0);
+}
+
+TEST(MRAGeometryPositionTest, transformFcsToRcsBasic1)
+{
+    // Arrange
+    auto pf = Position(1.0, 2.0, 3.0, 0.1, 0.2, 0.3);
+    auto pr = Position();
+
+    // Act
+    Position p = pf.transformFcsToRcs(pr);
+
+    // Assert
+    EXPECT_EQ(p.x, 1.0);
+    EXPECT_EQ(p.y, 2.0);
+    EXPECT_EQ(p.z, 3.0);
+    EXPECT_EQ(p.rx, 0.1);
+    EXPECT_EQ(p.ry, 0.2);
+    EXPECT_EQ(p.rz, 0.3);
+    EXPECT_EQ(pf.x, 1.0);
+    EXPECT_EQ(pr.x, 0.0);
+}
+
+TEST(MRAGeometryPositionTest, transformRcsToFcsFull3D)
+{
+    // Arrange
+    auto pf = Position(); // TODO nonzero
+    auto pr = Position(1.0, 2.0, 3.0, 0.1, 0.2, 0.3);
+
+    // Act
+    Position p = pf.transformRcsToFcs(pr);
+
+    // Assert
+    EXPECT_EQ(p.x, 1.0);
+    EXPECT_EQ(p.y, 2.0);
+    //EXPECT_EQ(p.z, 3.0); // TODO make transformations fully 3d
+    //EXPECT_EQ(p.rx, 0.1); // TODO make transformations fully 3d
+    //EXPECT_EQ(p.ry, 0.2); // TODO make transformations fully 3d
+    EXPECT_EQ(p.rz, 0.3);
+    EXPECT_EQ(pf.x, 1.0);
+    EXPECT_EQ(pr.x, 1.0);
+}
+
+TEST(MRAGeometryPositionTest, transformFcsToRcsKickoff)
+{
+    // Arrange
+    // kickoff situation: two robots facing eachother around center line y=0, how does one robot see the other in his own coordinate system
+    auto pf = Position(-2.0, 0.0, 0.0, 0.0, 0.0, -0.4 * M_PI); // teammate
+    auto pr = Position(1.0, 0.1, 0.0, 0.0, 0.0, 0.5 * M_PI); // self
+
+    // Act
+    Position p = pf.transformFcsToRcs(pr); // transform teammate w.r.t. self
+
+    // Assert
+    EXPECT_FLOAT_EQ(p.x, -0.1);
+    EXPECT_FLOAT_EQ(p.y, 3.0); // distance 3 meters
+    EXPECT_FLOAT_EQ(p.rz, -0.9 * M_PI); // facing backwards
+}
+
+TEST(MRAGeometryPositionTest, addRcsToFcs)
+{
+    // Arrange
+    auto pf = Position(1.0, 0.1, 0.0, 0.0, 0.0, 0.5 * M_PI);
+    auto pr = Position(0.0, 2.0, 0.0, 0.0, 0.0, -M_PI);
+
+    // Act
+    Position p = pf.addRcsToFcs(pr);
+
+    // Assert
+    EXPECT_FLOAT_EQ(p.x, -1.0);
+    EXPECT_FLOAT_EQ(p.y, 0.1);
+    EXPECT_FLOAT_EQ(p.rz, -0.5 * M_PI);
+}
+
+TEST(MRAGeometryPositionTest, faceTowards)
+{
+    // Arrange
+    auto pf = Position(1.0, 1.0);
+    auto pr = Position(0.0, 0.0);
+
+    // Act
+    Position p = pr.faceTowards(pf);
+
+    // Assert
+    EXPECT_FLOAT_EQ(p.x, 0.0);
+    EXPECT_FLOAT_EQ(p.y, 0.0);
+    EXPECT_FLOAT_EQ(p.rz, 0.25 * M_PI);
+}
+
+TEST(MRAGeometryPositionTest, faceAwayFrom)
+{
+    // Arrange
+    auto pf = Position(1.0, 1.0);
+    auto pr = Position(0.0, 0.0);
+
+    // Act
+    Position p = pr.faceAwayFrom(pf);
+
+    // Assert
+    EXPECT_FLOAT_EQ(p.x, 0.0);
+    EXPECT_FLOAT_EQ(p.y, 0.0);
+    EXPECT_FLOAT_EQ(p.rz, -0.75 * M_PI);
+}
+
+
 int main(int argc, char **argv)
 {
     InitGoogleTest(&argc, argv);

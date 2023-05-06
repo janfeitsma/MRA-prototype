@@ -16,7 +16,7 @@ Pose::Pose(double x_, double y_, double z_, double rx_, double ry_, double rz_)
     wrap_angles();
 }
 
-Pose::Pose(const MRA::Datatypes::Pose& p)
+Pose::Pose(MRA::Datatypes::Pose const &p)
 {
     x = p.x();
     y = p.y();
@@ -37,14 +37,14 @@ double Pose::size() const
     return sqrt(x * x + y * y + z * z);
 }    
 
-Pose Pose::operator+(const Pose& other) const
+Pose Pose::operator+(Pose const &other) const
 {
     Pose result(x + other.x, y + other.y, z + other.z, rx + other.rx, ry + other.ry, rz + other.rz);
     result.wrap_angles();
     return result;
 }
 
-Pose& Pose::operator+=(const Pose& other)
+Pose& Pose::operator+=(Pose const &other)
 {
     x += other.x;
     y += other.y;

@@ -7,6 +7,9 @@
 // MRA::Geometry::Velocity is special version of Pose that adds coordinate transformations
 // MRA::Geometry::Position is special version of Pose that adds coordinate transformations, 
 //    ensuring angles are wrapped to [-pi,pi)
+//    NOTE: this deviates from the 2014 standard of wrapping rz to [0,2pi), for the following reasons:
+//    1. practical, ease of coding (for instance abs-and-compare)
+//    2. better fits with generalized 6dof approach
 
 namespace MRA::Geometry
 {
@@ -24,15 +27,15 @@ public:
 
     // constructors, destructor
     Pose(double x_=0.0, double y_=0.0, double z_=0.0, double rx_=0.0, double ry_=0.0, double rz_=0.0);
-    Pose(const MRA::Datatypes::Pose&);
+    Pose(MRA::Datatypes::Pose const &p);
     ~Pose();
 
     // basic operations
     double size() const; // sqrt(x^2+y^2+z^2)
 
     // arithmetic operators
-    virtual Pose operator+(const Pose& other) const;
-    virtual Pose& operator+=(const Pose& other);
+    virtual Pose operator+(Pose const&other) const;
+    virtual Pose& operator+=(Pose const&other);
     virtual Pose operator*(double f) const;
     virtual Pose& operator*=(double f);
 

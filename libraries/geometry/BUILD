@@ -31,6 +31,7 @@ cc_library(
     ],
     srcs = [
         "position.cpp",
+        "tmp_vector2d.hpp",
     ],
     visibility = ["//visibility:public"],
     deps = [
