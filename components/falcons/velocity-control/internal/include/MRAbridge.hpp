@@ -1,11 +1,11 @@
 #ifndef MRA_COMPONENTS_FALCONS_VELOCITYCONTROL_MRA_BRIDGE_HPP_
 #define MRA_COMPONENTS_FALCONS_VELOCITYCONTROL_MRA_BRIDGE_HPP_
 
-// map Falcons Position2D, Velocity2D pose to MRA Pose and operations (at MRA-libraries)
+// map Falcons Position2D, Velocity2D pose to MRA classes and operations (at MRA-libraries)
 #include "geometry.hpp"
-typedef MRA::Datatypes::Pose Position2D;
-typedef MRA::Datatypes::Pose Velocity2D;
-typedef MRA::Datatypes::Pose pose;
+typedef MRA::Geometry::Position Position2D;
+typedef MRA::Geometry::Velocity Velocity2D;
+typedef MRA::Geometry::Pose pose;
 
 // VelocityControlData is now basically a collection of protobuf datatypes
 #include "components/falcons/velocity-control/interface/Input.pb.h"
@@ -19,6 +19,9 @@ typedef MRA::FalconsVelocityControl::Params MRA_ParamsType;
 typedef MRA::FalconsVelocityControl::State  MRA_StateType;
 typedef MRA::FalconsVelocityControl::Output MRA_OutputType;
 typedef MRA::FalconsVelocityControl::Local  MRA_LocalType;
+
+// map configuration types
+typedef MRA::FalconsVelocityControl::SpgConfig SpgConfig;
 
 #endif
 
