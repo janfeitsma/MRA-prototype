@@ -6,24 +6,12 @@
  */
 
 #include "VelocityControlAlgorithms.hpp"
+#include "AbstractVelocitySetpointController.hpp"
+#include "VelocitySetpointControllers.hpp"
 
 
 void SelectVelocityController::execute(VelocityControlData &data)
 {
-
-    // get delta
-    float distanceToSubTarget = data.deltaPositionFcs.xy().size();
-
-    // switch between long and short stroke
-    if (distanceToSubTarget > data.currentMotionTypeConfig.velocityControllers.threshold)
-    {
-        data.shortStroke = false;
-        data.vcSetpointConfig = data.currentMotionTypeConfig.velocityControllers.longStroke;
-    }
-    else
-    {
-        data.shortStroke = true;
-        data.vcSetpointConfig = data.currentMotionTypeConfig.velocityControllers.shortStroke;
-    }
+    data.controller = std::shared_ptr<AbstractVelocitySetpointController>(new SPGVelocitySetpointController());
 }
 

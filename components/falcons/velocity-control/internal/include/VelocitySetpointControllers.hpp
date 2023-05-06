@@ -12,27 +12,27 @@
 #include "AbstractVelocitySetpointController.hpp"
 //#include "facilities/PIDController.hpp" // PID not supported in MRA context
 
-// MRA-libraries
-#include "MRAbridge.hpp"
-
 
 // controller definitions, each implementation has its own file
 
 class StopVelocitySetpointController : public AbstractVelocitySetpointController
 {
 public:
-    bool calculate(VelocityControlData &data, Velocity2D &resultVelocity);
+    bool calculate(VelocityControlData &data);
 };
 
 // not useful for robot, but works OK for simulation
 class LinearVelocitySetpointController : public AbstractVelocitySetpointController
 {
 public:
-    bool calculate(VelocityControlData &data, Velocity2D &resultVelocity);
+    bool calculate(VelocityControlData &data);
 };
 
+// SetPointGenerator, using Reflexxes motion control library
+#include "SPGVelocitySetpointController.hpp"
+
 /* // PID not supported in MRA context
-// used on robot up to and including 2019
+// used on Falcons robot up to and including 2019
 class PIDVelocitySetpointController : public AbstractVelocitySetpointController
 {
 public:
@@ -46,9 +46,6 @@ private:
     PIDController _controllerRz;
 };
 */
-
-// SetPointGenerator, using Reflexxes motion control library
-#include "SPGVelocitySetpointController.hpp"
 
 #endif
 

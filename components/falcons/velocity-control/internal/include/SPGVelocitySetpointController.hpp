@@ -31,9 +31,9 @@ struct SpgLimits
 class SPGVelocitySetpointController : public AbstractVelocitySetpointController
 {
 public:
-    SPGVelocitySetpointController(SpgConfig const &config);
+    SPGVelocitySetpointController();
     ~SPGVelocitySetpointController();
-    bool calculate(VelocityControlData &data, Velocity2D &resultVelocity);
+    bool calculate(VelocityControlData &data);
 
 private:
     SpgConfig _config;

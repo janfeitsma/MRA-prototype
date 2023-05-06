@@ -8,7 +8,9 @@
 #ifndef VELOCITYCONTROL_ABSTRACTVELOCITYSETPOINTCONTROLLER_HPP_
 #define VELOCITYCONTROL_ABSTRACTVELOCITYSETPOINTCONTROLLER_HPP_
 
-#include "VelocityControlData.hpp"
+
+// forward declaration
+class VelocityControlData;
 
 
 // abstract base class for specific controllers, like PID, TokyoDrift, Linear, ...
@@ -19,9 +21,9 @@ public:
     AbstractVelocitySetpointController() {};
     virtual ~AbstractVelocitySetpointController() {};
 
-    // return velocity setpoint by argument, and success state by return-value
-    // velocity setpoint does not have to be clipped, this will be done by limiter algorithm
-    virtual bool calculate(VelocityControlData &data, Velocity2D &resultVelocity) = 0;
+    // modify resulting data.resultVelocityRcs
+    // return success
+    virtual bool calculate(VelocityControlData &data) = 0;
 
 };
 

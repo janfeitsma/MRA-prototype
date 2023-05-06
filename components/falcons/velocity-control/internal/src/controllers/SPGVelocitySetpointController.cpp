@@ -9,16 +9,15 @@
 
 #include <algorithm>
 
-SPGVelocitySetpointController::SPGVelocitySetpointController(SpgConfig const &config)
+SPGVelocitySetpointController::SPGVelocitySetpointController()
 {
-    _config = config;
 }
 
 SPGVelocitySetpointController::~SPGVelocitySetpointController()
 {
 }
 
-bool SPGVelocitySetpointController::calculate(VelocityControlData &data, Velocity2D &resultVelocity)
+bool SPGVelocitySetpointController::calculate(VelocityControlData &data)
 {
     // Type II Reflexxes Motion Library
     // note that this variant does not support jerk control
