@@ -8,18 +8,39 @@
 #ifndef VELOCITYCONTROLDATA_HPP_
 #define VELOCITYCONTROLDATA_HPP_
 
-// MRA-libraries
+// MRA libraries
 #include "MRAbridge.hpp"
 
+// internal includes
+#include "AbstractVelocitySetpointController.hpp"
 
+
+// this struct is used (r/w) by every algorithm
 struct VelocityControlData
 {
+    // MRA interface
     MRA_timestamp      timestamp;
     MRA_InputType      input;
     MRA_ParamsType     config;
     MRA_StateType      state;
     MRA_LocalType      diag;
     MRA_OutputType     output;
+
+    // while running the sequence of algorithms, this flag may be raised
+    bool done;
+
+    // which controller to use, determined by the SelectVelocityController algorithm
+    std::shared_ptr<AbstractVelocitySetpointController> controller;
+
+    // set the limits based on full configuration and input
+    MRA::FalconsVelocityControl::Limits limits;
+
+    // internal variables
+    Position2D currentPositionFcs;
+    Position2D targetPositionFcs;
+    Position2D previousPositionSetpointFcs;
+    Velocity2D resultVelocityRcs;
+
 };
 
 #endif

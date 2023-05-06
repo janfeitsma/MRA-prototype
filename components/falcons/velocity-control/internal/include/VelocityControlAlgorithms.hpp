@@ -8,7 +8,6 @@
 #ifndef VELOCITYCONTROL_ALGORITHMS_HPP_
 #define VELOCITYCONTROL_ALGORITHMS_HPP_
 
-
 #include "VelocityControlData.hpp"
 #include "AbstractVelocitySetpointController.hpp"
 
@@ -27,54 +26,54 @@ public:
 
 // algorithm definitions, each implementation has its own file
 
-class CalculateDeltas : public VelocityControlAlgorithm
+// check that input contains valid data (no z,rx,ry)
+// determine control mode: POSVEL, POS_ONLY or VEL_ONLY
+class CheckInputs : public VelocityControlAlgorithm
 {
     void execute(VelocityControlData &data);
 };
 
-class CalculateAccelerating : public VelocityControlAlgorithm
+// determine the limits to use based on configuration and input motion profile
+class ConfigureLimits : public VelocityControlAlgorithm
 {
     void execute(VelocityControlData &data);
 };
 
-class SelectVelocityController : public VelocityControlAlgorithm
+// prevent runaway setpoints by ensuring that last call was recent enough
+class Watchdog : public VelocityControlAlgorithm
 {
     void execute(VelocityControlData &data);
 };
 
-class CalculateVelocity : public VelocityControlAlgorithm
-{
-    void execute(VelocityControlData &data);
-
-    // callback to get VelocitySetpointController
-    // link from algorithm to VelocityControl class
-    boost::function<AbstractVelocitySetpointController *(void)> _callback;
-
-public:
-    CalculateVelocity(boost::function<AbstractVelocitySetpointController *(void)> callback);
-};
-
-class Deadzone : public VelocityControlAlgorithm
-{
-    void execute(VelocityControlData &data);
-};
-
-class ApplyLimits : public VelocityControlAlgorithm
-{
-    void execute(VelocityControlData &data);
-};
-
+// to enable dribbling, limits should apply to ball, not robot
 class ShiftBallOffset : public VelocityControlAlgorithm
 {
     void execute(VelocityControlData &data);
 };
-
 class UnShiftBallOffset : public VelocityControlAlgorithm
 {
     void execute(VelocityControlData &data);
 };
 
-class ApplyTokyoDrift : public VelocityControlAlgorithm
+// velocity control (in FCS or RCS, depends on configuration)
+// for now: always SPG (SetPointGenerator) using Reflexxes Type II library
+class SelectVelocityController : public VelocityControlAlgorithm
+{
+    void execute(VelocityControlData &data);
+};
+class CalculateVelocity : public VelocityControlAlgorithm
+{
+    void execute(VelocityControlData &data);
+};
+
+// prevent wasting energy by responding to very small setpoints
+class Deadzone : public VelocityControlAlgorithm
+{
+    void execute(VelocityControlData &data);
+};
+
+// write state variables to be used in next iteration
+class PrepareNext : public VelocityControlAlgorithm
 {
     void execute(VelocityControlData &data);
 };

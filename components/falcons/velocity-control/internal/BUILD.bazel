@@ -21,20 +21,30 @@ cc_library(
 )
 
 cc_library(
-    name = "facilities",
+    name = "controllers",
+    srcs = [
+        "include/SPGVelocitySetpointController.hpp",
+        #"src/controllers/SPGVelocitySetpointController.cpp",
+    ],
     hdrs = [
-        "include/facilities/vcgeometry.hpp",
+        "include/VelocitySetpointControllers.hpp",
+    ],
+    includes = [
+        "include",
+    ],
+    deps = [
+        ":common_headers",
+        ":data",
+        "//libraries/reflexxes",
     ],
 )
 
 cc_library(
     name = "algorithms",
     srcs = [
-        "src/algorithms/CalculateDeltas.cpp",
         "src/algorithms/SelectVelocityController.cpp",
         "src/algorithms/ShiftBallOffset.cpp",
-        "src/algorithms/UnShiftBallOffset.cpp",
-        "src/algorithms/Deadzone.cpp",
+        #"src/algorithms/Deadzone.cpp",
     ],
     hdrs = [
         "include/VelocityControlAlgorithms.hpp",
@@ -44,21 +54,8 @@ cc_library(
     ],
     deps = [
         ":data",
-        ":facilities",
         ":common_headers",
-    ],
-)
-
-cc_library(
-    name = "controllers",
-    srcs = [
-        "include/SPGVelocitySetpointController.hpp",
-    ],
-    hdrs = [
-        "include/VelocitySetpointControllers.hpp",
-    ],
-    deps = [
-        ":common_headers",
+        ":controllers",
     ],
 )
 
@@ -77,7 +74,6 @@ cc_library(
         ":data",
         ":controllers",
         ":algorithms",
-        "//libraries/reflexxes",
         #"@boost//:thread",
     ],
     visibility = ["//visibility:public"],
