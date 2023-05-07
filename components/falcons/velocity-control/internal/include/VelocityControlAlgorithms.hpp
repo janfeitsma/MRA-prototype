@@ -31,6 +31,8 @@ public:
 class CheckInputs : public VelocityControlAlgorithm
 {
     void execute(VelocityControlData &data);
+    void checkWorldState(VelocityControlData &data);
+    ControlModeEnum checkTargetSetpoint(VelocityControlData &data);
 };
 
 // determine the limits to use based on configuration and input motion profile

@@ -29,7 +29,7 @@ void VelocityControl::iterate()
 
     // check that input contains valid data (no z,rx,ry)
     // determine control mode: POSVEL, POS_ONLY or VEL_ONLY
-//    algorithms.push_back(new CheckInputs());
+    algorithms.push_back(new CheckInputs());
 
     // determine the limits to use based on configuration and input motion profile
 //    algorithms.push_back(new ConfigureLimits());
