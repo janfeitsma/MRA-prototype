@@ -2,19 +2,23 @@
 
 VelocityControl is responsible for smooth controlled movement of the robot.
 
-It uses [libraries/reflexxes/README.md](Reflexxes Type II) trajectory setpoint generator which limits velocity and acceleration.
+It uses [Reflexxes Type II](../../../libraries/reflexxes/README.md) trajectory setpoint generator which limits velocity and acceleration.
 
-# Context
+TODO: a nice picture (KSTplot?) of combined X,Y,Rz trajectories, sync/nonsync.
 
-The input robot target setpoint (in FCS) is calculated by PathPlanning, which is responsible for obstacle avoidance.
+# Scope and context
+
+This component is responsible for applying vel/acc limits and not losing ball while driving. It uses [Reflexxes Type II](../../../libraries/reflexxes/README.md) trajectory setpoint generator.
+
+This component is NOT responsible for obstacle avoidance. That is done by PathPlanning just before VelocityControl, PathPlanning converts a desired ("unsafe") target setpoint (FCS) to a "safe" intermediate target setpoint (FCS), avoiding obstacles.
 
 The output robot velocity setpoint (in RCS) is given to VelocityTransform, to be transformed to motor setpoints.
 
 # Interface details
 
-See [interface/Inputs.proto](Inputs.proto) and [interface/Outputs.proto](Outputs.proto).
+See [Input.proto](interface/Input.proto) and [Output.proto](interface/Output.proto).
 
-There are quite some configuration parameters, see [interface/Params.proto](Params.proto) and DefaultParams.
+There are quite some configuration parameters, see [Params.proto](interface/Params.proto) and [DefaultParams.json](interface/DefaultParams.json).
 
 # Design
 
@@ -22,5 +26,7 @@ A sequence of sub-algorithms is applied. They are somewhat configurable.
 
 # History
 
-PID controllers and configuration have been removed, in favour or Reflexxes.
+Original Falcons source: https://github.com/Falcons-Robocup/code/tree/master/packages/velocityControl/src.
 
+PID controllers and configuration have been removed, in favour of Reflexxes.
+ 
