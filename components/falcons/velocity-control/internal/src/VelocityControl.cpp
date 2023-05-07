@@ -37,6 +37,9 @@ void VelocityControl::iterate()
     // prevent runaway setpoints by ensuring that last call was recent enough
 //    algorithms.push_back(new Watchdog());
 
+    // prevent wasting energy by responding to very small setpoints
+    algorithms.push_back(new Deadzone());
+
     // to enable dribbling, limits should apply to ball, not robot
     algorithms.push_back(new ShiftBallOffset());
 
@@ -48,9 +51,6 @@ void VelocityControl::iterate()
     // SPG intrinsically ensures limits are satisfied
     // if the controller would be PID or Linear, then ApplyLimits would be needed
     //algorithms.push_back(new ApplyLimits());
-
-    // prevent wasting energy by responding to very small setpoints
-    //algorithms.push_back(new Deadzone());
 
     // to enable dribbling, limits should apply to ball, not robot
     algorithms.push_back(new UnShiftBallOffset());
