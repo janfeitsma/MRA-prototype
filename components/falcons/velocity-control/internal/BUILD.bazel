@@ -48,6 +48,7 @@ cc_library(
         "src/algorithms/CheckInputs.cpp",
         "src/algorithms/SelectVelocityController.cpp",
         "src/algorithms/ShiftBallOffset.cpp",
+        "src/algorithms/CalculateVelocity.cpp",
         #"src/algorithms/Deadzone.cpp",
     ],
     hdrs = [

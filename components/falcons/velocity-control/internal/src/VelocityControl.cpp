@@ -42,11 +42,11 @@ void VelocityControl::iterate()
 
     // velocity control (in FCS or RCS, depends on configuration)
     // for now: always SPG (SetPointGenerator) using Reflexxes Type II library
-//    algorithms.push_back(new SelectVelocityController());
-//    algorithms.push_back(new CalculateVelocity());
+    algorithms.push_back(new SelectVelocityController());
+    algorithms.push_back(new CalculateVelocity());
 
     // SPG intrinsically ensures limits are satisfied
-    // if the controller would be PID or linear, then ApplyLimits would be needed
+    // if the controller would be PID or Linear, then ApplyLimits would be needed
     //algorithms.push_back(new ApplyLimits());
 
     // prevent wasting energy by responding to very small setpoints
