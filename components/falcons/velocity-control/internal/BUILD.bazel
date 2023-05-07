@@ -17,6 +17,8 @@ cc_library(
     name = "common_headers",
     hdrs = [
         "include/AbstractVelocitySetpointController.hpp",
+        "include/VelocityControlExceptions.hpp",
+        "include/exception_base.hpp",
     ],
 )
 
