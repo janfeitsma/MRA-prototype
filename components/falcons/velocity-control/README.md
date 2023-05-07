@@ -20,6 +20,8 @@ See [Input.proto](interface/Input.proto) and [Output.proto](interface/Output.pro
 
 There are quite some configuration parameters, see [Params.proto](interface/Params.proto) and [DefaultParams.json](interface/DefaultParams.json).
 
+At least one (default) motion profile needs to be configured. When another motion profile with name `withBall` is configured, then it will be used to overrule limits while dribbling.
+
 # Design
 
 A sequence of sub-algorithms is applied. They are somewhat configurable.

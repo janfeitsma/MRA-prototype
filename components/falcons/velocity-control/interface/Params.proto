@@ -17,6 +17,13 @@ message DribbleConfig
     float radiusRobotToBall = 2;
 }
 
+message DeadzoneConfig
+{
+    bool enabled = 1;
+    float toleranceXY = 2; // [m] only calculate if robot is not yet close enough
+    float toleranceRz = 3; // [rad] only calculate if robot is not yet close enough
+}
+
 message XYRzLimits
 {
     float X = 1;
@@ -37,11 +44,12 @@ message Limits
 
 message Params
 {
-    SpgConfig spg = 1;
-    DribbleConfig dribble = 2;
-    float dt = 3; // [seconds] timestep to use, typically 1/motionfrequency
-    float timeout = 4; // [seconds] after which to reset SPG state (watchdog)
-    repeated Limits limits = 5; // array, content corresponds with motionProfile input
+    float dt = 1; // [seconds] timestep to use, typically 1/motionfrequency
+    float timeout = 2; // [seconds] after which to reset SPG state (watchdog)
+    SpgConfig spg = 3;
+    DribbleConfig dribble = 4;
+    DeadzoneConfig deadzone = 5;
+    repeated Limits limits = 6; // array, content corresponds with motionProfile input
     // NOTE: it is allowed to omit items in defaultParams, then defaults from limits[0] will be used
 }
 
