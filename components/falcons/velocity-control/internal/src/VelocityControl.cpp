@@ -29,7 +29,8 @@ void VelocityControl::iterate()
 
     // check that input contains valid data (no z,rx,ry)
     // determine control mode: POSVEL, POS_ONLY or VEL_ONLY
-    algorithms.push_back(new CheckInputs());
+    // set internal variables based on inputs, state, params
+    algorithms.push_back(new CheckPrepareInputs());
 
     // determine the limits to use based on configuration and input motion profile
     algorithms.push_back(new ConfigureLimits());
@@ -55,8 +56,8 @@ void VelocityControl::iterate()
     // to enable dribbling, limits should apply to ball, not robot
     algorithms.push_back(new UnShiftBallOffset());
 
-    // finally, write state variables to be used in next iteration
-//    algorithms.push_back(new PrepareNext());
+    // finally, set output data, write state variables to be used in next iteration
+    algorithms.push_back(new SetOutputsPrepareNext());
 
     // execute the sequence of algorithms
     for (auto it = algorithms.begin(); it != algorithms.end(); ++it)

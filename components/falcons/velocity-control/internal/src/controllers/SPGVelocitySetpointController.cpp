@@ -111,7 +111,8 @@ bool SPGVelocitySetpointController::calculate(VelocityControlData &data)
     }
     */
 
-    // Done -- store values for next iteration
+    // Done -- store output and values for next iteration
+    data.resultVelocityRcs = resultVelocity;
 
     // Store previousPositionSetpointFcs for open loop control
     Position2D tmpPos = resultPosition;

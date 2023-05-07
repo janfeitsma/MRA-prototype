@@ -28,11 +28,14 @@ public:
 
 // check that input contains valid data (no z,rx,ry)
 // determine control mode: POSVEL, POS_ONLY or VEL_ONLY
-class CheckInputs : public VelocityControlAlgorithm
+// set internal variables based on inputs, state, params
+class CheckPrepareInputs : public VelocityControlAlgorithm
 {
     void execute(VelocityControlData &data);
+
     void checkWorldState(VelocityControlData &data);
     ControlModeEnum checkTargetSetpoint(VelocityControlData &data);
+    void setInternalVariables(VelocityControlData &data);
 };
 
 // determine the limits to use based on configuration and input motion profile
@@ -75,7 +78,7 @@ class Deadzone : public VelocityControlAlgorithm
 };
 
 // write state variables to be used in next iteration
-class PrepareNext : public VelocityControlAlgorithm
+class SetOutputsPrepareNext : public VelocityControlAlgorithm
 {
     void execute(VelocityControlData &data);
 };

@@ -1,5 +1,5 @@
 /*
- * CheckInputs.cpp
+ * CheckPrepareInputs.cpp
  *
  *  Created on: May 2023
  *      Author: Jan Feitsma
@@ -9,16 +9,19 @@
 #include "VelocityControlExceptions.hpp"
 
 
-void CheckInputs::execute(VelocityControlData &data)
+void CheckPrepareInputs::execute(VelocityControlData &data)
 {
     // check worldstate: is robot active, is it properly filled, ...
     checkWorldState(data);
 
     // check target setpoint: is there enough information, is it valid, return the requested control mode
     data.controlMode = checkTargetSetpoint(data);
+
+    // set internal data variables
+    setInternalVariables(data);
 }
 
-void CheckInputs::checkWorldState(VelocityControlData &data)
+void CheckPrepareInputs::checkWorldState(VelocityControlData &data)
 {
     // stop further processing if robot is set to inactive
     if (!data.input.worldstate().robot().active())
@@ -36,7 +39,7 @@ void CheckInputs::checkWorldState(VelocityControlData &data)
     // checks on target setpoint are done in another function
 }
 
-ControlModeEnum CheckInputs::checkTargetSetpoint(VelocityControlData &data)
+ControlModeEnum CheckPrepareInputs::checkTargetSetpoint(VelocityControlData &data)
 {
     // check if target position and/or velocity are set
     ControlModeEnum result = ControlModeEnum::INVALID;
@@ -70,5 +73,17 @@ ControlModeEnum CheckInputs::checkTargetSetpoint(VelocityControlData &data)
     if (data.input.setpoint().velocity().ry() != 0) throw VelocityControlExceptions::UnsupportedDimension(__FILE__, __LINE__, "setpoint velocity.ry");
 
     return result;
+}
+
+void CheckPrepareInputs::setInternalVariables(VelocityControlData &data)
+{
+    data.currentPositionFcs = MRA::Geometry::Position(data.input.worldstate().robot().position());
+    data.currentVelocityFcs = MRA::Geometry::Velocity(data.input.worldstate().robot().velocity());
+    data.targetPositionFcs  = MRA::Geometry::Position(data.input.setpoint().position());
+    data.targetVelocityFcs  = MRA::Geometry::Velocity(data.input.setpoint().velocity());
+
+    // TODO from state
+    //data.previousPositionSetpointFcs
+    //data.previousVelocitySetpointFcs
 }
 

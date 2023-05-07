@@ -45,12 +45,13 @@ cc_library(
 cc_library(
     name = "algorithms",
     srcs = [
-        "src/algorithms/CheckInputs.cpp",
+        "src/algorithms/CheckPrepareInputs.cpp",
         "src/algorithms/ConfigureLimits.cpp",
         "src/algorithms/Deadzone.cpp",
         "src/algorithms/SelectVelocityController.cpp",
         "src/algorithms/ShiftBallOffset.cpp",
         "src/algorithms/CalculateVelocity.cpp",
+        "src/algorithms/SetOutputsPrepareNext.cpp",
     ],
     hdrs = [
         "include/VelocityControlAlgorithms.hpp",
