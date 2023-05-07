@@ -15,7 +15,9 @@ namespace VelocityControlExceptions
 {
 
 DECLARE_CUSTOM_EXCEPTION(RobotInactive);
+DECLARE_CUSTOM_EXCEPTION(InvalidInput);
 DECLARE_CUSTOM_EXCEPTION(IncompleteInput);
+DECLARE_CUSTOM_EXCEPTION(IncompleteConfiguration);
 DECLARE_CUSTOM_EXCEPTION(UnsupportedDimension);
 
 }

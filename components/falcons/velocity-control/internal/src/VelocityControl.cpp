@@ -32,7 +32,7 @@ void VelocityControl::iterate()
     algorithms.push_back(new CheckInputs());
 
     // determine the limits to use based on configuration and input motion profile
-//    algorithms.push_back(new ConfigureLimits());
+    algorithms.push_back(new ConfigureLimits());
 
     // prevent runaway setpoints by ensuring that last call was recent enough
 //    algorithms.push_back(new Watchdog());
