@@ -44,7 +44,6 @@ TEST(FalconsVelocityControlTest, robotInactive)
     EXPECT_EQ(output.velocity().x(), 0.0);
     EXPECT_EQ(output.velocity().y(), 0.0);
     EXPECT_EQ(output.velocity().rz(), 0.0);
-    //EXPECT_EQ(output.actionresult(), MRA::Datatypes::PASSED);
 }
 
 // When no input is given, the robot shall STOP.
@@ -63,7 +62,6 @@ TEST(FalconsVelocityControlTest, nominalOutput)
     EXPECT_EQ(output.velocity().x(), 0.0);
     EXPECT_EQ(output.velocity().y(), 0.0);
     EXPECT_EQ(output.velocity().rz(), 0.0);
-    //EXPECT_EQ(output.actionresult(), MRA::Datatypes::PASSED);
 }
 
 // Section: basic moves, stateless
