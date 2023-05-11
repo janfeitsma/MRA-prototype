@@ -43,9 +43,9 @@ ControlModeEnum CheckPrepareInputs::checkTargetSetpoint(VelocityControlData &dat
 {
     // check if target position and/or velocity are set
     ControlModeEnum result = ControlModeEnum::INVALID;
-    if (!data.input.setpoint().has_position())
+    if (data.input.setpoint().has_position())
     {
-        if (!data.input.setpoint().has_velocity())
+        if (data.input.setpoint().has_velocity())
         {
             result = ControlModeEnum::POSVEL;
         }
@@ -54,7 +54,7 @@ ControlModeEnum CheckPrepareInputs::checkTargetSetpoint(VelocityControlData &dat
             result = ControlModeEnum::POS_ONLY;
         }
     }
-    else if (!data.input.setpoint().has_velocity())
+    else if (data.input.setpoint().has_velocity())
     {
         result = ControlModeEnum::VEL_ONLY;
     }
