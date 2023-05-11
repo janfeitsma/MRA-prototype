@@ -14,7 +14,9 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         "//components/falcons/velocity-control/interface:interface",
-        
+        "//components/falcons/velocity-control/internal:VelocityControl",
+        "//libraries/geometry",
+        "//libraries/reflexxes",
     ],
 )
 

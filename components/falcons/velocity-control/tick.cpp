@@ -6,8 +6,8 @@
 
 using namespace MRA;
 
-// custom includes, if any
-// ...
+// internals
+#include "internal/include/VelocityControl.hpp"
 
 
 int FalconsVelocityControl::FalconsVelocityControl::tick
@@ -20,11 +20,34 @@ int FalconsVelocityControl::FalconsVelocityControl::tick
     LocalType        &local        // local/diagnostics data, type generated from Local.proto
 )
 {
+    //std::cout << "timestamp: " << timestamp << std::endl;
+    //std::cout << "input: " << convert_proto_to_json_str(input) << std::endl;
+    //std::cout << "params: " << convert_proto_to_json_str(params) << std::endl;
+
     int error_value = 0;
 
     // user implementation goes here
 
+    // relay to internal implementation which is a stripped version of the package `velocityControl` from falcons/code
+    // making use of ReflexxesTypeII trajectory generation library
+    VelocityControl controller;
+    controller.data.timestamp = timestamp;
+    controller.data.input = input;
+    controller.data.config = params;
+    controller.data.state = state;
+    //try
+    //{
+        controller.iterate();
+        output = controller.data.output;
+        local = controller.data.diag;
+    //}
+    //catch
+    //{
+    //    error_value = 1;
+    //}
 
+    //std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
+    //std::cout << "error: " << error_value << std::endl;
 
     return error_value;
 }

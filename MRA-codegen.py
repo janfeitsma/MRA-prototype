@@ -89,9 +89,15 @@ class ComponentGenerator():
         # dependencies to other libraries / components w.r.t. MRA_ROOT
         self.component_dependencies = []
         self.library_dependencies = []
+        self.internal_dependencies = []
         deps_file = os.path.join(self.component_folder, 'dependencies')
         if os.path.isfile(deps_file):
             for dep in [ll.strip() for ll in open(deps_file).readlines()]:
+                if len(dep) == 0:
+                    continue
+                if os.path.isdir(os.path.join(self.component_folder, dep.split(':')[0])):
+                    self.internal_dependencies.append(dep)
+                    continue
                 if not os.path.isdir(dep):
                     raise Exception(f'invalid dependency, folder not found: "{dep}" in file "{deps_file}"')
                 if dep.startswith('components'):
@@ -226,6 +232,8 @@ class ComponentGenerator():
         result = []
         for dep in self.component_dependencies:
             result.append(f'"//{dep}:implementation",')
+        for dep in self.internal_dependencies:
+            result.append(f'"//components/{self.component}/{dep}",')
         for dep in self.library_dependencies:
             result.append(f'"//{dep}",')
         return '\n        '.join(result)
