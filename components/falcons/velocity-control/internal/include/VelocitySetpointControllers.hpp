@@ -32,7 +32,7 @@ public:
 #include "SPGVelocitySetpointController.hpp"
 
 /* // PID not supported in MRA context
-// used on Falcons robot up to and including 2019
+// used on Falcons robot before 2020
 class PIDVelocitySetpointController : public AbstractVelocitySetpointController
 {
 public:
