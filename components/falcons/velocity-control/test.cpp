@@ -76,7 +76,7 @@ TEST(FalconsVelocityControlTest, moveX)
     input.mutable_worldstate()->mutable_robot()->mutable_velocity()->set_x(0.0);
     input.mutable_setpoint()->mutable_position()->set_x(2.0);
     input.mutable_worldstate()->mutable_robot()->set_active(true);
-    auto params = MRA::LoadDefaultParams<FalconsVelocityControl::ParamsType>("components/falcons/velocity-control/interface/DefaultParams.json");
+    auto params = m.defaultParams();
     float acc = 1.5;
     params.mutable_limits(0)->mutable_maxacc()->set_x(acc);
     float dt = 1.0 / 40;
@@ -102,7 +102,7 @@ TEST(FalconsVelocityControlTest, moveY)
     input.mutable_worldstate()->mutable_robot()->mutable_velocity()->set_y(0.0);
     input.mutable_setpoint()->mutable_position()->set_y(2.0);
     input.mutable_worldstate()->mutable_robot()->set_active(true);
-    auto params = MRA::LoadDefaultParams<FalconsVelocityControl::ParamsType>("components/falcons/velocity-control/interface/DefaultParams.json");
+    auto params = m.defaultParams();
     float acc = 1.8;
     params.mutable_limits(0)->mutable_maxacc()->set_yforward(acc);
     float dt = 1.0 / 30;
@@ -128,7 +128,7 @@ TEST(FalconsVelocityControlTest, moveRz)
     input.mutable_worldstate()->mutable_robot()->mutable_velocity()->set_rz(0.0);
     input.mutable_setpoint()->mutable_position()->set_rz(2.0);
     input.mutable_worldstate()->mutable_robot()->set_active(true);
-    auto params = MRA::LoadDefaultParams<FalconsVelocityControl::ParamsType>("components/falcons/velocity-control/interface/DefaultParams.json");
+    auto params = m.defaultParams();
     float acc = 1.7;
     params.mutable_limits(0)->mutable_maxacc()->set_rz(acc);
     float dt = 1.0 / 35;
