@@ -37,6 +37,13 @@ double Pose::size() const
     return sqrt(x * x + y * y + z * z);
 }    
 
+std::string Pose::xyrz_str() const
+{
+    char buffer[256];
+    sprintf(buffer, " %9.4f %9.4f %9.4f", x, y, rz);
+    return buffer;
+}
+
 Pose Pose::operator+(Pose const &other) const
 {
     Pose result(x + other.x, y + other.y, z + other.z, rx + other.rx, ry + other.ry, rz + other.rz);
