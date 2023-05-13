@@ -202,7 +202,7 @@ class ComponentGenerator():
         """Snippet of code to include header files into tick.cpp."""
         result = []
         for cc in self.component_dependencies:
-            ccc = component_name_camelcase(cc)
+            ccc = component_name_camelcase(cc.lstrip('components/'))
             result.append(f'#include "{ccc}.hpp"')
         # TODO: also handle self.library_dependencies?
         if len(result):
@@ -217,7 +217,7 @@ class ComponentGenerator():
             if p in self.interface_parts:
                 result += f"typedef MRA::{c}::{p} {p}Type;\n"
             else:
-                result += f"typedef int {p}Type; // no .proto -> unused\n"
+                result += f"typedef google::protobuf::Empty {p}Type; // no .proto -> unused\n"
         return result
 
     def make_build_deps_interface(self) -> str:

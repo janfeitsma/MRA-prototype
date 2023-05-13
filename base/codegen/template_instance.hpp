@@ -6,6 +6,7 @@
 
 #include "abstract_interface.hpp"
 #include "params_loader.hpp"
+#include <google/protobuf/empty.pb.h>
 
 PROTOBUF_HPP_TYPE_INCLUDES
 

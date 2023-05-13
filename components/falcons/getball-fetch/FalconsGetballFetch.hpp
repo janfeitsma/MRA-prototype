@@ -6,6 +6,7 @@
 
 #include "abstract_interface.hpp"
 #include "params_loader.hpp"
+#include <google/protobuf/empty.pb.h>
 
 #include "components/falcons/getball-fetch/interface/Input.pb.h"
 #include "components/falcons/getball-fetch/interface/Params.pb.h"
@@ -17,9 +18,9 @@ namespace MRA::FalconsGetballFetch
 
 typedef MRA::FalconsGetballFetch::Input InputType;
 typedef MRA::FalconsGetballFetch::Params ParamsType;
-typedef int StateType; // no .proto -> unused
+typedef google::protobuf::Empty StateType; // no .proto -> unused
 typedef MRA::FalconsGetballFetch::Output OutputType;
-typedef int LocalType; // no .proto -> unused
+typedef google::protobuf::Empty LocalType; // no .proto -> unused
 
 
 class FalconsGetballFetch: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>
