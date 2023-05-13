@@ -23,6 +23,7 @@ int FalconsVelocityControl::FalconsVelocityControl::tick
     //std::cout << "timestamp: " << timestamp << std::endl;
     //std::cout << "input: " << convert_proto_to_json_str(input) << std::endl;
     //std::cout << "params: " << convert_proto_to_json_str(params) << std::endl;
+    //std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
 
     int error_value = 0;
 
@@ -39,6 +40,7 @@ int FalconsVelocityControl::FalconsVelocityControl::tick
     //{
         controller.iterate();
         output = controller.data.output;
+        state = controller.data.state;
         local = controller.data.diag;
     //}
     //catch
@@ -47,6 +49,7 @@ int FalconsVelocityControl::FalconsVelocityControl::tick
     //}
 
     //std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
+    //std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
     //std::cout << "error: " << error_value << std::endl;
 
     return error_value;

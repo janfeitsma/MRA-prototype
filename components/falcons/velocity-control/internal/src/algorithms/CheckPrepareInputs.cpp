@@ -82,8 +82,7 @@ void CheckPrepareInputs::setInternalVariables(VelocityControlData &data)
     data.targetPositionFcs  = MRA::Geometry::Position(data.input.setpoint().position());
     data.targetVelocityFcs  = MRA::Geometry::Velocity(data.input.setpoint().velocity());
 
-    // TODO from state
-    //data.previousPositionSetpointFcs
-    //data.previousVelocitySetpointFcs
+    data.previousPositionSetpointFcs = MRA::Geometry::Position(data.state.positionsetpointfcs());
+    data.previousVelocitySetpointFcs = MRA::Geometry::Velocity(data.state.velocitysetpointfcs());
 }
 

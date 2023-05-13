@@ -8,7 +8,7 @@ import "datatypes/Pose.proto";
 message State
 {
     google.protobuf.Timestamp timestamp = 1;
-    MRA.Datatypes.Pose velocityRCS = 2;
+    MRA.Datatypes.Pose positionSetpointFCS = 2;
     MRA.Datatypes.Pose velocitySetpointFCS = 3;
 }
 
