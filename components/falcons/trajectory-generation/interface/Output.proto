@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package MRA.FalconsTrajectoryGeneration;
+
+import "datatypes/Target.proto";
+
+message Output
+{
+    float duration = 1;
+
+    // destination (position and velocity) in FCS
+    // only (x,y,rz)
+    MRA.Datatypes.Target final = 2;
+}
+
