@@ -9,6 +9,7 @@
 #include <google/protobuf/empty.pb.h>
 
 #include "components/falcons/trajectory-generation/interface/Input.pb.h"
+#include "components/falcons/trajectory-generation/interface/Params.pb.h"
 #include "components/falcons/trajectory-generation/interface/Output.pb.h"
 
 
@@ -16,7 +17,7 @@ namespace MRA::FalconsTrajectoryGeneration
 {
 
 typedef MRA::FalconsTrajectoryGeneration::Input InputType;
-typedef google::protobuf::Empty ParamsType; // no .proto -> unused
+typedef MRA::FalconsTrajectoryGeneration::Params ParamsType;
 typedef google::protobuf::Empty StateType; // no .proto -> unused
 typedef MRA::FalconsTrajectoryGeneration::Output OutputType;
 typedef google::protobuf::Empty LocalType; // no .proto -> unused
