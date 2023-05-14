@@ -9,3 +9,14 @@ cc_binary(
     ],
 )
 
+sh_test(
+    name = "cli-tests",
+    size = "small",
+    srcs = ["cli-tests.sh"],
+    data = glob(["*.txt"]) + [
+        "trajectory.py",
+        ":trajectory-generator",
+    ],
+    args = ["$(location :trajectory-generator)"],
+)
+

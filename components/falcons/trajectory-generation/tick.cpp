@@ -113,7 +113,8 @@ int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
         robot->mutable_velocity()->set_rz(vel_fcs.rz);
 
         // store the sample in output
-        MRA::Datatypes::PosVel *sample = output.add_samples();
+        MRA::FalconsTrajectoryGeneration::Sample *sample = output.add_samples();
+        sample->set_t(sim_timestamp);
         *sample->mutable_position() = robot->position();
         *sample->mutable_velocity() = robot->velocity();
     }

@@ -8,8 +8,6 @@ int run(
 {
     auto m = MRA::FalconsTrajectoryGeneration::FalconsTrajectoryGeneration();
 
-    std::cout << "input: " << MRA::convert_proto_to_json_str(input) << std::endl;
-    std::cout << "params: " << MRA::convert_proto_to_json_str(params) << std::endl;
     int error_value = m.tick(input, params, output);
     
     if (error_value)
@@ -18,7 +16,12 @@ int run(
     }
     else
     {
-        std::cout << "output: " << MRA::convert_proto_to_json_str(output) << std::endl;
+        // output as one json object, for processing by trajectory.py
+        std::cout << "{" << std::endl;
+        std::cout << "\"input\": " << MRA::convert_proto_to_json_str(input) << "," << std::endl;
+        std::cout << "\"params\": " << MRA::convert_proto_to_json_str(params) << "," << std::endl;
+        std::cout << "\"output\": " << MRA::convert_proto_to_json_str(output) << std::endl;
+        std::cout << "}" << std::endl;
     }
 
     return error_value;
