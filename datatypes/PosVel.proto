@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package MRA.Datatypes;
+
+import "datatypes/Pose.proto";
+
+message PosVel
+{
+    Pose position = 1;
+    Pose velocity = 2;
+}
+
