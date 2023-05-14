@@ -56,6 +56,7 @@ import re
 import random
 
 
+
 #BINARY = 'bazel-bin/components/falcons/trajectory-generation/tst/trajectory-generator'
 BINARY = 'bazel run --ui_event_filters=-info,-stdout,-stderr --noshow_progress //components/falcons/trajectory-generation/tst:trajectory-generator'
 DOFS = ('x', 'y', 'rz', 'vx', 'vy', 'vrz')
@@ -124,6 +125,7 @@ def main(args: argparse.Namespace) -> None:
     elif args.mode == 'brief':
         report_brief(args, json_data)
     else: # table or plot
+        add_missing_zeros(json_data)
         if args.mode == 'table':
             print(make_ascii_table(json_data, dofs))
         elif args.mode == 'plot':
@@ -164,6 +166,24 @@ def report_brief(args: argparse.Namespace, json_data) -> None:
                 pass
 
 
+def add_missing_zeros(json_data) -> None:
+    # this makes printing the table and producing plots easier
+    # (protobuf v3 tends to omit zeros)
+    for cat in POSVEL:
+        for dof in ('x', 'y', 'rz'):
+            try:
+                value = json_data['input']['setpoint'][cat][dof]
+            except KeyError:
+                json_data['input']['setpoint'][cat][dof] = 0.0
+    for sample in json_data['output']['samples']:
+        for cat in POSVEL:
+            for dof in ('x', 'y', 'rz'):
+                try:
+                    value = sample[cat][dof]
+                except KeyError:
+                    sample[cat][dof] = 0.0
+
+
 def make_ascii_table(json_data, dofs: list) -> str:
     result = ''
     columns = ['iter', 't']
@@ -178,17 +198,19 @@ def make_ascii_table(json_data, dofs: list) -> str:
         data_row = '{:9d} {:9.4f}'.format(1+irow, sample['t'])
         for cat in POSVEL:
             for dof in dofs:
-                value = 0.0
-                try:
-                    value = sample[cat][dof]
-                except KeyError:
-                    pass
+                value = sample[cat][dof]
                 data_row += ' {:9.4f}'.format(value)
         result += data_row + '\n'
     if len(json_data['output']['samples']) > 20:
         result += header_sep + '\n'
         result += header_row + '\n'
     return result
+
+
+def make_plots(json_data, dofs):
+    import plots
+    plots.make_plots(json_data, dofs)
+
 
 
 if __name__ == '__main__':
