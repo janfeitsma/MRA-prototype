@@ -76,7 +76,7 @@ TEST(MRAGeometryPoseTest, constructorProtobufIncomplete)
     // Assert
     EXPECT_EQ(p.x, 0.0);
     EXPECT_EQ(p.y, 2.0);
-(p.z, 0.0);
+    EXPECT_EQ(p.z, 0.0);
     EXPECT_EQ(p.rx, 0.0);
     EXPECT_EQ(p.ry, 0.0);
     EXPECT_EQ(p.rz, 6.0);
