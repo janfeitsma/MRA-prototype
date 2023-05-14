@@ -45,5 +45,6 @@ void ConfigureLimits::execute(VelocityControlData &data)
     // doing this after filling based on the default set (index 0) helps to keep the configuration clean
     data.limits.CopyFrom(data.config.limits(0));
     data.limits.MergeFrom(data.config.limits(motionprofile));
+    // TODO: setting some value to zero might not work in protobuf v3 with this code
 }
 

@@ -6,6 +6,8 @@
 
 using namespace MRA;
 
+//#define DEBUG
+
 // internals
 #include "internal/include/VelocityControl.hpp"
 
@@ -20,11 +22,12 @@ int FalconsVelocityControl::FalconsVelocityControl::tick
     LocalType        &local        // local/diagnostics data, type generated from Local.proto
 )
 {
-    //std::cout << "timestamp: " << timestamp << std::endl;
-    //std::cout << "input: " << convert_proto_to_json_str(input) << std::endl;
-    //std::cout << "params: " << convert_proto_to_json_str(params) << std::endl;
-    //std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
-
+#ifdef DEBUG
+    std::cout << "timestamp: " << timestamp << std::endl;
+    std::cout << "input: " << convert_proto_to_json_str(input) << std::endl;
+    std::cout << "params: " << convert_proto_to_json_str(params) << std::endl;
+    std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
+#endif // DEBUG
     int error_value = 0;
 
     // user implementation goes here
@@ -48,10 +51,11 @@ int FalconsVelocityControl::FalconsVelocityControl::tick
     //    error_value = 1;
     //}
 
-    //std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
-    //std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
-    //std::cout << "error: " << error_value << std::endl;
-
+#ifdef DEBUG
+    std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
+    std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
+    std::cout << "error: " << error_value << std::endl;
+#endif // DEBUG
     return error_value;
 }
 

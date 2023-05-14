@@ -60,6 +60,7 @@ void VelocityControl::iterate()
     algorithms.push_back(new SetOutputsPrepareNext());
 
     // execute the sequence of algorithms
+    data.done = false;
     for (auto it = algorithms.begin(); it != algorithms.end(); ++it)
     {
         if (!data.done)
