@@ -3,12 +3,14 @@
 
 int run(
     MRA::FalconsTrajectoryGeneration::InputType &input,
+    MRA::FalconsTrajectoryGeneration::ParamsType &params,
     MRA::FalconsTrajectoryGeneration::OutputType &output)
 {
     auto m = MRA::FalconsTrajectoryGeneration::FalconsTrajectoryGeneration();
 
     std::cout << "input: " << MRA::convert_proto_to_json_str(input) << std::endl;
-    int error_value = m.tick(input, output);
+    std::cout << "params: " << MRA::convert_proto_to_json_str(params) << std::endl;
+    int error_value = m.tick(input, params, output);
     
     if (error_value)
     {
@@ -18,8 +20,6 @@ int run(
     {
         std::cout << "output: " << MRA::convert_proto_to_json_str(output) << std::endl;
     }
-    
-    // TODO: move table printer here, put all samples on output [repeated]?
 
     return error_value;
 }
@@ -29,26 +29,26 @@ int main(int argc, char **argv)
 {
     // To prevent depending on boost, option handling is handled by python wrapper -> see trajectory.py.
     // User should not directly use this binary.
+    // The python script should also take care of pretty-printing the sample data, and/or plotting.
     if (argc < 3)
     {
         std::cerr << "insufficient arguments" << std::endl;
         return 1;
     }
     std::string input_str = argv[1];
-    std::string param_str = argv[2]; // VelocityControl params
-
-    // TODO: TrajectoryGeneration params? dt, maxticks, ...
+    std::string param_str = argv[2]; // VelocityControl params are nested
 
     // Setup the inputs
     auto input = MRA::FalconsTrajectoryGeneration::Input();
+    auto params = MRA::FalconsTrajectoryGeneration::Params();
     auto output = MRA::FalconsTrajectoryGeneration::Output();
 
     // Apply provided json strings
     assert(google::protobuf::util::JsonStringToMessage(input_str, &input).ok());
-    //assert(google::protobuf::util::JsonStringToMessage(param_str, &input));
-    input.mutable_worldstate()->mutable_robot()->set_active(true);
+    assert(google::protobuf::util::JsonStringToMessage(param_str, &params).ok());
+    input.mutable_worldstate()->mutable_robot()->set_active(true); // for convenience
 
-    // Run and display
-    return run(input, output);
+    // Run and display actual jsons
+    return run(input, params, output);
 }
 

@@ -11,8 +11,6 @@ using namespace MRA;
 
 // custom includes, if any
 #include "geometry.hpp"
-//#include <iostream>
-//#include <string>
 
 
 int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
@@ -43,27 +41,30 @@ int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
     auto vcState = MRA::FalconsVelocityControl::State();
     auto vcOutput = MRA::FalconsVelocityControl::Output();
     auto vcLocal = MRA::FalconsVelocityControl::Local();
+
+    // configure VelocityControl, overruling its default configuration
+    //    auto vcParams = vcModel.defaultParams();
+    //    vcParams.MergeFrom(params.vcparams()); // with vcParams a nested message
+    // these 2 lines do not work because zeros are ignored, even when explicitly set ...
+    // it appears protobuf v3 made a design mistake by entangling default values with presence tracking?
+    // -> we made a new template which internally uses json.update
     auto vcParams = vcModel.defaultParams();
-
-    // configure
-    // (these could become the params of FalconsTrajectoryGeneration?)
-    double dt = vcParams.dt();
-    int MAX_TICKS = 1000;
-    bool print_table = false;
-    bool print_errors = true;
-
-    // table row header
-    std::string header_row_1 = "                  |                   input.worldstate (FCS)                  |     output.velocity (RCS)  ";
-    std::string header_row_2 = "   iter         t |   pos.x     pos.y    pos.rz     vel.x     vel.y    vel.rz |   vel.x     vel.y    vel.rz";
-    std::string header_row_sep = "===========================================================================================================";
-    if (print_table)
+    try
     {
-        std::cout << header_row_1 << std::endl;
-        std::cout << header_row_2 << std::endl;
-        std::cout << header_row_sep << std::endl;
+        MRA::merge_json_into_proto(params.vcparamsjsonstr(), vcParams);
+    }
+    catch (...)
+    {
+        std::cerr << "failed to reconfigure VelocityControl with json string (" << params.vcparamsjsonstr() << ")" << std::endl;
+        return 254;
     }
 
+    // configure the rest
+    double dt = vcParams.dt();
+    int maxTicks = params.maxticks();
+
     // iterate
+    // NOTE: vcInput.worldstate will be (ab)used, update each iteration as simulated state
     double sim_timestamp = 0.0;
     int tick_counter = 0;
     while (true)
@@ -82,31 +83,15 @@ int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
         // check for errors
         if (error_value)
         {
-            if (print_errors)
-            {
-                std::cerr << "tick " << tick_counter << " failed with error " << error_value << std::endl;
-            }
+            std::cerr << "tick " << tick_counter << " failed with error " << error_value << std::endl;
             return error_value;
         }
 
         // check for non-convergence
-        if (tick_counter > MAX_TICKS)
+        if (tick_counter > maxTicks)
         {
-            if (print_errors)
-            {
-                std::cerr << "tick limit exceeded (" << MAX_TICKS << ")" << std::endl;
-            }
+            std::cerr << "tick limit exceeded (" << maxTicks << ")" << std::endl;
             return 255;
-        }
-
-        // display a row in the table
-        if (print_table)
-        {
-            printf("%7d %9.4f", tick_counter, sim_timestamp);
-            printf("%s", pos_fcs.xyrz_str().c_str());
-            printf("%s", vel_fcs.xyrz_str().c_str());
-            printf("%s", vel_rcs.xyrz_str().c_str());
-            printf("\n");
         }
 
         // check for convergence - stop criterion is that output velocity is zero
@@ -126,18 +111,16 @@ int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
         robot->mutable_velocity()->set_x(vel_fcs.x);
         robot->mutable_velocity()->set_y(vel_fcs.y);
         robot->mutable_velocity()->set_rz(vel_fcs.rz);
+
+        // store the sample in output
+        MRA::Datatypes::PosVel *sample = output.add_samples();
+        *sample->mutable_position() = robot->position();
+        *sample->mutable_velocity() = robot->velocity();
     }
 
-    // table row footer
-    if (tick_counter > 20 && print_table)
-    {
-        std::cout << header_row_sep << std::endl;
-        std::cout << header_row_2 << std::endl;
-        std::cout << header_row_1 << std::endl;
-    }
-
-    // set output
+    // finish
     output.set_duration(sim_timestamp);
+    output.set_numticks(tick_counter);
     *output.mutable_final()->mutable_position() = vcInput.worldstate().robot().position();
     *output.mutable_final()->mutable_velocity() = vcInput.worldstate().robot().velocity();
 
