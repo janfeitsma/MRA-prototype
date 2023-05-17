@@ -34,7 +34,7 @@ int FalconsVelocityControl::FalconsVelocityControl::tick
 
     // relay to internal implementation which is a stripped version of the package `velocityControl` from falcons/code
     // making use of ReflexxesTypeII trajectory generation library
-    VelocityControl controller;
+    MRA::internal::FVC::VelocityControl controller;
     controller.data.timestamp = timestamp;
     controller.data.input = input;
     controller.data.config = params;

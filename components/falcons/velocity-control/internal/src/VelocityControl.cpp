@@ -11,6 +11,9 @@
 #include "VelocityControlAlgorithms.hpp"
 
 
+using namespace MRA::internal::FVC;
+
+
 VelocityControl::VelocityControl()
 {
 }

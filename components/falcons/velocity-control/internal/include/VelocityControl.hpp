@@ -13,6 +13,9 @@
 #include "VelocityControlData.hpp"
 
 
+namespace MRA::internal::FVC
+{
+
 class VelocityControl
 {
 public:
@@ -26,6 +29,8 @@ public:
     VelocityControlData data;
 
 };
+
+} // namespace MRA::internal::FVC
 
 #endif
 
