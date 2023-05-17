@@ -118,6 +118,7 @@ class ComponentGenerator():
         self.make_replace_dict()
         self.handle_interface_bazel_build()
         self.handle_implementation_bazel_build()
+        self.handle_header_datatypes_hpp()
         self.handle_header_hpp()
         self.generate_copy_files_unless_existing()
         # TODO: cmake generators?
@@ -269,6 +270,12 @@ class ComponentGenerator():
         """Generate C++ header file, using generated protobuf types and deriving from base class."""
         src = self.template_folder / 'template_instance.hpp'
         tgt = os.path.join(self.component_folder, self.cname_camelcase + '.hpp')
+        self.check_copy_and_modify(src, tgt)
+
+    def handle_header_datatypes_hpp(self) -> None:
+        """Generate C++ header file which only exposes the generated protobuf datatypes."""
+        src = self.template_folder / 'template_datatypes.hpp'
+        tgt = os.path.join(self.component_folder, 'datatypes.hpp')
         self.check_copy_and_modify(src, tgt)
 
     def generate_copy_files_unless_existing(self) -> None:
