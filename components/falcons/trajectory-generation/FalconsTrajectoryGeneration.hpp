@@ -8,10 +8,8 @@
 #include "params_loader.hpp"
 #include <google/protobuf/empty.pb.h>
 
-#include "components/falcons/trajectory-generation/interface/Input.pb.h"
-#include "components/falcons/trajectory-generation/interface/Params.pb.h"
-#include "components/falcons/trajectory-generation/interface/Output.pb.h"
-
+// generated protobuf types from interface of this component
+#include "datatypes.hpp"
 
 namespace MRA::FalconsTrajectoryGeneration
 {

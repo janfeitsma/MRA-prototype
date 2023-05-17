@@ -8,12 +8,8 @@
 #include "params_loader.hpp"
 #include <google/protobuf/empty.pb.h>
 
-#include "components/falcons/velocity-control/interface/Input.pb.h"
-#include "components/falcons/velocity-control/interface/Params.pb.h"
-#include "components/falcons/velocity-control/interface/State.pb.h"
-#include "components/falcons/velocity-control/interface/Output.pb.h"
-#include "components/falcons/velocity-control/interface/Local.pb.h"
-
+// generated protobuf types from interface of this component
+#include "datatypes.hpp"
 
 namespace MRA::FalconsVelocityControl
 {

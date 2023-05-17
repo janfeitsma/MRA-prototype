@@ -8,7 +8,7 @@ cc_library(
         "include",
     ],
     deps = [
-        "//components/falcons/velocity-control/interface:interface",
+        "//components/falcons/velocity-control:datatypes",
         "//libraries/geometry",
     ],
 )

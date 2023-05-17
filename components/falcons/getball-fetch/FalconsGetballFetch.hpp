@@ -8,10 +8,8 @@
 #include "params_loader.hpp"
 #include <google/protobuf/empty.pb.h>
 
-#include "components/falcons/getball-fetch/interface/Input.pb.h"
-#include "components/falcons/getball-fetch/interface/Params.pb.h"
-#include "components/falcons/getball-fetch/interface/Output.pb.h"
-
+// generated protobuf types from interface of this component
+#include "datatypes.hpp"
 
 namespace MRA::FalconsGetballFetch
 {
