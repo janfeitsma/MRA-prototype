@@ -3,7 +3,7 @@ syntax = "proto3";
 package MRA.FalconsVelocityControl;
 
 import "datatypes/WorldState.proto";
-import "datatypes/Target.proto";
+import "datatypes/PosVel.proto";
 
 message Input
 {
@@ -14,7 +14,7 @@ message Input
     // safe target setpoint (position and velocity) in FCS
     // only (x,y,rz)
     // when no setpoint or an incomplete setpoint is given, it means STOP
-    MRA.Datatypes.Target setpoint = 2;
+    MRA.Datatypes.PosVel setpoint = 2;
 
     // motion profile id, 0 is default
     // allow more (for instance to trade in speed for accuracy, and vice versa)

@@ -10,3 +10,7 @@ message PosVel
     Pose velocity = 2;
 }
 
+// Can for instance be used as Target during robot setpoint processing:
+// 1. Input for Navigation: go to target setpoint (FCS) while avoiding collisions (generally as "unsafe" target)
+// 2. Output of Navigation, input for VelocityControl: determine robot (wheel) speed setpoint(s) based on given "safe" target setpoint (RCS?)
+

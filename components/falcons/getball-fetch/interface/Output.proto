@@ -3,12 +3,12 @@ syntax = "proto3";
 package MRA.FalconsGetballFetch;
 
 import "datatypes/ActionResult.proto";
-import "datatypes/Target.proto";
+import "datatypes/PosVel.proto";
 
 message Output
 {
     MRA.Datatypes.ActionResult actionresult = 1;
-    MRA.Datatypes.Target target = 2; // in FCS
-    //bool slow = 3; // TODO: not so nice to see slow just passing through ... ? bypass, or include in Target, or ...?
+    MRA.Datatypes.PosVel target = 2; // in FCS
+    //bool slow = 3; // TODO: not so nice to see slow just passing through ... ? bypass, or include in target, or ...?
 }
 
