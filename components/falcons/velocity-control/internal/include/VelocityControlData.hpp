@@ -14,6 +14,8 @@
 // forward declaration
 class AbstractVelocitySetpointController;
 
+namespace MRA::internal::FVC
+{
 
 enum class ControlModeEnum
 {
@@ -56,6 +58,10 @@ struct VelocityControlData
     Velocity2D resultVelocityRcs;
 
 };
+
+} // namespace MRA::internal::FVC
+
+using namespace MRA::internal::FVC; //HACK
 
 #endif
 
