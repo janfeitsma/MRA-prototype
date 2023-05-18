@@ -26,7 +26,7 @@ public:
 
 public:
     // having these public is convenient for test suite
-    VelocityControlData data;
+    VelocityControlData data{};
 
 };
 
