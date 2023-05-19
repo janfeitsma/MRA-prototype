@@ -96,7 +96,7 @@ int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
 
         // check for convergence - stop criterion is that output velocity is zero
         // (alternative: actionresult PASSED/FAILED)
-        if (vcOutput.ByteSizeLong() == 0) // a bit magic, but: bytesize 0 means all elements are 0
+        if (vel_rcs.is_zero())
         {
             break;
         }

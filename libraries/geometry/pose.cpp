@@ -44,6 +44,17 @@ std::string Pose::xyrz_str() const
     return buffer;
 }
 
+bool Pose::is_zero(double tolerance) const
+{
+    if (abs(x) > tolerance) return false;
+    if (abs(y) > tolerance) return false;
+    if (abs(z) > tolerance) return false;
+    if (abs(rx) > tolerance) return false;
+    if (abs(ry) > tolerance) return false;
+    if (abs(rz) > tolerance) return false;
+    return true;
+}
+
 Pose Pose::operator+(Pose const &other) const
 {
     Pose result(x + other.x, y + other.y, z + other.z, rx + other.rx, ry + other.ry, rz + other.rz);

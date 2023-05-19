@@ -33,6 +33,7 @@ public:
     // basic operations
     double size() const; // sqrt(x^2+y^2+z^2)
     std::string xyrz_str() const; // string conversion
+    bool is_zero(double tolerance = 0.0) const; // check all 6 dof
 
     // arithmetic operators
     virtual Pose operator+(Pose const&other) const;
