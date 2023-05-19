@@ -38,6 +38,7 @@ struct VelocityControlData
     MRA::FalconsVelocityControl::Limits limits;
 
     // internal variables
+    int num_algorithms_executed;
     MRA::FalconsVelocityControl::ControlModeEnum controlMode;
     Position2D currentPositionFcs;
     Velocity2D currentVelocityFcs;

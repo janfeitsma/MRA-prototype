@@ -21,6 +21,8 @@ public:
     VelocityControlAlgorithm() {}
 
     virtual void execute(VelocityControlData &data) = 0;
+
+    bool unskippable = false;
 };
 
 
@@ -40,6 +42,12 @@ class CheckPrepareInputs : public VelocityControlAlgorithm
 
 // determine the limits to use based on configuration and input motion profile
 class ConfigureLimits : public VelocityControlAlgorithm
+{
+    void execute(VelocityControlData &data);
+};
+
+// check if a STOP command was given
+class CheckStop : public VelocityControlAlgorithm
 {
     void execute(VelocityControlData &data);
 };

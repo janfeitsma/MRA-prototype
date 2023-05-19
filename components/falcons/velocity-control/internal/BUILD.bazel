@@ -46,6 +46,7 @@ cc_library(
     name = "algorithms",
     srcs = [
         "src/algorithms/CheckPrepareInputs.cpp",
+        "src/algorithms/CheckStop.cpp",
         "src/algorithms/ConfigureLimits.cpp",
         "src/algorithms/Deadzone.cpp",
         "src/algorithms/SelectVelocityController.cpp",

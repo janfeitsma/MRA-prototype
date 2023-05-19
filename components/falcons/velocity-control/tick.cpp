@@ -54,6 +54,7 @@ int FalconsVelocityControl::FalconsVelocityControl::tick
 #ifdef DEBUG
     std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
     std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
+    std::cout << "local: " << convert_proto_to_json_str(local) << std::endl;
     std::cout << "error: " << error_value << std::endl;
 #endif // DEBUG
     return error_value;

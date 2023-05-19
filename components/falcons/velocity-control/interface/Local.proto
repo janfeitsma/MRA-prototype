@@ -14,5 +14,6 @@ enum ControlModeEnum
 message Local
 {
     ControlModeEnum controlMode = 1;
+    int32 numAlgorithmsExecuted = 2;
 }
 
