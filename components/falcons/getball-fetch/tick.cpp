@@ -72,6 +72,7 @@ int FalconsGetballFetch::FalconsGetballFetch::tick
             float factor = params.ballspeedscaling() * (ball_speed >= params.ballspeedthreshold());
 
             // set target, robot facing angle towards ball
+            // (by letting target ball "face away from" robot)
             MRA::Geometry::Position target = ball_position + ball_velocity * factor;
             target.faceAwayFrom(ws.robot().position());
 
