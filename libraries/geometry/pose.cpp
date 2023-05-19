@@ -32,6 +32,16 @@ Pose::~Pose()
 }
 
 // basic operations
+void Pose::reset()
+{
+    x = 0.0;
+    y = 0.0;
+    z = 0.0;
+    rx = 0.0;
+    ry = 0.0;
+    rz = 0.0;
+}
+
 double Pose::size() const
 {
     return sqrt(x * x + y * y + z * z);

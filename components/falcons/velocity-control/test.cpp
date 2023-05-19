@@ -175,6 +175,46 @@ TEST(FalconsVelocityControlTest, stop)
     EXPECT_FLOAT_EQ(output.velocity().rz(), 0.0);
 }
 
+// when STOP is not implemented correctly, it can happen that upon resuming,
+// the SPG still has an internal open-loop setpoint, where it should instead ramp up from zero
+TEST(FalconsVelocityControlTest, noHotRestart)
+{
+    // Arrange
+    auto m = FalconsVelocityControl::FalconsVelocityControl();
+    auto input1 = FalconsVelocityControl::Input();
+    auto input2 = FalconsVelocityControl::Input();
+    auto output = FalconsVelocityControl::Output();
+    auto state = FalconsVelocityControl::State();
+    auto local = FalconsVelocityControl::Local();
+    auto params = m.defaultParams();
+    input1.mutable_worldstate()->mutable_robot()->set_active(true);
+    input2.mutable_worldstate()->mutable_robot()->set_active(true);
+    // STOP command is given by VEL_ONLY (0,0,0)
+    input1.mutable_worldstate()->mutable_robot()->mutable_position()->set_rz(1.0);
+    input1.mutable_worldstate()->mutable_robot()->mutable_velocity()->set_rz(1.0);
+    input1.mutable_setpoint()->mutable_velocity()->set_x(0.0);
+    input1.mutable_setpoint()->mutable_velocity()->set_y(0.0);
+    input1.mutable_setpoint()->mutable_velocity()->set_rz(0.0);
+    input2.mutable_worldstate()->mutable_robot()->mutable_position()->set_rz(1.0);
+    input2.mutable_worldstate()->mutable_robot()->mutable_velocity()->set_rz(0.0);
+    input2.mutable_setpoint()->mutable_velocity()->set_x(0.0);
+    input2.mutable_setpoint()->mutable_velocity()->set_y(0.0);
+    input2.mutable_setpoint()->mutable_velocity()->set_rz(2.0);
+    state.mutable_positionsetpointfcs()->set_rz(1.0);
+    state.mutable_velocitysetpointfcs()->set_rz(1.0);
+
+    // Act
+    int error_value1 = m.tick(0.0, input1, params, state, output, local);
+    int error_value2 = m.tick(0.0, input2, params, state, output, local);
+
+    // Assert
+    EXPECT_EQ(error_value1, 0);
+    EXPECT_EQ(error_value2, 0);
+    EXPECT_FLOAT_EQ(output.velocity().x(), 0.0);
+    EXPECT_FLOAT_EQ(output.velocity().y(), 0.0);
+    EXPECT_LT(output.velocity().rz(), 0.1);
+}
+
 int main(int argc, char **argv)
 {
     InitGoogleTest(&argc, argv);
