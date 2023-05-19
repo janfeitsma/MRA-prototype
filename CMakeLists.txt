@@ -66,6 +66,9 @@ set(MESSAGE_PROTOS_COMPONENTS
     components/falcons/getball-fetch/interface/Input.proto
     components/falcons/getball-fetch/interface/Params.proto
     components/falcons/getball-fetch/interface/Output.proto
+    components/robotsports/getball-fetch/interface/Input.proto
+    components/robotsports/getball-fetch/interface/Params.proto
+    components/robotsports/getball-fetch/interface/Output.proto
 )
 
 add_library(MRA-components-proto)
@@ -81,6 +84,7 @@ protobuf_generate(TARGET MRA-components-proto PROTOS ${MESSAGE_PROTOS_COMPONENTS
 
 add_library(MRA-components
     components/falcons/getball-fetch/tick.cpp
+    components/robotsports/getball-fetch/tick.cpp
 )
 target_link_libraries(MRA-components MRA-libraries MRA-components-proto nlohmann_json::nlohmann_json)
 
