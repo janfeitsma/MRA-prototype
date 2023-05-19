@@ -9,8 +9,10 @@ namespace MRA::geometry
 // vectorsize: sqrt(x*x + y*y + z*z)
 double vectorsize(MRA::Datatypes::Pose const &p);
 
-// relative angle
-double calc_rz_between(MRA::Datatypes::Pose const &from, MRA::Datatypes::Pose const &to);
+// relative angle in MSL-FCS, where 0 is facing opponent goal
+// (which is 90 degrees rotated w.r.t. regular polar coordinate system)
+// example: when robot at x=2 takes a kickoff, the angle towards ball is 0.5*pi
+double calc_facing_angle_fcs(MRA::Datatypes::Pose const &from, MRA::Datatypes::Pose const &to);
 
 } // namespace MRA::geometry
 
