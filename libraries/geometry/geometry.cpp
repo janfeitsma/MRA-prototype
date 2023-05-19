@@ -8,9 +8,9 @@ double MRA::geometry::vectorsize(MRA::Datatypes::Pose const &p)
 }
 
 // relative angle
-double MRA::geometry::calc_rz_between(MRA::Datatypes::Pose const &from, MRA::Datatypes::Pose const &to)
+double MRA::geometry::calc_facing_angle_fcs(MRA::Datatypes::Pose const &from, MRA::Datatypes::Pose const &to)
 {
-    return clip_rot(atan2(to.y() - from.y(), to.x() - from.x()));
+    return clip_rot(atan2(to.y() - from.y(), to.x() - from.x()) - 0.5 * M_PI);
 }
 
 // clip rotation/angle to [0, 2pi) according to MSL coordinate system specification
