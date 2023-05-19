@@ -16,7 +16,7 @@ void Deadzone::execute(VelocityControlData &data)
     if (!config.enabled()) return;
 
     // apply Deadzone only when getting a position-based setpoint
-    if (data.controlMode == ControlModeEnum::POSVEL || data.controlMode == ControlModeEnum::POS_ONLY)
+    if (data.controlMode == MRA::FalconsVelocityControl::ControlModeEnum::POSVEL || data.controlMode == MRA::FalconsVelocityControl::ControlModeEnum::POS_ONLY)
     {
         Position2D delta = data.targetPositionFcs - data.currentPositionFcs;
 

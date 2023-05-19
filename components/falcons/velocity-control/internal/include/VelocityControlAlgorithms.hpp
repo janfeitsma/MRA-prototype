@@ -34,7 +34,7 @@ class CheckPrepareInputs : public VelocityControlAlgorithm
     void execute(VelocityControlData &data);
 
     void checkWorldState(VelocityControlData &data);
-    ControlModeEnum checkTargetSetpoint(VelocityControlData &data);
+    MRA::FalconsVelocityControl::ControlModeEnum checkTargetSetpoint(VelocityControlData &data);
     void setInternalVariables(VelocityControlData &data);
 };
 

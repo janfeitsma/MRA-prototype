@@ -39,24 +39,24 @@ void CheckPrepareInputs::checkWorldState(VelocityControlData &data)
     // checks on target setpoint are done in another function
 }
 
-ControlModeEnum CheckPrepareInputs::checkTargetSetpoint(VelocityControlData &data)
+MRA::FalconsVelocityControl::ControlModeEnum CheckPrepareInputs::checkTargetSetpoint(VelocityControlData &data)
 {
     // check if target position and/or velocity are set
-    ControlModeEnum result = ControlModeEnum::INVALID;
+    MRA::FalconsVelocityControl::ControlModeEnum result = MRA::FalconsVelocityControl::ControlModeEnum::INVALID;
     if (data.input.setpoint().has_position())
     {
         if (data.input.setpoint().has_velocity())
         {
-            result = ControlModeEnum::POSVEL;
+            result = MRA::FalconsVelocityControl::ControlModeEnum::POSVEL;
         }
         else
         {
-            result = ControlModeEnum::POS_ONLY;
+            result = MRA::FalconsVelocityControl::ControlModeEnum::POS_ONLY;
         }
     }
     else if (data.input.setpoint().has_velocity())
     {
-        result = ControlModeEnum::VEL_ONLY;
+        result = MRA::FalconsVelocityControl::ControlModeEnum::VEL_ONLY;
     }
     else
     {

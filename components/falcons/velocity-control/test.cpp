@@ -144,6 +144,37 @@ TEST(FalconsVelocityControlTest, moveRz)
     EXPECT_FLOAT_EQ(output.velocity().rz(), acc * dt);
 }
 
+TEST(FalconsVelocityControlTest, stop)
+{
+    // Arrange
+    auto m = FalconsVelocityControl::FalconsVelocityControl();
+    auto input = FalconsVelocityControl::Input();
+    auto output = FalconsVelocityControl::Output();
+    auto state = FalconsVelocityControl::State();
+    auto local = FalconsVelocityControl::Local();
+    auto params = m.defaultParams();
+    input.mutable_worldstate()->mutable_robot()->set_active(true);
+    // STOP command is given by VEL_ONLY (0,0,0)
+    input.mutable_setpoint()->mutable_velocity()->set_x(0.0);
+    input.mutable_setpoint()->mutable_velocity()->set_y(0.0);
+    input.mutable_setpoint()->mutable_velocity()->set_rz(0.0);
+    // setup as if robot was in the middle of a rotation
+    input.mutable_worldstate()->mutable_robot()->mutable_position()->set_rz(1.0);
+    input.mutable_worldstate()->mutable_robot()->mutable_velocity()->set_rz(1.0);
+    state.mutable_positionsetpointfcs()->set_rz(1.0);
+    state.mutable_velocitysetpointfcs()->set_rz(1.0);
+
+    // Act
+    int error_value = m.tick(0.0, input, params, state, output, local);
+
+    // Assert
+    EXPECT_EQ(error_value, 0);
+    EXPECT_EQ(local.controlmode(), MRA::FalconsVelocityControl::VEL_ONLY);
+    EXPECT_FLOAT_EQ(output.velocity().x(), 0.0);
+    EXPECT_FLOAT_EQ(output.velocity().y(), 0.0);
+    EXPECT_FLOAT_EQ(output.velocity().rz(), 0.0);
+}
+
 int main(int argc, char **argv)
 {
     InitGoogleTest(&argc, argv);

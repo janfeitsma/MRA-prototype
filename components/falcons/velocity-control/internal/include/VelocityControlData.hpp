@@ -17,14 +17,6 @@ class AbstractVelocitySetpointController;
 namespace MRA::internal::FVC
 {
 
-enum class ControlModeEnum
-{
-    INVALID,
-    POSVEL,     // have the target velocity at the target position
-    POS_ONLY,   // equivalent to POSVEL with vel(0,0,0)
-    VEL_ONLY    // velocity setpoint, ignoring the robot position. used to stop the robot: VEL_ONLY with vel(0,0,0).
-};
-
 // this struct is used (r/w) by every algorithm
 struct VelocityControlData
 {
@@ -46,7 +38,7 @@ struct VelocityControlData
     MRA::FalconsVelocityControl::Limits limits;
 
     // internal variables
-    ControlModeEnum controlMode;
+    MRA::FalconsVelocityControl::ControlModeEnum controlMode;
     Position2D currentPositionFcs;
     Velocity2D currentVelocityFcs;
     Position2D targetPositionFcs;

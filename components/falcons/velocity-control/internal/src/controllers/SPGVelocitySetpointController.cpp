@@ -169,7 +169,7 @@ bool SPGVelocitySetpointController::isDofAccelerating(const VelocityControlData 
 bool SPGVelocitySetpointController::calculateSPG(VelocityControlData& data, SpgLimits const &spgLimits, Position2D& resultPosition, Velocity2D &resultVelocity)
 {
     bool result = false;
-    if (data.controlMode != ControlModeEnum::VEL_ONLY)
+    if (data.controlMode != MRA::FalconsVelocityControl::ControlModeEnum::VEL_ONLY)
     {
         // POS_ONLY or POSVEL
         if (data.config.spg().synchronizerotation())
