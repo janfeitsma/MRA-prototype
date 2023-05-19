@@ -74,7 +74,7 @@ int FalconsGetballFetch::FalconsGetballFetch::tick
 
             // set target, robot facing angle towards ball
             MRA::Datatypes::Pose current = ws.robot().position();
-            target.set_rz(geometry::calc_rz_between(current, target));
+            target.set_rz(geometry::calc_facing_angle_fcs(current, target));
 
             // write output
             output.mutable_target()->mutable_position()->set_x(target.x());
