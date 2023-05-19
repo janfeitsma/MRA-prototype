@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package MRA.FalconsTrajectoryGeneration;
+
+
+message Params
+{
+    int32 maxTicks = 1;
+
+    // VelocityControl exports its own defaults
+    // in the context of TrajectoryGeneration, we want to allow overrules
+    // but message.MergeFrom cannot see when something is set to zero ...
+    // so we pass down a json overrule string and apply it in tick.cpp
+    string vcParamsJsonStr = 2;
+}
+

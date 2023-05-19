@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package MRA.FalconsVelocityControl;
+
+
+enum ControlModeEnum
+{
+    INVALID = 0;
+    POSVEL = 1; // control both: have the target velocity at the target position
+    POS_ONLY = 2; // equivalent to POSVEL with vel(0,0,0)
+    VEL_ONLY = 3; // velocity setpoint, ignoring the robot position. used to stop the robot: VEL_ONLY with vel(0,0,0).
+}
+
+message Local
+{
+    ControlModeEnum controlMode = 1;
+    int32 numAlgorithmsExecuted = 2;
+}
+

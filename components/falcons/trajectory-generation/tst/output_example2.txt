@@ -1,0 +1,9 @@
+input:
+    target setpoint position x  :    0.1000
+parameters overrule:
+    {"deadzone": {"toleranceXY": 0.001}}
+result:
+    duration                    :    0.6500
+    number of samples           :   26
+    final position x            :    0.0991
+    final velocity vx           :    0.0086

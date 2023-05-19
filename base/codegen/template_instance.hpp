@@ -6,8 +6,10 @@
 
 #include "abstract_interface.hpp"
 #include "params_loader.hpp"
+#include <google/protobuf/empty.pb.h>
 
-PROTOBUF_HPP_TYPE_INCLUDES
+// generated protobuf types from interface of this component
+#include "datatypes.hpp"
 
 namespace MRA::COMPONENT_CPP_NAME_CAMELCASE
 {
@@ -30,13 +32,19 @@ public:
         LocalType        &local        // local/diagnostics data, type generated from Local.proto
     );
 
-    // allow omitting parameters, useful for testing and code brevity
+    // make default configuration easily accessible
+    ParamsType defaultParams() const
+    {
+        return MRA::LoadDefaultParams<ParamsType>("components/COMPONENT_REL_PATH/interface/DefaultParams.json");
+    };
+
+    // allow omitting arguments, useful for testing and code brevity
     int tick()
     {
         StateType s;
         OutputType o;
         LocalType l;
-        return tick(0.0, InputType(), MRA::LoadDefaultParams<ParamsType>("components/COMPONENT_REL_PATH/interface/DefaultParams.json"), s, o, l);
+        return tick(0.0, InputType(), defaultParams(), s, o, l);
     };
 
     int tick(
@@ -46,7 +54,7 @@ public:
     {
         StateType s;
         LocalType l;
-        return tick(0.0, input, MRA::LoadDefaultParams<ParamsType>("components/COMPONENT_REL_PATH/interface/DefaultParams.json"), s, output, l);
+        return tick(0.0, input, defaultParams(), s, output, l);
     };
 
     int tick(

@@ -1,0 +1,9 @@
+input:
+    target setpoint position x  :    0.1000
+parameters overrule:
+    n/a
+result:
+    duration                    :    0.4250
+    number of samples           :   17
+    final position x            :    0.0747
+    final velocity vx           :    0.2231

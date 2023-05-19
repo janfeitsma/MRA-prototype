@@ -63,23 +63,23 @@ int FalconsGetballFetch::FalconsGetballFetch::tick
         // check if not any failure mode was triggered
         if (output.actionresult() == MRA::Datatypes::RUNNING)
         {
-            float ball_speed = geometry::vectorsize(ws.ball().velocity());
+            MRA::Geometry::Position ball_position(ws.ball().position());
+            MRA::Geometry::Velocity ball_velocity(ws.ball().velocity());
 
             // if speed is low enough, then just drive on top of the ball
             // otherwise: try to catch up, by making use of ball velocity vector
+            float ball_speed = ball_velocity.size();
             float factor = params.ballspeedscaling() * (ball_speed >= params.ballspeedthreshold());
 
-            // arithmetic operators on Pose are defined in geometry.hpp
-            MRA::Datatypes::Pose target = ws.ball().position() + ws.ball().velocity() * factor;
-
             // set target, robot facing angle towards ball
-            MRA::Datatypes::Pose current = ws.robot().position();
-            target.set_rz(geometry::calc_facing_angle_fcs(current, target));
+            // (by letting target ball "face away from" robot)
+            MRA::Geometry::Position target = ball_position + ball_velocity * factor;
+            target.faceAwayFrom(ws.robot().position());
 
             // write output
-            output.mutable_target()->mutable_position()->set_x(target.x());
-            output.mutable_target()->mutable_position()->set_y(target.y());
-            output.mutable_target()->mutable_position()->set_rz(target.rz());
+            output.mutable_target()->mutable_position()->set_x(target.x);
+            output.mutable_target()->mutable_position()->set_y(target.y);
+            output.mutable_target()->mutable_position()->set_rz(target.rz);
         }
     }
     return error_value;

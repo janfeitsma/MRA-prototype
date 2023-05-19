@@ -2,13 +2,26 @@ syntax = "proto3";
 
 package MRA.FalconsVelocityControl;
 
-message SPG
+message SpgConfig
 {
     bool synchronizeRotation = 1; // true means smearing out the rotation (non-greedy), but not always facing ball
-    float weightFactorClosedLoopVel = 2;
-    float weightFactorClosedLoopPos = 3;
-    float latencyOffset = 4;
-    bool convergenceWorkaround = 5;
+    float weightFactorClosedLoopVel = 2; // tuning parameter
+    float weightFactorClosedLoopPos = 3; // tuning parameter
+    float latencyOffset = 4; // [seconds] tuning parameter
+    bool convergenceWorkaround = 5; // intended for simulation
+}
+
+message DribbleConfig
+{
+    bool applyLimitsToBall = 1;
+    float radiusRobotToBall = 2;
+}
+
+message DeadzoneConfig
+{
+    bool enabled = 1;
+    float toleranceXY = 2; // [m] only calculate if robot is not yet close enough
+    float toleranceRz = 3; // [rad] only calculate if robot is not yet close enough
 }
 
 message XYRzLimits
@@ -31,8 +44,12 @@ message Limits
 
 message Params
 {
-    SPG spg = 1;
-    repeated Limits limits = 2; // array, content corresponds with motionProfile input
+    float dt = 1; // [seconds] timestep to use, typically 1/motionfrequency
+    float timeout = 2; // [seconds] after which to reset SPG state (watchdog)
+    SpgConfig spg = 3;
+    DribbleConfig dribble = 4;
+    DeadzoneConfig deadzone = 5;
+    repeated Limits limits = 6; // array, content corresponds with motionProfile input
     // NOTE: it is allowed to omit items in defaultParams, then defaults from limits[0] will be used
 }
 
