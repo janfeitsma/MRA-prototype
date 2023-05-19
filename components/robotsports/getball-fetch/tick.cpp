@@ -12,6 +12,8 @@ using namespace MRA;
 // custom includes, if any
 #include <cmath>
 
+static double calc_robot_movement( double cur_vel, double req_vel, double acc, double delta_t );
+static double calc_robot_velocity( double current_velocity, double required_velocity, double acceleration, double delta_time );
 
 int RobotsportsGetballFetch::RobotsportsGetballFetch::tick
 (
@@ -63,25 +65,76 @@ int RobotsportsGetballFetch::RobotsportsGetballFetch::tick
         // check if not any failure mode was triggered
         if (output.actionresult() == MRA::Datatypes::RUNNING)
         {
-            float ball_speed = geometry::vectorsize(ws.ball().velocity());
+        	MRA::Datatypes::Pose robot_pos = ws.robot().position();
+        	MRA::Datatypes::Pose robot_vel = ws.robot().velocity();
 
-            // if speed is low enough, then just drive on top of the ball
-            // otherwise: try to catch up, by making use of ball velocity vector
-            float factor = params.ballspeedscaling() * (ball_speed >= params.ballspeedthreshold());
+        	MRA::Datatypes::Pose prev_target_vel = params.requested_velocity();
+        	MRA::Datatypes::Pose prev_target_acc  = params.requested_acceleration();
 
-            // arithmetic operators on Pose are defined in geometry.hpp
-            MRA::Datatypes::Pose target = ws.ball().position() + ws.ball().velocity() * factor;
+        	MRA::Datatypes::Pose next_pos;
+        	MRA::Datatypes::Pose next_vel;
 
-            // set target, robot facing angle towards ball
-            MRA::Datatypes::Pose current = ws.robot().position();
-            target.set_rz(geometry::calc_rz_between(current, target));
+        	next_pos.set_x(robot_pos.x() + calc_robot_movement( robot_vel.x(), prev_target_vel.x(), prev_target_acc.x(), params.tick_duration() ));
+        	next_pos.set_y(robot_pos.y() + calc_robot_movement( robot_vel.y(), prev_target_vel.y(), prev_target_acc.y(), params.tick_duration() ));
+        	next_pos.set_rz(robot_pos.rz() + calc_robot_movement( robot_vel.rz(), prev_target_vel.rz(), prev_target_acc.rz(), params.tick_duration() ));
+        	next_vel.set_x( calc_robot_velocity( robot_vel.x(), prev_target_vel.x(), prev_target_acc.x(), params.tick_duration() ));
+        	next_vel.set_y( calc_robot_velocity( robot_vel.y(), prev_target_vel.y(), prev_target_acc.y(), params.tick_duration() ));
+        	next_vel.set_rz( calc_robot_velocity( robot_vel.rz(), prev_target_vel.rz(), prev_target_acc.rz(), params.tick_duration() ));
+
+        	MRA::Datatypes::Pose target_pos_fc  = ws.ball().position();
+        	MRA::Datatypes::Pose target_vel_fc  = ws.ball().velocity();
+
+        	target_pos_fc.set_x(target_pos_fc.x() + target_vel_fc.x() * params.vision_delay());
+        	target_pos_fc.set_y(target_pos_fc.y() + target_vel_fc.y() * params.vision_delay());
+			target_pos_fc.set_rz(target_pos_fc.rz() + target_vel_fc.rz() * params.vision_delay());
 
             // write output
-            output.mutable_target()->mutable_position()->set_x(target.x());
-            output.mutable_target()->mutable_position()->set_y(target.y());
-            output.mutable_target()->mutable_position()->set_rz(target.rz());
+            output.mutable_target()->mutable_position()->set_x(target_pos_fc.x());
+            output.mutable_target()->mutable_position()->set_y(target_pos_fc.y());
+            output.mutable_target()->mutable_position()->set_rz(target_pos_fc.rz());
         }
     }
     return error_value;
 }
+
+double calc_robot_movement( double cur_vel, double req_vel, double acc, double delta_t )
+// Calculates how far the robot has moved after one tick.
+// It also calculates the movement correctly in case of partial ramp-down/ups.
+{
+	double delta_t_vel_reached;
+	double delta_t_vel_ramping;
+	double end_vel;
+	double movement;
+
+	bool will_reach_vel = ( fabs( cur_vel - req_vel ) <= acc * delta_t );
+
+	delta_t_vel_reached = will_reach_vel ? fabs( cur_vel - req_vel ) / acc : delta_t;
+	delta_t_vel_ramping = delta_t - delta_t_vel_reached;
+
+	end_vel = calc_robot_velocity(cur_vel, req_vel, acc, delta_t );
+
+	movement = (cur_vel + end_vel) / 2 * delta_t_vel_ramping + end_vel * delta_t_vel_reached;
+
+	return movement;
+}
+
+double calc_robot_velocity( double current_velocity, double required_velocity, double acceleration, double delta_time )
+// Calculates what the velocity is at the end of the tick.
+{
+	double robot_velocity_end_of_tick;
+	double delta_acceleration = acceleration * delta_time;
+	if (required_velocity < current_velocity + delta_acceleration) {
+		robot_velocity_end_of_tick = current_velocity + delta_acceleration;
+	}
+	else {
+		if (required_velocity > current_velocity - delta_acceleration) {
+			robot_velocity_end_of_tick = current_velocity - delta_acceleration;
+		}
+		else {
+			robot_velocity_end_of_tick = required_velocity;
+		}
+	}
+	return robot_velocity_end_of_tick;
+}
+
 
