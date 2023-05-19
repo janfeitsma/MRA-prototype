@@ -407,7 +407,7 @@ TEST(MRAGeometryPositionTest, addRcsToFcs)
     EXPECT_FLOAT_EQ(p.rz, -0.5 * M_PI);
 }
 
-TEST(MRAGeometryPositionTest, faceTowards)
+TEST(MRAGeometryPositionTest, faceTowardsRight)
 {
     // Arrange
     auto pf = Position(1.0, 1.0);
@@ -419,13 +419,43 @@ TEST(MRAGeometryPositionTest, faceTowards)
     // Assert
     EXPECT_FLOAT_EQ(p.x, 0.0);
     EXPECT_FLOAT_EQ(p.y, 0.0);
+    EXPECT_FLOAT_EQ(p.rz, -0.25 * M_PI);
+}
+
+TEST(MRAGeometryPositionTest, faceTowardsLeft)
+{
+    // Arrange
+    auto pf = Position(-1.0, 1.0);
+    auto pr = Position(0.0, 0.0);
+
+    // Act
+    Position p = pr.faceTowards(pf);
+
+    // Assert
+    EXPECT_FLOAT_EQ(p.x, 0.0);
+    EXPECT_FLOAT_EQ(p.y, 0.0);
     EXPECT_FLOAT_EQ(p.rz, 0.25 * M_PI);
 }
 
-TEST(MRAGeometryPositionTest, faceAwayFrom)
+TEST(MRAGeometryPositionTest, faceAwayFromRight)
 {
     // Arrange
     auto pf = Position(1.0, 1.0);
+    auto pr = Position(0.0, 0.0);
+
+    // Act
+    Position p = pr.faceAwayFrom(pf);
+
+    // Assert
+    EXPECT_FLOAT_EQ(p.x, 0.0);
+    EXPECT_FLOAT_EQ(p.y, 0.0);
+    EXPECT_FLOAT_EQ(p.rz, 0.75 * M_PI);
+}
+
+TEST(MRAGeometryPositionTest, faceAwayFromLeft)
+{
+    // Arrange
+    auto pf = Position(-1.0, 1.0);
     auto pr = Position(0.0, 0.0);
 
     // Act

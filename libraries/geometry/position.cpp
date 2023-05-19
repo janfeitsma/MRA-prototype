@@ -1,5 +1,5 @@
 #include "position.hpp"
-#include "clipping.hpp"
+#include "angles.hpp"
 #include <cmath>
 
 using namespace MRA::Geometry;
@@ -85,15 +85,15 @@ Position& Position::transformFcsToRcs(Position const &refpos)
 
 Position& Position::faceAwayFrom(Position const &p)
 {
-    rz = atan2(y - p.y, x - p.x);
-    wrap_angles(); // technically not needed as long as we stick to [-pi,pi)
+    rz = calc_facing_angle_fcs(p.x, p.y, x, y);
+    wrap_angles();
     return *this;
 }
 
 Position& Position::faceTowards(Position const &p)
 {
-    rz = atan2(p.y - y, p.x - x);
-    wrap_angles(); // technically not needed as long as we stick to [-pi,pi)
+    rz = calc_facing_angle_fcs(x, y, p.x, p.y);
+    wrap_angles();
     return *this;
 }
 

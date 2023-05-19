@@ -1,10 +1,10 @@
 cc_library(
-    name = "clipping",
+    name = "angles",
     hdrs = [
-        "clipping.hpp",
+        "angles.hpp",
     ],
     srcs = [
-        "clipping.cpp",
+        "angles.cpp",
     ],
     visibility = ["//visibility:public"],
 )
@@ -19,7 +19,7 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        ":clipping",
+        ":angles",
         "//datatypes:MRA_cc_proto",
     ],
 )
@@ -51,7 +51,7 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":pose",
-        ":clipping",
+        ":angles",
     ],
 )
 
@@ -66,7 +66,7 @@ cc_library(
         ":pose",
         ":position",
         ":velocity",
-        ":clipping",
+        ":angles",
     ],
 )
 

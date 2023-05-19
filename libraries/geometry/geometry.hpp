@@ -10,7 +10,7 @@
 #include "libraries/geometry/velocity.hpp"
 
 // angle wrapping & clipping operations
-#include "libraries/geometry/clipping.hpp" // TODO rename to angles.hpp and add calc_facing_angle_fcs (lost during merge)
+#include "libraries/geometry/angles.hpp"
 
 #endif // #ifndef _MRA_LIBRARIES_GEOMETRY_GEOMETRY_HPP
 
