@@ -70,7 +70,7 @@ set(MESSAGE_PROTOS_COMPONENTS
 
 add_library(MRA-components-proto)
 target_include_directories(MRA-components-proto PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries(MRA-components-proto protobuf)
+target_link_libraries(MRA-components-proto MRA-datatypes protobuf)
 
 protobuf_generate(TARGET MRA-components-proto PROTOS ${MESSAGE_PROTOS_COMPONENTS} LANGUAGE cpp IMPORT_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
 
