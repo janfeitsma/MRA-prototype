@@ -1,11 +1,24 @@
 {
+    "dt": 0.025,
+    "timeout": 0.1,
     "spg":
     {
-        "synchronizeRotation" : false,
+        "synchronizeRotation": false,
         "weightFactorClosedLoopVel": 0.0,
         "weightFactorClosedLoopPos": 0.7,
         "latencyOffset": 0.0,
         "convergenceWorkaround": false
+    },
+    "dribble":
+    {
+        "applyLimitsToBall": true,
+        "radiusRobotToBall": 0.26
+    },
+    "deadzone":
+    {
+        "enabled": true,
+        "toleranceXY": 0.03,
+        "toleranceRz": 0.005
     },
     "limits":
     [

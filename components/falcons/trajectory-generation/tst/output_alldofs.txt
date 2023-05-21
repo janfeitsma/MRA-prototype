@@ -1,0 +1,17 @@
+input:
+    target setpoint position x  :    3.0000
+    target setpoint position y  :    2.0000
+    target setpoint position rz :   -3.0000
+    robot initial position x    :   -2.0000
+    robot initial position y    :   -3.0000
+    robot initial position rz   :    1.0000
+parameters overrule:
+    n/a
+result:
+    duration                    :    4.9750
+    number of samples           :  199
+    final position x            :    2.9859
+    final position y            :    1.9809
+    final position rz           :   -3.0019
+    final velocity vx           :    0.1515
+    final velocity vy           :    0.2045

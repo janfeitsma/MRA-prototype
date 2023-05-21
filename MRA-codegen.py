@@ -89,9 +89,15 @@ class ComponentGenerator():
         # dependencies to other libraries / components w.r.t. MRA_ROOT
         self.component_dependencies = []
         self.library_dependencies = []
+        self.internal_dependencies = []
         deps_file = os.path.join(self.component_folder, 'dependencies')
         if os.path.isfile(deps_file):
             for dep in [ll.strip() for ll in open(deps_file).readlines()]:
+                if len(dep) == 0:
+                    continue
+                if os.path.isdir(os.path.join(self.component_folder, dep.split(':')[0])):
+                    self.internal_dependencies.append(dep)
+                    continue
                 if not os.path.isdir(dep):
                     raise Exception(f'invalid dependency, folder not found: "{dep}" in file "{deps_file}"')
                 if dep.startswith('components'):
@@ -112,6 +118,7 @@ class ComponentGenerator():
         self.make_replace_dict()
         self.handle_interface_bazel_build()
         self.handle_implementation_bazel_build()
+        self.handle_header_datatypes_hpp()
         self.handle_header_hpp()
         self.generate_copy_files_unless_existing()
         # TODO: cmake generators?
@@ -196,7 +203,7 @@ class ComponentGenerator():
         """Snippet of code to include header files into tick.cpp."""
         result = []
         for cc in self.component_dependencies:
-            ccc = component_name_camelcase(cc)
+            ccc = component_name_camelcase(cc.lstrip('components/'))
             result.append(f'#include "{ccc}.hpp"')
         # TODO: also handle self.library_dependencies?
         if len(result):
@@ -211,7 +218,7 @@ class ComponentGenerator():
             if p in self.interface_parts:
                 result += f"typedef MRA::{c}::{p} {p}Type;\n"
             else:
-                result += f"typedef int {p}Type; // no .proto -> unused\n"
+                result += f"typedef google::protobuf::Empty {p}Type; // no .proto -> unused\n"
         return result
 
     def make_build_deps_interface(self) -> str:
@@ -226,6 +233,8 @@ class ComponentGenerator():
         result = []
         for dep in self.component_dependencies:
             result.append(f'"//{dep}:implementation",')
+        for dep in self.internal_dependencies:
+            result.append(f'"//components/{self.component}/{dep}",')
         for dep in self.library_dependencies:
             result.append(f'"//{dep}",')
         return '\n        '.join(result)
@@ -261,6 +270,12 @@ class ComponentGenerator():
         """Generate C++ header file, using generated protobuf types and deriving from base class."""
         src = self.template_folder / 'template_instance.hpp'
         tgt = os.path.join(self.component_folder, self.cname_camelcase + '.hpp')
+        self.check_copy_and_modify(src, tgt)
+
+    def handle_header_datatypes_hpp(self) -> None:
+        """Generate C++ header file which only exposes the generated protobuf datatypes."""
+        src = self.template_folder / 'template_datatypes.hpp'
+        tgt = os.path.join(self.component_folder, 'datatypes.hpp')
         self.check_copy_and_modify(src, tgt)
 
     def generate_copy_files_unless_existing(self) -> None:

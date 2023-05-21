@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package MRA.FalconsTrajectoryGeneration;
+
+import "datatypes/WorldState.proto";
+import "datatypes/PosVel.proto";
+
+// same as FalconsVelocityControl.Input
+
+message Input
+{
+    // from worldstate, only use use current position and velocity
+    // obstacles and opponents are ignored, it is the responsibility of falcons-PathPlanning to calculate a "safe" target setpoint
+    MRA.Datatypes.WorldState worldstate = 1;
+
+    // safe target setpoint (position and velocity) in FCS
+    // only (x,y,rz)
+    // when no setpoint or an incomplete setpoint is given, it means STOP
+    MRA.Datatypes.PosVel setpoint = 2;
+
+    // motion profile id, 0 is default
+    // allow more (for instance to trade in speed for accuracy, and vice versa)
+    // use int32 instead of enum, because the set of profiles is expected to vary from team to team (?)
+    int32 motionProfile = 3;
+}
+

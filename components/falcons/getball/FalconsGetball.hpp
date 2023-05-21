@@ -6,20 +6,19 @@
 
 #include "abstract_interface.hpp"
 #include "params_loader.hpp"
+#include <google/protobuf/empty.pb.h>
 
-#include "components/falcons/getball/interface/Input.pb.h"
-#include "components/falcons/getball/interface/Params.pb.h"
-#include "components/falcons/getball/interface/Output.pb.h"
-
+// generated protobuf types from interface of this component
+#include "datatypes.hpp"
 
 namespace MRA::FalconsGetball
 {
 
 typedef MRA::FalconsGetball::Input InputType;
 typedef MRA::FalconsGetball::Params ParamsType;
-typedef int StateType; // no .proto -> unused
+typedef google::protobuf::Empty StateType; // no .proto -> unused
 typedef MRA::FalconsGetball::Output OutputType;
-typedef int LocalType; // no .proto -> unused
+typedef google::protobuf::Empty LocalType; // no .proto -> unused
 
 
 class FalconsGetball: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>
@@ -38,13 +37,19 @@ public:
         LocalType        &local        // local/diagnostics data, type generated from Local.proto
     );
 
-    // allow omitting parameters, useful for testing and code brevity
+    // make default configuration easily accessible
+    ParamsType defaultParams() const
+    {
+        return MRA::LoadDefaultParams<ParamsType>("components/falcons/getball/interface/DefaultParams.json");
+    };
+
+    // allow omitting arguments, useful for testing and code brevity
     int tick()
     {
         StateType s;
         OutputType o;
         LocalType l;
-        return tick(0.0, InputType(), MRA::LoadDefaultParams<ParamsType>("components/falcons/getball/interface/DefaultParams.json"), s, o, l);
+        return tick(0.0, InputType(), defaultParams(), s, o, l);
     };
 
     int tick(
@@ -54,7 +59,7 @@ public:
     {
         StateType s;
         LocalType l;
-        return tick(0.0, input, MRA::LoadDefaultParams<ParamsType>("components/falcons/getball/interface/DefaultParams.json"), s, output, l);
+        return tick(0.0, input, defaultParams(), s, output, l);
     };
 
     int tick(
