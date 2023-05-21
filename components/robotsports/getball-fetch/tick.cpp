@@ -101,19 +101,14 @@ double calc_robot_movement( double cur_vel, double req_vel, double acc, double d
 // Calculates how far the robot has moved after one tick.
 // It also calculates the movement correctly in case of partial ramp-down/ups.
 {
-	double delta_t_vel_reached;
-	double delta_t_vel_ramping;
-	double end_vel;
-	double movement;
-
 	bool will_reach_vel = ( fabs( cur_vel - req_vel ) <= acc * delta_t );
 
-	delta_t_vel_reached = will_reach_vel ? fabs( cur_vel - req_vel ) / acc : delta_t;
-	delta_t_vel_ramping = delta_t - delta_t_vel_reached;
+	double delta_t_vel_reached = will_reach_vel ? fabs( cur_vel - req_vel ) / acc : delta_t;
+	double delta_t_vel_ramping = delta_t - delta_t_vel_reached;
 
-	end_vel = calc_robot_velocity(cur_vel, req_vel, acc, delta_t );
+	double end_vel = calc_robot_velocity(cur_vel, req_vel, acc, delta_t );
 
-	movement = (cur_vel + end_vel) / 2 * delta_t_vel_ramping + end_vel * delta_t_vel_reached;
+	double movement = (cur_vel + end_vel) / 2 * delta_t_vel_ramping + end_vel * delta_t_vel_reached;
 
 	return movement;
 }
