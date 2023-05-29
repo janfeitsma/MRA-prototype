@@ -7,9 +7,5 @@ import "datatypes/Pose.proto";
 message Params
 {
     float vision_delay = 1; //  [s] vision delay, physical delay between capture and availability of an image  
-    float tick_duration = 2; // [s] Duration betweens ticks 
-    MRA.Datatypes.Pose requested_velocity = 3; // [m/s]/[rad/s] requested linear velocity in previous tick
-    MRA.Datatypes.Pose requested_acceleration = 4; // [m/s^2]/[rad/s^2] requested linear acceleration in previous tick
-    
 }
 
