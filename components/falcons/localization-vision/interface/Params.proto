@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package MRA.FalconsLocalizationVision;
+
+import "datatypes/Shapes.proto";
+
+// see https://msl.robocup.org/wp-content/uploads/2023/01/Rulebook_MSL2023_v24.1.pdf#section.1.1
+// for a picture with the letters included
+// defaults in [brackets] in meters according to official WorldCup size (large field)
+message StandardLetterModel
+{
+    float A = 1;  // [22.0]   field length including lines (y)
+    float B = 2;  // [14.0]   field width including lines (x)
+    float C = 3;  // [ 6.9]   penalty area width including lines (x)
+    float D = 4;  // [ 3.9]   goal area width including lines (x)
+    float E = 5;  // [ 2.25]  penalty area length including lines (y)
+    float F = 6;  // [ 0.75]  goal area length including lines (y)
+    float G = 7;  // [ 0.75]  corner circle radius including lines
+    float H = 8;  // [ 4.0]   inner circle diameter including lines
+    float I = 9;  // [ 3.6]   penalty mark distance (y) including line to mark center (?)
+    float J = 10; // [ 0.15]  penalty- and center mark diameter
+    float K = 11; // [ 0.125] line width
+    float L = 12; // [ 1.0]   field border (x) (between outer line and black safety border)
+    float M = 13; // [ 1.0]   TTA width (x)
+    float N = 14; // [ 7.5]   TTA length (y) (between safety borders)
+    float O = 15; // [ 1.0]   TTA ramp length (y)
+    float P = 16; // [ 0.5]   TTA ramp width (x)
+    float Q = 17; // [ 3.5]   off-center distance to restart spots (x)
+}
+
+message Params
+{
+    StandardLetterModel model = 1; // optional MSL standard model of the field using letters, where A=22, B=14, etc, leading to a set of shapes
+    repeated MRA.Datatypes.Shape shapes = 2; // optional extra shapes
+}
+
