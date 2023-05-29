@@ -113,6 +113,11 @@ set(MESSAGE_PROTOS_COMPONENTS
     components/robotsports/getball-fetch/interface/Input.proto
     components/robotsports/getball-fetch/interface/Params.proto
     components/robotsports/getball-fetch/interface/Output.proto
+    components/robotsports/velocity-control/interface/Input.proto
+    components/robotsports/velocity-control/interface/Local.proto
+    components/robotsports/velocity-control/interface/Params.proto
+    components/robotsports/velocity-control/interface/Output.proto
+    components/robotsports/velocity-control/interface/State.proto
 )
 
 add_library(MRA-components-proto)
@@ -143,6 +148,7 @@ add_library(MRA-components
     components/falcons/velocity-control/internal/src/algorithms/SetOutputsPrepareNext.cpp
 
     components/robotsports/getball-fetch/tick.cpp
+    components/robotsports/velocity-control/tick.cpp
 )
 target_link_libraries(MRA-components MRA-libraries MRA-components-proto MRA-base nlohmann_json::nlohmann_json)
 
