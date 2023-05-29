@@ -91,6 +91,11 @@ target_link_libraries(MRA-libraries MRA-datatypes)
 
 include_directories(base)
 
+add_library(MRA-base
+	base/json_convert.cpp
+)
+target_include_directories(MRA-base PUBLIC base)
+target_link_libraries(MRA-base nlohmann_json::nlohmann_json)
 
 ##########################################################
 # component interfaces
@@ -139,5 +144,5 @@ add_library(MRA-components
 
     components/robotsports/getball-fetch/tick.cpp
 )
-target_link_libraries(MRA-components MRA-libraries MRA-components-proto nlohmann_json::nlohmann_json)
+target_link_libraries(MRA-components MRA-libraries MRA-components-proto MRA-base nlohmann_json::nlohmann_json)
 
