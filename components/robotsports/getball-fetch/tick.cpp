@@ -77,6 +77,7 @@ int RobotsportsGetballFetch::RobotsportsGetballFetch::tick
         	next_pos.set_x(robot_pos.x() + calc_robot_movement( robot_vel.x(), prev_target_vel.x(), prev_target_acc.x(), params.tick_duration() ));
         	next_pos.set_y(robot_pos.y() + calc_robot_movement( robot_vel.y(), prev_target_vel.y(), prev_target_acc.y(), params.tick_duration() ));
         	next_pos.set_rz(robot_pos.rz() + calc_robot_movement( robot_vel.rz(), prev_target_vel.rz(), prev_target_acc.rz(), params.tick_duration() ));
+
         	next_vel.set_x( calc_robot_velocity( robot_vel.x(), prev_target_vel.x(), prev_target_acc.x(), params.tick_duration() ));
         	next_vel.set_y( calc_robot_velocity( robot_vel.y(), prev_target_vel.y(), prev_target_acc.y(), params.tick_duration() ));
         	next_vel.set_rz( calc_robot_velocity( robot_vel.rz(), prev_target_vel.rz(), prev_target_acc.rz(), params.tick_duration() ));
@@ -86,12 +87,13 @@ int RobotsportsGetballFetch::RobotsportsGetballFetch::tick
 
         	target_pos_fc.set_x(target_pos_fc.x() + target_vel_fc.x() * params.vision_delay());
         	target_pos_fc.set_y(target_pos_fc.y() + target_vel_fc.y() * params.vision_delay());
-			target_pos_fc.set_rz(target_pos_fc.rz() + target_vel_fc.rz() * params.vision_delay());
+        	MRA::Geometry::Position target_position = ws.ball().position();
+        	target_position.faceAwayFrom(ws.robot().position());
 
             // write output
             output.mutable_target()->mutable_position()->set_x(target_pos_fc.x());
             output.mutable_target()->mutable_position()->set_y(target_pos_fc.y());
-            output.mutable_target()->mutable_position()->set_rz(target_pos_fc.rz());
+            output.mutable_target()->mutable_position()->set_rz(target_position.rz);
         }
     }
     return error_value;
