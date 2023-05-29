@@ -12,9 +12,6 @@ using namespace MRA;
 // custom includes, if any
 #include <cmath>
 
-static double calc_robot_movement( double cur_vel, double req_vel, double acc, double delta_t );
-static double calc_robot_velocity( double current_velocity, double required_velocity, double acceleration, double delta_time );
-
 int RobotsportsGetballFetch::RobotsportsGetballFetch::tick
 (
     double            timestamp,   // simulation timestamp, seconds since start of simulation
