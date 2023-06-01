@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package MRA.RobotsportsVelocityControl;
+
+import "datatypes/Pose.proto";
+
+message Params
+{
+    float dt = 1; // [seconds] timestep to use, typically 1/motionfrequency
+    MRA.Datatypes.Pose requested_velocity = 2;
+    MRA.Datatypes.Pose requested_acceleration = 3;
+    float max_acceleration_linear = 4;
+    float max_acceleration_rotation = 5;  
+}
+
