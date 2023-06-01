@@ -1,39 +1,22 @@
 {
     "dt": 0.025,
-    "timeout": 0.1,
-    "spg":
+    "requested_velocity":
     {
-        "synchronizeRotation": false,
-        "weightFactorClosedLoopVel": 0.0,
-        "weightFactorClosedLoopPos": 0.7,
-        "latencyOffset": 0.0,
-        "convergenceWorkaround": false
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "rx": 0.0,
+        "ry": 0.0,
+        "rz": 0.0
     },
-    "dribble":
+    "requested_acceleration":
     {
-        "applyLimitsToBall": true,
-        "radiusRobotToBall": 0.26
-    },
-    "deadzone":
-    {
-        "enabled": true,
-        "toleranceXY": 0.03,
-        "toleranceRz": 0.005
-    },
-    "limits":
-    [
-        {
-            "name": "default",
-            "maxVel": {"X": 1.6, "Yforward": 1.6, "Ybackward": 1.6, "Rz": 2.0},
-            "maxAcc": {"X": 1.0, "Yforward": 1.0, "Ybackward": 1.0, "Rz": 1.5},
-            "maxDec": {"X": 2.5, "Y": 2.5, "Rz": 5.0},
-            "accThreshold": {"X": 0.0, "Y": 0.0, "Rz": 0.0}
-        },
-        {
-            "name": "withBall",
-            "maxVel": {"X": 0.5, "Yforward": 1.4, "Ybackward": 0.5, "Rz": 2.5},
-            "maxAcc": {"X": 0.5, "Yforward": 1.0, "Ybackward": 0.5, "Rz": 3.0}
-        }
-    ]
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "rx": 0.0,
+        "ry": 0.0,
+        "rz": 0.0
+    }
 }
 

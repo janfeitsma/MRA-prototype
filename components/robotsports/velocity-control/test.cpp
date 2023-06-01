@@ -78,9 +78,9 @@ TEST(RobotsportsVelocityControlTest, moveX)
     input.mutable_worldstate()->mutable_robot()->set_active(true);
     auto params = m.defaultParams();
     float acc = 1.5;
-    params.mutable_limits(0)->mutable_maxacc()->set_x(acc);
+    // params.mutable_limits(0)->mutable_maxacc()->set_x(acc);
     float dt = 1.0 / 40;
-    params.set_dt(dt);
+    // params.set_dt(dt);
 
     // Act
     int error_value = m.tick(input, params, output);
@@ -104,9 +104,9 @@ TEST(RobotsportsVelocityControlTest, moveY)
     input.mutable_worldstate()->mutable_robot()->set_active(true);
     auto params = m.defaultParams();
     float acc = 1.8;
-    params.mutable_limits(0)->mutable_maxacc()->set_yforward(acc);
+    //    params.mutable_limits(0)->mutable_maxacc()->set_yforward(acc);
     float dt = 1.0 / 30;
-    params.set_dt(dt);
+    //    params.set_dt(dt);
 
     // Act
     int error_value = m.tick(input, params, output);
@@ -130,9 +130,9 @@ TEST(RobotsportsVelocityControlTest, moveRz)
     input.mutable_worldstate()->mutable_robot()->set_active(true);
     auto params = m.defaultParams();
     float acc = 1.7;
-    params.mutable_limits(0)->mutable_maxacc()->set_rz(acc);
+//    params.mutable_limits(0)->mutable_maxacc()->set_rz(acc);
     float dt = 1.0 / 35;
-    params.set_dt(dt);
+//    params.set_dt(dt);
 
     // Act
     int error_value = m.tick(input, params, output);
