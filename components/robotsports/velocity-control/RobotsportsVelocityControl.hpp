@@ -24,7 +24,7 @@ typedef MRA::RobotsportsVelocityControl::Local LocalType;
 class RobotsportsVelocityControl: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>
 {
 public:
-	RobotsportsVelocityControl() {};
+    RobotsportsVelocityControl() {};
     ~RobotsportsVelocityControl() {};
 
     // user implementation
