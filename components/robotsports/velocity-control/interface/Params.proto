@@ -11,5 +11,16 @@ message Params
     MRA.Datatypes.Pose requested_acceleration = 3;
     float max_acceleration_linear = 4;
     float max_acceleration_rotation = 5;  
+    float angle_pickup = 6; // angle to determinate if the ball is in the area of the ball handler
+    float dist_picked_up = 7; // distance to the ball (from origin of robot) when angle to ball is small (take it under control) 
+	float dist_against_robot = 8;  // distance to the ball when angle to ball is small  
+	float ball_angle_offset = 9; // offset in angle (correction factor)
+	float vision_delay = 10; //  [s] vision delay, physical delay between capture and availability of an image  
+	float rotation_limiting = 11;
+	float linear_limiting = 12;
+	bool ball_touching_left_ball_handler = 13;
+	bool ball_touching_right_ball_handler = 14;
+	
+	
 }
 
