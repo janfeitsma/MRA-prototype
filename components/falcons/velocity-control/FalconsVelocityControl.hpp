@@ -75,6 +75,17 @@ public:
 
 }; // class FalconsVelocityControl
 
+
+// configuration handling
+inline ParamsType defaultParams()
+{
+    return FalconsVelocityControl().defaultParams();
+}
+inline ParamsType loadParams(std::string configFile)
+{
+    return MRA::LoadDefaultParams<ParamsType>(configFile);
+}
+
 } // namespace MRA::FalconsVelocityControl
 
 #endif

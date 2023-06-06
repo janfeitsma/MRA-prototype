@@ -70,6 +70,17 @@ public:
 
 }; // class COMPONENT_CPP_NAME_CAMELCASE
 
+
+// configuration handling
+inline ParamsType defaultParams()
+{
+    return COMPONENT_CPP_NAME_CAMELCASE().defaultParams();
+}
+inline ParamsType loadParams(std::string configFile)
+{
+    return MRA::LoadDefaultParams<ParamsType>(configFile);
+}
+
 } // namespace MRA::COMPONENT_CPP_NAME_CAMELCASE
 
 #endif
