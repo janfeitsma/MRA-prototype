@@ -99,39 +99,66 @@ static double pos_regulator( double observed_pos_error, double vel_throttling, d
 }
 
 
-static double calc_robot_velocity( double current_velocity, double required_velocity, double acceleration, double delta_time )
-// Calculates what the velocity is at the end of the tick.
-{
-	double robot_velocity_end_of_tick;
-	double delta_acceleration = acceleration * delta_time;
-	if (required_velocity < current_velocity + delta_acceleration) {
-		robot_velocity_end_of_tick = current_velocity + delta_acceleration;
-	}
-	else {
-		if (required_velocity > current_velocity - delta_acceleration) {
-			robot_velocity_end_of_tick = current_velocity - delta_acceleration;
-		}
-		else {
-			robot_velocity_end_of_tick = required_velocity;
-		}
-	}
-	return robot_velocity_end_of_tick;
-}
-
-static double calc_robot_movement( double cur_vel, double req_vel, double acc, double delta_t )
-// Calculates how far the robot has moved after one tick.
+static double calc_robot_movement( double current_velocity, double requested_velocity, double acceleration, double delta_t )
+// Calculates how far the robot has moved after one tick for a 2nd order motion profile.
 // It also calculates the movement correctly in case of partial ramp-down/ups.
 {
-	bool will_reach_vel = ( fabs( cur_vel - req_vel ) <= acc * delta_t );
 
-	double delta_t_vel_reached = will_reach_vel ? fabs( cur_vel - req_vel ) / acc : delta_t;
-	double delta_t_vel_ramping = delta_t - delta_t_vel_reached;
+	bool does_reach_vel_in_tick = ( fabs( current_velocity - requested_velocity ) <= acceleration * delta_t );
 
-	double end_vel = calc_robot_velocity(cur_vel, req_vel, acc, delta_t );
 
-	double movement = (cur_vel + end_vel) / 2 * delta_t_vel_ramping + end_vel * delta_t_vel_reached;
+	double movement_in_tick = 0.0;
 
-	return movement;
+	if (does_reach_vel_in_tick) {
+		// time needed to change velocity
+		auto delta_velocity = fabs( current_velocity - requested_velocity );
+		auto delta_t_change = delta_velocity / acceleration;
+		auto dist_to_reach_requested_velocity = (0.5 * acceleration * delta_t_change * delta_t_change);
+		auto dist_at_end_velocity = requested_velocity * (delta_t - delta_t_change);
+		if (current_velocity > requested_velocity) {
+			// decreasing velocity
+			auto dist_during_velocity_decrease = current_velocity * delta_t_change - dist_to_reach_requested_velocity;
+			movement_in_tick = dist_during_velocity_decrease + dist_at_end_velocity;
+		}
+		else {
+			// increasing velocity
+			auto dist_during_velocity_increase = current_velocity * delta_t_change + dist_to_reach_requested_velocity;
+			movement_in_tick = dist_during_velocity_increase + dist_at_end_velocity;
+		}
+	}
+	else {
+		// requested velocity not reach in tick
+		// movement is: x = v*t + 0.5a*t^2
+		movement_in_tick = (current_velocity * delta_t) + (0.5 * acceleration * delta_t * delta_t);
+	}
+
+	return movement_in_tick;
+}
+
+static double calc_robot_velocity( double current_velocity, double requested_velocity, double acceleration, double delta_t )
+// Calculates what the velocity is at the end of the tick for a 2nd order motion profile.
+{
+	double end_velocity;
+
+	double velocity_delta_tick = acceleration * delta_t;
+	bool does_reach_vel_in_tick = ( fabs( current_velocity - requested_velocity ) <= velocity_delta_tick );
+
+	if (does_reach_vel_in_tick) {
+		// requested velocity is reached in tick
+		end_velocity =  requested_velocity;
+	}
+	else {
+
+		if (current_velocity > requested_velocity) {
+			// velocity is decreasing
+			end_velocity = current_velocity - velocity_delta_tick;
+		}
+		else {
+			// velocity is increasing
+			end_velocity = current_velocity + velocity_delta_tick;
+		}
+	}
+	return end_velocity;
 }
 
 static double rot_mod( double r )
