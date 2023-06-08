@@ -22,61 +22,154 @@ using namespace MRA;
 #define SIGN(a) (((a)>0)-((a)<0))
 #define POS_REG_P_GAIN_FACTOR (1/POS_REG_TICKS_FINAL)
 
-//static double pos_regulator( double observed_pos_error, double vel_throttling, double acc, double delta_t )
-//// Returns new velocity setpoint in order to reduce position error to 0.
-//// Scalar values only, if multiple axes require regulation, call once for each axis.
-//// Choose throttling between 0 and 1, lower when there is more uncertainty. E.g. use 0.9
-//{
-//	if( acc == 0 ) return 0;
-//	double throttled_acc = acc * sqrt( vel_throttling );
-//	double t_left = sqrt( 2 * fabs( observed_pos_error ) / throttled_acc );
-//	double vel_setpoint;
-//
-//	if( delta_t == 0 ) return 0;
-//
-//	if( t_left > POS_REG_TICKS_FINAL * delta_t ) {
-//		vel_setpoint = SIGN( observed_pos_error ) * std::max( 0.0, t_left - delta_t ) * throttled_acc;
-//	}
-//	else {
-//		vel_setpoint = observed_pos_error / delta_t * POS_REG_P_GAIN_FACTOR;
-//	}
-//	return vel_setpoint;
-//}
-
-
-static double calc_robot_velocity( double current_velocity, double required_velocity, double acceleration, double delta_time )
-// Calculates what the velocity is at the end of the tick.
+// Transformation definition
+// These are used to transform from one coordinate system to an other
+// We assume there is no z offset.
+typedef struct xform
 {
-	double robot_velocity_end_of_tick;
-	double delta_acceleration = acceleration * delta_time;
-	if (required_velocity < current_velocity + delta_acceleration) {
-		robot_velocity_end_of_tick = current_velocity + delta_acceleration;
-	}
-	else {
-		if (required_velocity > current_velocity - delta_acceleration) {
-			robot_velocity_end_of_tick = current_velocity - delta_acceleration;
-		}
-		else {
-			robot_velocity_end_of_tick = required_velocity;
-		}
-	}
-	return robot_velocity_end_of_tick;
+  double x; // x offset
+  double y; // y offset
+  double rz; // rotation in radials
+} xform_t;
+
+static xform_t fromto(const MRA::Datatypes::Pose& in0, const MRA::Datatypes::Pose& in1)
+{
+	xform_t out;
+	double r, s, c;
+
+	/*
+	    Suppose I have two vectors f0 anf f1 pointing to different
+	    locations. Then what is the corresponding transform to get from
+	    f0 to f1 ?
+
+		    f1 = xf * f0
+		    f1 inv(f0)= xf * f0 * inv(f0)
+		    f1 inv(f0)= xf
+
+		from in0 to in1:
+
+		xform = inv(in0) then in1
+
+	    start at 0, then go back in0, then go forward in1
+	*/
+
+	r = -in0.rz();
+	s = sin(r);
+	c = cos(r);
+
+	out.x = -(c * in0.x() - s * in0.y());
+	out.y = -(s * in0.x() + c * in0.y());
+	out.rz = -in0.rz();
+
+	out.x += (c * in1.x() - s * in1.y());
+	out.y += (s * in1.x() + c * in1.y());
+	out.rz += in1.rz();
+	return out;
 }
 
-static double calc_robot_movement( double cur_vel, double req_vel, double acc, double delta_t )
-// Calculates how far the robot has moved after one tick.
+static MRA::Datatypes::Pose xform_vel(const MRA::Datatypes::Pose& r_in, const xform_t& r_xf)
+{
+	MRA::Datatypes::Pose out;
+	out.set_x(cos(r_xf.rz) * r_in.x() - sin(r_xf.rz) * r_in.y() );
+	out.set_y(sin(r_xf.rz) * r_in.x() + cos(r_xf.rz) * r_in.y());
+	out.set_z(r_in.z());
+	out.set_rz(r_in.rz());
+	return out;
+}
+
+static double pos_regulator( double observed_pos_error, double vel_throttling, double acc, double delta_t )
+// Returns new velocity setpoint in order to reduce position error to 0.
+// Scalar values only, if multiple axes require regulation, call once for each axis.
+// Choose throttling between 0 and 1, lower when there is more uncertainty. E.g. use 0.9
+{
+	if( acc == 0 ) return 0;
+	double throttled_acc = acc * sqrt( vel_throttling );
+	double t_left = sqrt( 2 * fabs( observed_pos_error ) / throttled_acc );
+	double vel_setpoint;
+
+	if( delta_t == 0 ) return 0;
+
+	if( t_left > POS_REG_TICKS_FINAL * delta_t ) {
+		vel_setpoint = SIGN( observed_pos_error ) * std::max( 0.0, t_left - delta_t ) * throttled_acc;
+	}
+	else {
+		vel_setpoint = observed_pos_error / delta_t * POS_REG_P_GAIN_FACTOR;
+	}
+	return vel_setpoint;
+}
+
+
+static double calc_robot_movement( double current_velocity, double requested_velocity, double acceleration, double delta_t )
+// Calculates how far the robot has moved after one tick for a 2nd order motion profile.
 // It also calculates the movement correctly in case of partial ramp-down/ups.
 {
-	bool will_reach_vel = ( fabs( cur_vel - req_vel ) <= acc * delta_t );
 
-	double delta_t_vel_reached = will_reach_vel ? fabs( cur_vel - req_vel ) / acc : delta_t;
-	double delta_t_vel_ramping = delta_t - delta_t_vel_reached;
+	bool does_reach_vel_in_tick = ( fabs( current_velocity - requested_velocity ) <= acceleration * delta_t );
 
-	double end_vel = calc_robot_velocity(cur_vel, req_vel, acc, delta_t );
 
-	double movement = (cur_vel + end_vel) / 2 * delta_t_vel_ramping + end_vel * delta_t_vel_reached;
+	double movement_in_tick = 0.0;
 
-	return movement;
+	if (does_reach_vel_in_tick) {
+		// time needed to change velocity
+		auto delta_velocity = fabs( current_velocity - requested_velocity );
+		auto delta_t_change = delta_velocity / acceleration;
+		auto dist_to_reach_requested_velocity = (0.5 * acceleration * delta_t_change * delta_t_change);
+		auto dist_at_end_velocity = requested_velocity * (delta_t - delta_t_change);
+		if (current_velocity > requested_velocity) {
+			// decreasing velocity
+			auto dist_during_velocity_decrease = current_velocity * delta_t_change - dist_to_reach_requested_velocity;
+			movement_in_tick = dist_during_velocity_decrease + dist_at_end_velocity;
+		}
+		else {
+			// increasing velocity
+			auto dist_during_velocity_increase = current_velocity * delta_t_change + dist_to_reach_requested_velocity;
+			movement_in_tick = dist_during_velocity_increase + dist_at_end_velocity;
+		}
+	}
+	else {
+		// requested velocity not reach in tick
+		// movement is: x = v*t + 0.5a*t^2
+		movement_in_tick = (current_velocity * delta_t) + (0.5 * acceleration * delta_t * delta_t);
+	}
+
+	return movement_in_tick;
+}
+
+static double calc_robot_velocity( double current_velocity, double requested_velocity, double acceleration, double delta_t )
+// Calculates what the velocity is at the end of the tick for a 2nd order motion profile.
+{
+	double end_velocity;
+
+	double velocity_delta_tick = acceleration * delta_t;
+	bool does_reach_vel_in_tick = ( fabs( current_velocity - requested_velocity ) <= velocity_delta_tick );
+
+	if (does_reach_vel_in_tick) {
+		// requested velocity is reached in tick
+		end_velocity =  requested_velocity;
+	}
+	else {
+
+		if (current_velocity > requested_velocity) {
+			// velocity is decreasing
+			end_velocity = current_velocity - velocity_delta_tick;
+		}
+		else {
+			// velocity is increasing
+			end_velocity = current_velocity + velocity_delta_tick;
+		}
+	}
+	return end_velocity;
+}
+
+static double rot_mod( double r )
+{
+	return atan2( sin(r), cos(r) );
+}
+
+static double bearing_of_object(MRA::Geometry::Pose robot_pos, MRA::Geometry::Pose obj_pos)
+// Returns angle where an object is seen from ourselves. Straight ahead is 0, CCW is positive.
+{
+	return rot_mod( atan2( obj_pos.y - robot_pos.y, obj_pos.x -robot_pos.x ) - robot_pos.rz - M_PI/2 );
 }
 
 
@@ -119,67 +212,74 @@ int RobotsportsVelocityControl::RobotsportsVelocityControl::tick
 //    // user implementation goes here
 //    //
 //    //Pose_to_pos_t(target_pos, output.target().position());
-//    MRA::Geometry::Pose setpoint_pos =  input.setpoint().position();
-//
-//    MRA::Geometry::Pose deltaPosition = setpoint_pos - robot_pos;
-//    double distance = deltaPosition.size();
+    MRA::Geometry::Pose setpoint_pos =  input.setpoint().position();
+
+    MRA::Geometry::Pose deltaPosition = setpoint_pos - robot_pos;
+    double distance = deltaPosition.size();
+
 //    double lin_limiting = 0.8; /* getso(tm.skills.movetoball.lin_limiting) >> PARAMS */
-//    double max_acc_lin = std::min( params.max_acceleration_linear, std::min( trs::DriveInterface::get_target_acceleration().x, trs::DriveInterface::get_target_acceleration().y));
-//    double max_acc_rot = std::min( params.max_acceleration_rotation, trs::DriveInterface::get_target_acceleration().r);
-//    double dt = 0.025; // TODO getso( min_tick_duration );
-//    //
-//    auto speed = pos_regulator( distance, lin_limiting, max_acc_lin, dt );
-//    pos_t setpoint_fc = {};
-//
-//    // Create a unity vector pointing towards the ball, multiply by speed, and add ball velocity
-//    double ball_bearing = bearing_of_object( me_pos_field, target_pos ) - getso(tm.skills.movetoball.ball_angle_offset);
-//    setpoint_fc.x = -sin( ball_bearing + me_pos_field.r ) * speed;
-//    setpoint_fc.y =  cos( ball_bearing + me_pos_field.r ) * speed;
+    double max_acc_lin = std::min( params.max_acceleration_linear(), std::min(prev_target_vel.x(), prev_target_vel.y()));
+    double max_acc_rot = std::min( params.max_acceleration_rotation(), prev_target_vel.rz());
+
+	// Calculate angle of ball relative to robot and correct for ball handler position on robot (along positive Y axis)
+	double ball_bearing = bearing_of_object( robot_pos, setpoint_pos ) - params.ball_angle_offset();
+
+
+	// If the ball is in the area of the ball handler, we can move closer to the ball,
+	// otherwise we'll keep larger distance
+	double min_distance = 0.0;
+	if( fabs( ball_bearing ) < params.angle_pickup() ) {
+		min_distance = params.dist_picked_up();
+	}
+	else {
+		min_distance = params.dist_against_robot();
+	}
+
+	double vision_delay_distance = hypot(robot_vel.y(),robot_vel.x()) * params.vision_delay();
+
+     auto speed = pos_regulator( std::max(distance - min_distance - vision_delay_distance, 0.0), params.linear_limiting(), max_acc_lin, params.dt() );
+
+     //    // Create a unity vector pointing towards the ball, multiply by speed, and add ball velocity
+    MRA::Datatypes::Pose setpoint_fc;
+
+    setpoint_fc.set_x(-sin( ball_bearing + robot_pos.rz() ) * speed);
+    setpoint_fc.set_y( cos( ball_bearing + robot_pos.rz() ) * speed);
 //    pos_t zero_pos  = { 0.0, 0.0, 0.0, 0.0 };
 //
-//    bool controlBallLeft  = trs::WmInterface::ball_touching_left_ball_handler();
-//    bool controlBallRight = trs::WmInterface::ball_touching_right_ball_handler();
-//    // These ball statuses now include visual ball check, so we don't need to check that anymore
-//
-//    if( controlBallLeft && controlBallRight ) {
-//    	// Have ball, Full stop
-//    	setpoint_fc.x = 0;
-//    	setpoint_fc.y = 0;
-//    	setpoint_fc.r = 0;
-//    }
-//    else if( controlBallLeft && !controlBallRight ) {
-//    	// If we don't have both ball handlers draw current, rotate a bit
-//    	//logAlways("movetoball: only holding ball at left\n" );
-//    	setpoint_fc.r = 2;
-//    }
-//    else if( !controlBallLeft && controlBallRight ) {
-//    	//logAlways("movetoball: only holding ball at right\n" );
-//    	setpoint_fc.r = -2;
-//    }
-//    else {
-//    	// Calculate rotational speed possible to stop at the wanted angle
-//    	double vision_delay = 0.10; // getso( tm.skills.movetoball.vision_delay );
-//    	double rot_limiting = 0.8; // getso( tm.skills.movetoball.rot_limiting );
-//    	double vision_delay_rotation = me_speed.r * vision_delay;
-//
-//    	double rot_remaining = rot_mod( ball_bearing - vision_delay_rotation );
-//
-//    	setpoint_fc.r = SIGN(rot_remaining) * pos_regulator( fabs(rot_remaining), rot_limiting, max_acc_rot, dt );
-//    }
-//
-//
-//     Transform setpoint to robot coordinates
-//    xform_t xf_r2f;
-//    fromto( &xf_r2f, me_pos_field, zero_pos );
-//    pos_t setpoint_rc = {};
-//    xform_vel( &setpoint_rc, &setpoint_fc, &xf_r2f );
-//
-//    // Write shared memory variables for the motion system
-//    trs::DriveInterface::set_target_velocity(setpoint_rc);
-//    logAlways("getball_falcons: setpoint x: %4.2f y: %4.2f r: %4.2f z: %4.2f", setpoint_rc.x, setpoint_rc.y, setpoint_rc.r, setpoint_rc.z);
-//    logAlways("getball_falcons: THE END -> %d", __LINE__);
-//    }
+    bool controlBallLeft  = params.ball_touching_left_ball_handler();
+    bool controlBallRight = params.ball_touching_right_ball_handler();
+    // These ball statuses now include visual ball check, so we don't need to check that anymore
 
+    if( controlBallLeft && controlBallRight ) {
+    	// Have ball, Full stop
+    	setpoint_fc.set_x(0.0);
+    	setpoint_fc.set_y(0.0);
+    	setpoint_fc.set_rz(0.0);
+    }
+    else if( controlBallLeft && !controlBallRight ) {
+    	// If we don't have both ball handlers draw current, rotate a bit
+    	//logAlways("movetoball: only holding ball at left\n" );
+    	setpoint_fc.set_rz(2.0);
+    }
+    else if( !controlBallLeft && controlBallRight ) {
+    	//logAlways("movetoball: only holding ball at right\n" );
+    	setpoint_fc.set_rz(-2.0);
+    }
+    else {
+    	// Calculate rotational speed possible to stop at the wanted angle
+    	double vision_delay_rotation = robot_vel.rz() * params.vision_delay();
+
+    	double rot_remaining = rot_mod( ball_bearing - vision_delay_rotation );
+
+    	setpoint_fc.set_rz( SIGN(rot_remaining) * pos_regulator( fabs(rot_remaining), params.rotation_limiting(), max_acc_rot, params.dt() ));
+    }
+
+    // Transform setpoint to robot coordinates
+    MRA::Datatypes::Pose zero_pos;
+    xform_t xf_r2f = fromto( robot_pos, zero_pos );
+    MRA::Datatypes::Pose setpoint_rc = xform_vel( setpoint_fc, xf_r2f );
+
+    output.mutable_velocity()->CopyFrom(setpoint_rc);
 #ifdef DEBUG
     std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
     std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;

@@ -70,7 +70,7 @@ int RobotsportsGetballFetch::RobotsportsGetballFetch::tick
 
         	target_pos_fc.set_x(target_pos_fc.x() + target_vel_fc.x() * params.vision_delay());
         	target_pos_fc.set_y(target_pos_fc.y() + target_vel_fc.y() * params.vision_delay());
-        	MRA::Geometry::Position target_position = ws.ball().position();
+        	MRA::Geometry::Position target_position = target_pos_fc;
         	target_position.faceAwayFrom(ws.robot().position());
 
             // write output

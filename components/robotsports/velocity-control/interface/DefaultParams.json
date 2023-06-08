@@ -18,5 +18,17 @@
         "ry": 0.0,
         "rz": 0.0
     }
+    "angle_pickup": 0.3 
+    "dist_picked_up": 0.2
+	"dist_against_robot": 0.6
+	"ball_angle_offset": 0.0
+	"vision_delay": 0.1  
+	"rotation_limiting": 0.8
+	"linear_limiting", 0.8
+	"ball_touching_left_ball_handler": true
+	"ball_touching_right_ball_handler": true
+	
+	
+	
 }
 
