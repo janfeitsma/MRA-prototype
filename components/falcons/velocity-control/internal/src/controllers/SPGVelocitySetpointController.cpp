@@ -317,23 +317,9 @@ bool SPGVelocitySetpointController::calculatePosXYRzPhaseSynchronized(VelocityCo
     delete IP;
     delete OP;
 
-    // workaround for non-convergence (mainly applies to simulation):
-    // it can happen that Reflexxes outputs v==0 when Rz exceeds tolerance
-    // (just disable this workaround and watch some test cases fail)
-    // no flags or options seem to be available to fix this behavior ...
-    // as workaround, final step is calculated by "perfect" linear controller
-    if (data.config.spg().convergenceworkaround())
-    {
-        if (r1 == ReflexxesAPI::RML_FINAL_STATE_REACHED)
-        {
-            bool result = LinearVelocitySetpointController().calculate(data);
-            return result;
-        }
-    }
-
     return true;
-
 }
+
 bool SPGVelocitySetpointController::calculatePosXYPhaseSynchronized(VelocityControlData& data, SpgLimits const &spgLimits, Position2D& resultPosition, Velocity2D &resultVelocity)
 {
 
@@ -431,22 +417,10 @@ bool SPGVelocitySetpointController::calculatePosXYPhaseSynchronized(VelocityCont
     delete IP;
     delete OP;
 
-    // workaround for non-convergence (mainly applies to simulation):
-    // it can happen that Reflexxes outputs v==0 when Rz exceeds tolerance
-    // (just disable this workaround and watch some test cases fail)
-    // no flags or options seem to be available to fix this behavior ...
-    // as workaround, final step is calculated by "perfect" linear controller
-    if (data.config.spg().convergenceworkaround())
-    {
-        if (r1 == ReflexxesAPI::RML_FINAL_STATE_REACHED)
-        {
-            bool result = LinearVelocitySetpointController().calculate(data);
-            return result;
-        }
-    }
-
     return true;
 }
+
+
 bool SPGVelocitySetpointController::calculatePosRzNonSynchronized(VelocityControlData& data, SpgLimits const &spgLimits, Position2D& resultPosition, Velocity2D &resultVelocity)
 {
 
@@ -509,22 +483,9 @@ bool SPGVelocitySetpointController::calculatePosRzNonSynchronized(VelocityContro
     delete IP;
     delete OP;
 
-    // workaround for non-convergence (mainly applies to simulation):
-    // it can happen that Reflexxes outputs v==0 when Rz exceeds tolerance
-    // (just disable this workaround and watch some test cases fail)
-    // no flags or options seem to be available to fix this behavior ...
-    // as workaround, final step is calculated by "perfect" linear controller
-    if (data.config.spg().convergenceworkaround())
-    {
-        if (r1 == ReflexxesAPI::RML_FINAL_STATE_REACHED)
-        {
-            bool result = LinearVelocitySetpointController().calculate(data);
-            return result;
-        }
-    }
-
     return true;
 }
+
 
 
 bool SPGVelocitySetpointController::calculateVelXYRzPhaseSynchronized(VelocityControlData& data, SpgLimits const &spgLimits, Position2D& resultPosition, Velocity2D &resultVelocity)
