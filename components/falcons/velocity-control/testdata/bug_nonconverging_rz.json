@@ -1,0 +1,7 @@
+{
+    "Input": {"worldstate":{"time":"2023-06-08T18:52:27.228959Z","robot":{"id":2,"active":true,"position":{"x":-4.99948788,"y":-3.9996202,"rz":6.28188515},"velocity":{}},"ball":{"position":{"x":-1.27691305},"velocity":{"x":0.0779065341}},"teammates":[{"id":1,"active":true,"position":{"x":-4,"y":-2},"velocity":{}}]},"setpoint":{"position":{"x":-5,"y":-4},"velocity":{}}},
+    "Params": {"dt":0.025,"timeout":0.1,"spg":{"weightFactorClosedLoopPos":0.7,"convergenceWorkaround":true},"dribble":{"applyLimitsToBall":true,"radiusRobotToBall":0.26},"deadzone":{"enabled":true,"toleranceXY":0.01,"toleranceRz":0.001},"limits":[{"name":"default","maxVel":{"X":2,"Rz":2,"Yforward":2,"Ybackward":2},"maxAcc":{"X":3.5,"Rz":3.5,"Yforward":3.5,"Ybackward":3.5},"maxDec":{"X":7,"Y":7,"Rz":7},"accThreshold":{}},{"name":"withBall","maxVel":{"X":1.5,"Rz":1,"Yforward":1.5,"Ybackward":1.5},"maxAcc":{"X":1.5,"Rz":2,"Yforward":1,"Ybackward":1}}]},
+    "State": {"timestamp":"1970-01-01T00:00:00Z","positionSetpointFCS":{"x":-5,"y":-4},"velocitySetpointFCS":{}},
+    "Output": {"velocity":{"x":-0.0204651505,"y":-0.0152278887,"rz":0.0520064}}
+}
+

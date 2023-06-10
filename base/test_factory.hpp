@@ -18,6 +18,8 @@ typename Tc::OutputType run_testvector(std::string tv_filename)
     auto m = Tc();
     auto input = typename Tc::InputType();
     auto params = typename Tc::ParamsType();
+    auto state = typename Tc::StateType();
+    auto local = typename Tc::LocalType();
     auto expected_output = typename Tc::OutputType();
     auto actual_output = typename Tc::OutputType();
 
@@ -26,10 +28,11 @@ typename Tc::OutputType run_testvector(std::string tv_filename)
     nlohmann::json j = nlohmann::json::parse(js);
     convert_json_to_proto(j, "Input", input);
     convert_json_to_proto(j, "Params", params);
+    convert_json_to_proto(j, "State", state);
     convert_json_to_proto(j, "Output", expected_output);
 
     // Act - tick
-    int error_value = m.tick(input, actual_output);
+    int error_value = m.tick(0.0, input, params, state, actual_output, local);
 
     // Assert
     EXPECT_EQ(error_value, 0);
