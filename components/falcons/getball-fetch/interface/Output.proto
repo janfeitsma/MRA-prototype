@@ -9,6 +9,6 @@ message Output
 {
     MRA.Datatypes.ActionResult actionresult = 1;
     MRA.Datatypes.PosVel target = 2; // in FCS
-    //bool slow = 3; // TODO: not so nice to see slow just passing through ... ? bypass, or include in target, or ...?
+    int32 motionProfile = 3; // just passing through the input
 }
 
