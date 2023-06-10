@@ -215,6 +215,26 @@ TEST(FalconsVelocityControlTest, noHotRestart)
     EXPECT_LT(output.velocity().rz(), 0.1);
 }
 
+// Bug seen on Falcons simulation, where it appears that VelocityControl stops steering when xy is in spec but rz not.
+// The json file uses custom simulation configuration.
+// The data is literally copied from the debug logs at one of the moments when the bug manifested.
+TEST(FalconsVelocityControlTest, bugNonconvergingRz)
+{
+    auto output = TestFactory::run_testvector<FalconsVelocityControl::FalconsVelocityControl>(std::string("components/falcons/velocity-control/testdata/bug_nonconverging_rz.json"));
+    // the problem was that output velocity was zero on given input+state
+}
+
+// Bug observed:
+// * XY controller not converged
+// * Rz controller converged
+// * Rz controller triggers "convergence workaround"
+// * which produces vrz==0 but also overrules small XY velocity setpoint with one large jump ...
+TEST(FalconsVelocityControlTest, bugLargeXYJump)
+{
+    auto output = TestFactory::run_testvector<FalconsVelocityControl::FalconsVelocityControl>(std::string("components/falcons/velocity-control/testdata/bug_large_xy_jump.json"));
+    // the problem was: output: {"velocity":{"x":-100,"y":-40}}
+}
+
 int main(int argc, char **argv)
 {
     InitGoogleTest(&argc, argv);
