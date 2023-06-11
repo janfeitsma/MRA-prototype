@@ -7,6 +7,5 @@ import "datatypes/WorldState.proto";
 message Input
 {
     MRA.Datatypes.WorldState worldstate = 1;
-    bool slow = 2;
 }
 
