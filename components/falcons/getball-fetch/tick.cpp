@@ -77,7 +77,6 @@ int FalconsGetballFetch::FalconsGetballFetch::tick
             target.faceAwayFrom(ws.robot().position());
 
             // write output
-            output.set_motionprofile(input.motionprofile());
             output.mutable_target()->mutable_position()->set_x(target.x);
             output.mutable_target()->mutable_position()->set_y(target.y);
             output.mutable_target()->mutable_position()->set_rz(target.rz);
