@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package MRA.FalconsLocalizationVision;
+
+import "datatypes/Pose.proto";
+
+message Candidate
+{
+    MRA.Datatypes.Pose pose = 1;
+    float confidence = 2; // in [0.0, 1.0] where higher is better -- TODO consider to invert, because in protobuf omitting a value means zero ...
+}
+
+message Output
+{
+    repeated Candidate candidates = 1;
+}
+

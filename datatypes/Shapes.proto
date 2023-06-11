@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package MRA.Datatypes;
+
+message Point
+{
+    float x = 1;
+    float y = 2;
+}
+
+message Line
+{
+    Point from = 1;
+    Point to = 2;
+}
+
+message Rectangle
+{
+    Point center = 1;
+    Point size = 2;
+}
+
+message Circle
+{
+    Point center = 1;
+    float radius = 2; // use radius=0 for a dot
+}
+
+message Shape
+{
+    oneof shape
+    {
+        Line line = 1;
+        Rectangle rectangle = 2;
+        Circle circle = 3;
+    }
+}
+

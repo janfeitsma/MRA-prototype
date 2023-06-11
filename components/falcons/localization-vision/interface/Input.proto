@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package MRA.FalconsLocalizationVision;
+
+message Pixel
+{
+    float x = 1;
+    float y = 2;
+}
+
+message Input
+{
+    // list of pixels to use, produced by vision
+    // pixels should be in RCS, so, relative to robot
+    // the translation from (warped) camera image to RCS is supposed to be done beforehand
+    // ideally list is "cleaned" already (no sun-spots, no goals) -- or is that the responsibility of this component?
+    repeated Pixel pixels = 1;
+}
+
