@@ -15,12 +15,12 @@ using namespace MRA;
 
 int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
 (
-    double            timestamp,   // simulation timestamp, seconds since start of simulation
-    InputType  const &input,       // input data, type generated from Input.proto
-    ParamsType const &params,      // configuration parameters, type generated from Params.proto
-    StateType        &state,       // state data, type generated from State.proto
-    OutputType       &output,      // output data, type generated from Output.proto
-    LocalType        &local        // local/diagnostics data, type generated from Local.proto
+    google::protobuf::Timestamp timestamp,   // absolute timestamp
+    InputType  const           &input,       // input data, type generated from Input.proto
+    ParamsType const           &params,      // configuration parameters, type generated from Params.proto
+    StateType                  &state,       // state data, type generated from State.proto
+    OutputType                 &output,      // output data, type generated from Output.proto
+    LocalType                  &local        // local/diagnostics data, type generated from Local.proto
 )
 {
     int error_value = 0;
@@ -65,12 +65,18 @@ int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
 
     // iterate
     // NOTE: vcInput.worldstate will be (ab)used, update each iteration as simulated state
-    double sim_timestamp = 0.0;
+    google::protobuf::Timestamp sim_timestamp = timestamp;
     int tick_counter = 0;
     while (true)
     {
         tick_counter++;
-        sim_timestamp += dt;
+
+        //sim_timestamp += google::protobuf::util::TimeUtil::DurationFromDouble(dt);
+        // unfortunately this does not exist (although chatGPT hallucinated it for me :D)
+        google::protobuf::Duration duration;
+        duration.set_seconds(0);
+        duration.set_nanos(static_cast<int32_t>(dt * 1e9));
+        sim_timestamp += duration;
 
         // call model tick
         int error_value = vcModel.tick(sim_timestamp, vcInput, vcParams, vcState, vcOutput, vcLocal);
@@ -114,13 +120,13 @@ int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
 
         // store the sample in output
         MRA::FalconsTrajectoryGeneration::Sample *sample = output.add_samples();
-        sample->set_t(sim_timestamp);
+        sample->set_t(dt * tick_counter);
         *sample->mutable_position() = robot->position();
         *sample->mutable_velocity() = robot->velocity();
     }
 
     // finish
-    output.set_duration(sim_timestamp);
+    output.set_duration(dt * tick_counter);
     output.set_numticks(tick_counter);
     *output.mutable_final()->mutable_position() = vcInput.worldstate().robot().position();
     *output.mutable_final()->mutable_velocity() = vcInput.worldstate().robot().velocity();

@@ -13,7 +13,7 @@ typedef MRA::Geometry::Pose pose;
 #include "components/falcons/velocity-control/interface/Output.pb.h"
 #include "components/falcons/velocity-control/interface/State.pb.h"
 #include "components/falcons/velocity-control/interface/Local.pb.h"
-typedef double MRA_timestamp;
+typedef google::protobuf::Timestamp MRA_timestamp;
 typedef MRA::FalconsVelocityControl::Input  MRA_InputType;
 typedef MRA::FalconsVelocityControl::Params MRA_ParamsType;
 typedef MRA::FalconsVelocityControl::State  MRA_StateType;
