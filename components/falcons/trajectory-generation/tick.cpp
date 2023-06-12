@@ -70,13 +70,7 @@ int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
     while (true)
     {
         tick_counter++;
-
-        //sim_timestamp += google::protobuf::util::TimeUtil::DurationFromDouble(dt);
-        // unfortunately this does not exist (although chatGPT hallucinated it for me :D)
-        google::protobuf::Duration duration;
-        duration.set_seconds(0);
-        duration.set_nanos(static_cast<int32_t>(dt * 1e9));
-        sim_timestamp += duration;
+        sim_timestamp += google::protobuf::util::TimeUtil::NanosecondsToDuration(dt * 1e9);
 
         // call model tick
         int error_value = vcModel.tick(sim_timestamp, vcInput, vcParams, vcState, vcOutput, vcLocal);
