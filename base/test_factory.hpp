@@ -32,7 +32,7 @@ typename Tc::OutputType run_testvector(std::string tv_filename)
     convert_json_to_proto(j, "Output", expected_output);
 
     // Act - tick
-    int error_value = m.tick(0.0, input, params, state, actual_output, local);
+    int error_value = m.tick(input, params, state, actual_output, local);
 
     // Assert
     EXPECT_EQ(error_value, 0);
