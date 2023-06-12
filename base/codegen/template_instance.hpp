@@ -24,12 +24,12 @@ public:
 
     // user implementation
     int tick(
-        double            timestamp,   // simulation timestamp, seconds since start of simulation
-        InputType  const &input,       // input data, type generated from Input.proto
-        ParamsType const &params,      // configuration parameters, type generated from Params.proto
-        StateType        &state,       // state data, type generated from State.proto
-        OutputType       &output,      // output data, type generated from Output.proto
-        LocalType        &local        // local/diagnostics data, type generated from Local.proto
+        google::protobuf::Timestamp timestamp,   // absolute timestamp
+        InputType  const           &input,       // input data, type generated from Input.proto
+        ParamsType const           &params,      // configuration parameters, type generated from Params.proto
+        StateType                  &state,       // state data, type generated from State.proto
+        OutputType                 &output,      // output data, type generated from Output.proto
+        LocalType                  &local        // local/diagnostics data, type generated from Local.proto
     );
 
     // make default configuration easily accessible
@@ -44,7 +44,7 @@ public:
         StateType s;
         OutputType o;
         LocalType l;
-        return tick(0.0, InputType(), defaultParams(), s, o, l);
+        return tick(google::protobuf::util::TimeUtil::GetCurrentTime(), InputType(), defaultParams(), s, o, l);
     };
 
     int tick(
@@ -54,7 +54,7 @@ public:
     {
         StateType s;
         LocalType l;
-        return tick(0.0, input, defaultParams(), s, output, l);
+        return tick(google::protobuf::util::TimeUtil::GetCurrentTime(), input, defaultParams(), s, output, l);
     };
 
     int tick(
@@ -65,7 +65,18 @@ public:
     {
         StateType s;
         LocalType l;
-        return tick(0.0, input, params, s, output, l);
+        return tick(google::protobuf::util::TimeUtil::GetCurrentTime(), input, params, s, output, l);
+    };
+
+    int tick(
+        InputType  const &input,
+        ParamsType const &params,
+        StateType        &state,
+        OutputType       &output,
+        LocalType        &local
+    )
+    {
+        return tick(google::protobuf::util::TimeUtil::GetCurrentTime(), input, params, state, output, local);
     };
 
 }; // class COMPONENT_CPP_NAME_CAMELCASE
