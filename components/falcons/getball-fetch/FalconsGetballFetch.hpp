@@ -75,6 +75,17 @@ public:
 
 }; // class FalconsGetballFetch
 
+
+// configuration handling
+inline ParamsType defaultParams()
+{
+    return FalconsGetballFetch().defaultParams();
+}
+inline ParamsType loadParams(std::string configFile)
+{
+    return MRA::LoadDefaultParams<ParamsType>(configFile);
+}
+
 } // namespace MRA::FalconsGetballFetch
 
 #endif

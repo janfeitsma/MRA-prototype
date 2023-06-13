@@ -75,6 +75,17 @@ public:
 
 }; // class FalconsTrajectoryGeneration
 
+
+// configuration handling
+inline ParamsType defaultParams()
+{
+    return FalconsTrajectoryGeneration().defaultParams();
+}
+inline ParamsType loadParams(std::string configFile)
+{
+    return MRA::LoadDefaultParams<ParamsType>(configFile);
+}
+
 } // namespace MRA::FalconsTrajectoryGeneration
 
 #endif
