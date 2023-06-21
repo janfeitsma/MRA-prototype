@@ -209,6 +209,7 @@ int RobotsportsVelocityControl::RobotsportsVelocityControl::tick
     next_vel.set_y( calc_robot_velocity( robot_vel.y(), prev_target_vel.y(), prev_target_acc.y(), params.dt() ));
     next_vel.set_rz( calc_robot_velocity( robot_vel.rz(), prev_target_vel.rz(), prev_target_acc.rz(), params.dt() ));
 
+
 //    // user implementation goes here
 //    //
 //    //Pose_to_pos_t(target_pos, output.target().position());
@@ -218,12 +219,11 @@ int RobotsportsVelocityControl::RobotsportsVelocityControl::tick
     double distance = deltaPosition.size();
 
 //    double lin_limiting = 0.8; /* getso(tm.skills.movetoball.lin_limiting) >> PARAMS */
-    double max_acc_lin = std::min( params.max_acceleration_linear(), std::min(prev_target_vel.x(), prev_target_vel.y()));
+    double max_acc_lin = std::min( params.max_acceleration_linear(), std::min(prev_target_acc.x(), prev_target_acc.y()));
     double max_acc_rot = std::min( params.max_acceleration_rotation(), prev_target_vel.rz());
 
 	// Calculate angle of ball relative to robot and correct for ball handler position on robot (along positive Y axis)
 	double ball_bearing = bearing_of_object( robot_pos, setpoint_pos ) - params.ball_angle_offset();
-
 
 	// If the ball is in the area of the ball handler, we can move closer to the ball,
 	// otherwise we'll keep larger distance
@@ -273,6 +273,7 @@ int RobotsportsVelocityControl::RobotsportsVelocityControl::tick
 
     	setpoint_fc.set_rz( SIGN(rot_remaining) * pos_regulator( fabs(rot_remaining), params.rotation_limiting(), max_acc_rot, params.dt() ));
     }
+
 
     // Transform setpoint to robot coordinates
     MRA::Datatypes::Pose zero_pos;
