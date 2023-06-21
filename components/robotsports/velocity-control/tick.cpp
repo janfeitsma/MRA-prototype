@@ -220,7 +220,7 @@ int RobotsportsVelocityControl::RobotsportsVelocityControl::tick
 
 //    double lin_limiting = 0.8; /* getso(tm.skills.movetoball.lin_limiting) >> PARAMS */
     double max_acc_lin = std::min( params.max_acceleration_linear(), std::min(prev_target_acc.x(), prev_target_acc.y()));
-    double max_acc_rot = std::min( params.max_acceleration_rotation(), prev_target_vel.rz());
+    double max_acc_rot = std::min( params.max_acceleration_rotation(), prev_target_acc.rz());
 
 	// Calculate angle of ball relative to robot and correct for ball handler position on robot (along positive Y axis)
 	double ball_bearing = bearing_of_object( robot_pos, setpoint_pos ) - params.ball_angle_offset();
@@ -244,8 +244,7 @@ int RobotsportsVelocityControl::RobotsportsVelocityControl::tick
 
     setpoint_fc.set_x(-sin( ball_bearing + robot_pos.rz() ) * speed);
     setpoint_fc.set_y( cos( ball_bearing + robot_pos.rz() ) * speed);
-//    pos_t zero_pos  = { 0.0, 0.0, 0.0, 0.0 };
-//
+
     bool controlBallLeft  = params.ball_touching_left_ball_handler();
     bool controlBallRight = params.ball_touching_right_ball_handler();
     // These ball statuses now include visual ball check, so we don't need to check that anymore
