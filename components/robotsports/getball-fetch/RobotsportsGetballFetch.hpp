@@ -75,6 +75,17 @@ public:
 
 }; // class RobotsportsGetballFetch
 
+
+// configuration handling
+inline ParamsType defaultParams()
+{
+    return RobotsportsGetballFetch().defaultParams();
+}
+inline ParamsType loadParams(std::string configFile)
+{
+    return MRA::LoadDefaultParams<ParamsType>(configFile);
+}
+
 } // namespace MRA::RobotsportsGetballFetch
 
 #endif
