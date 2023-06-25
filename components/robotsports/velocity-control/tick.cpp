@@ -12,7 +12,7 @@
 
 using namespace MRA;
 
-//#define DEBUG
+#define DEBUG
 
 // internals
 
