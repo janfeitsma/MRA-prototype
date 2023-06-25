@@ -24,6 +24,7 @@ cc_library(
     includes = ["."],
     deps = [
         "//base:abstract_interface",
+        "//libraries/geometry",        
         ":datatypes",
         "//libraries/geometry",
     ],
