@@ -1,0 +1,6 @@
+{
+    "Input": {"worldstate":{"time":"1970-01-01T00:00:00Z","robot":{"id":1,"active":true,"position":{"x":-0.315774202,"y":1.56179368,"rz":-1.20989144},"velocity":{"x":1.84608483,"y":0.587615967,"rz":0.0750634298}},"ball":{"position":{"x":1.0055548,"y":2.06668353},"velocity":{}}},"setpoint":{"position":{"x":1.0055548,"y":2.06668353,"rz":-1.205809}}},
+    "Params": {"dt":0.025,"requestedVelocity":{"x":1.80742896,"y":0.570131,"rz":0.125982717},"requestedAcceleration":{"x":1.2,"y":1.2,"rz":5},"maxAccelerationLinear":3,"maxAccelerationRotation":6,"anglePickup":0.3,"distPickedUp":-0.2,"distAgainstRobot":0.6,"visionDelay":0.1,"rotationLimiting":0.8,"linearLimiting":0.8},
+    "Output": {"velocity":{"x":-0.00702004,"y":1.71953785,"rz":-0.0}}
+}
+

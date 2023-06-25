@@ -215,6 +215,16 @@ TEST(RobotsportsVelocityControlTest, noHotRestart)
     EXPECT_LT(output.velocity().rz(), 0.1);
 }
 
+// Two "data driven" test cases based on log files from RobotSports (simulation?) context, sent by Jurge
+TEST(RobotsportsVelocityControlTest, robotsportsSimTick1)
+{
+    auto output = TestFactory::run_testvector<RobotsportsVelocityControl::RobotsportsVelocityControl>(std::string("components/robotsports/velocity-control/testdata/robotsports_log_tick1.json"));
+}
+TEST(RobotsportsVelocityControlTest, robotsportsSimTick2)
+{
+    auto output = TestFactory::run_testvector<RobotsportsVelocityControl::RobotsportsVelocityControl>(std::string("components/robotsports/velocity-control/testdata/robotsports_log_tick2.json"));
+}
+
 int main(int argc, char **argv)
 {
     InitGoogleTest(&argc, argv);
