@@ -17,11 +17,21 @@ Tp LoadDefaultParams(std::string params_json_filename)
         return result;
     }
     std::string js = read_file_as_string(params_json_filename);
-    nlohmann::json j = nlohmann::json::parse(js);
     auto r = google::protobuf::util::JsonStringToMessage(js, &result);
     if (!r.ok())
     {
-        throw std::runtime_error("failed to convert json from file " + params_json_filename + " to protobuf Params struct");
+        // come up with a more useful exception
+        std::string message = "failed to convert json from file " + params_json_filename + " to protobuf Params struct";
+        try
+        {
+            nlohmann::json j = nlohmann::json::parse(js);
+        }
+        catch (const std::exception& e)
+        {
+            std::string details = e.what();
+            message += ", details follow:\n" + details;
+        }
+        throw std::runtime_error(message);
     }
     return result;
 }
