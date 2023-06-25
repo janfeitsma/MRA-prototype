@@ -24,7 +24,7 @@ typedef MRA::RobotsportsVelocityControl::Local LocalType;
 class RobotsportsVelocityControl: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>
 {
 public:
-	RobotsportsVelocityControl() {};
+    RobotsportsVelocityControl() {};
     ~RobotsportsVelocityControl() {};
 
     // user implementation
@@ -74,6 +74,17 @@ public:
     };
 
 }; // class RobotsportsVelocityControl
+
+
+// configuration handling
+inline ParamsType defaultParams()
+{
+    return RobotsportsVelocityControl().defaultParams();
+}
+inline ParamsType loadParams(std::string configFile)
+{
+    return MRA::LoadDefaultParams<ParamsType>(configFile);
+}
 
 } // namespace MRA::RobotsportsVelocityControl
 
