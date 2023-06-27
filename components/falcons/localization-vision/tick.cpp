@@ -7,8 +7,7 @@
 using namespace MRA;
 
 // custom includes, if any
-// ...
-
+#include "determinePosition.hpp"
 
 int FalconsLocalizationVision::FalconsLocalizationVision::tick
 (
@@ -24,7 +23,16 @@ int FalconsLocalizationVision::FalconsLocalizationVision::tick
 
     // user implementation goes here
 
+    // setup
+    // TODO: how expensive is it to reconstruct everything each tick?
+    configurator conf = configurator(0);
+    linePointDetection linePoint;
+    robotFloor rFloor(&conf);
+    determinePosition detPos(&conf, &linePoint, &rFloor);
 
+    // call
+    detPos.pointsToPosition();
+    std::vector<detPosSt> locResult = detPos.getLocList();
 
     return error_value;
 }
