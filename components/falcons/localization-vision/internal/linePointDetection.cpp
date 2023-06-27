@@ -8,10 +8,10 @@ linePointDetection::linePointDetection()
 {
 }
 
-vector<angleRadiusSt> linePointDetection::getLinePointsPolar()
+std::vector<angleRadiusSt> linePointDetection::getLinePointsPolar()
 {
     // TODO
-    std::vector<angleRadiusSt> retVal = linePointsPolarExport;
+    std::vector<angleRadiusSt> retVal;
     return retVal;
 }
 
