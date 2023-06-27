@@ -43,8 +43,6 @@ cc_library(
         "-lopencv_structured_light",
         "-lopencv_superres",
         "-lopencv_surface_matching",
-        "-lopencv_text",
-        "-lopencv_tracking",
         "-lopencv_video",
         "-lopencv_videoio",
         "-lopencv_videostab",
