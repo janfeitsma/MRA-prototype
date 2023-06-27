@@ -15,12 +15,9 @@ using namespace MRA;
 #define DEBUG
 
 // internals
-
-
-
-#define	POS_REG_TICKS_FINAL 2 // If fewer than this amount of ticks is left to reach end position, switch to proportional regulation
 #define SIGN(a) (((a)>0)-((a)<0))
-#define POS_REG_P_GAIN_FACTOR (1/POS_REG_TICKS_FINAL)
+const double  POS_REG_TICKS_FINAL = 2.0; // If fewer than this amount of ticks is left to reach end position, switch to proportional regulation
+const double  POS_REG_P_GAIN_FACTOR = 1/POS_REG_TICKS_FINAL;
 
 // Transformation definition
 // These are used to transform from one coordinate system to an other
@@ -135,6 +132,7 @@ static double calc_robot_movement( double current_velocity, double requested_vel
 	return movement_in_tick;
 }
 
+
 static double calc_robot_velocity( double current_velocity, double requested_velocity, double acceleration, double delta_t )
 // Calculates what the velocity is at the end of the tick for a 2nd order motion profile.
 {
@@ -193,37 +191,35 @@ int RobotsportsVelocityControl::RobotsportsVelocityControl::tick
 
     MRA::Datatypes::Pose prev_target_vel = params.requested_velocity();
     MRA::Datatypes::Pose prev_target_acc  = params.requested_acceleration();
+    MRA::Datatypes::Pose prev_target_acc_selfloc  = params.requested_acceleration();
 
-    MRA::Datatypes::Pose next_pos;
-    MRA::Datatypes::Pose next_vel;
 
     auto const ws = input.worldstate();
     MRA::Datatypes::Pose robot_pos = ws.robot().position();
-	MRA::Datatypes::Pose robot_vel = ws.robot().velocity();
+    MRA::Datatypes::Pose robot_vel = ws.robot().velocity();
 
-    next_pos.set_x(robot_pos.x() + calc_robot_movement( robot_vel.x(), prev_target_vel.x(), prev_target_acc.x(), params.dt() ));
-    next_pos.set_y(robot_pos.y() + calc_robot_movement( robot_vel.y(), prev_target_vel.y(), prev_target_acc.y(), params.dt() ));
-    next_pos.set_rz(robot_pos.rz() + calc_robot_movement( robot_vel.rz(), prev_target_vel.rz(), prev_target_acc.rz(), params.dt() ));
+    MRA::Datatypes::Pose next_pos; // = params.robot_pos_end_tick();
+    next_pos.set_x(robot_pos.x() + calc_robot_movement( robot_vel.x(), prev_target_vel.x(), prev_target_acc_selfloc.x(), params.dt() ));
+    next_pos.set_y(robot_pos.y() + calc_robot_movement( robot_vel.y(), prev_target_vel.y(), prev_target_acc_selfloc.y(), params.dt() ));
+    next_pos.set_rz(robot_pos.rz() + calc_robot_movement( robot_vel.rz(), prev_target_vel.rz(), prev_target_acc_selfloc.rz(), params.dt() ));
 
-    next_vel.set_x( calc_robot_velocity( robot_vel.x(), prev_target_vel.x(), prev_target_acc.x(), params.dt() ));
-    next_vel.set_y( calc_robot_velocity( robot_vel.y(), prev_target_vel.y(), prev_target_acc.y(), params.dt() ));
-    next_vel.set_rz( calc_robot_velocity( robot_vel.rz(), prev_target_vel.rz(), prev_target_acc.rz(), params.dt() ));
+    MRA::Datatypes::Pose next_vel;
+    next_vel.set_x( calc_robot_velocity( robot_vel.x(), prev_target_vel.x(), prev_target_acc_selfloc.x(), params.dt() ));
+    next_vel.set_y( calc_robot_velocity( robot_vel.y(), prev_target_vel.y(), prev_target_acc_selfloc.y(), params.dt() ));
+    next_vel.set_rz( calc_robot_velocity( robot_vel.rz(), prev_target_vel.rz(), prev_target_acc_selfloc.rz(), params.dt() ));
+    MRA::Datatypes::Pose ball_vel = ws.ball().velocity();
 
 
-//    // user implementation goes here
-//    //
-//    //Pose_to_pos_t(target_pos, output.target().position());
     MRA::Geometry::Pose setpoint_pos =  input.setpoint().position();
 
-    MRA::Geometry::Pose deltaPosition = setpoint_pos - robot_pos;
+    MRA::Geometry::Pose deltaPosition = setpoint_pos - next_pos;
     double distance = deltaPosition.size();
 
-//    double lin_limiting = 0.8; /* getso(tm.skills.movetoball.lin_limiting) >> PARAMS */
     double max_acc_lin = std::min( params.max_acceleration_linear(), std::min(prev_target_acc.x(), prev_target_acc.y()));
     double max_acc_rot = std::min( params.max_acceleration_rotation(), prev_target_acc.rz());
 
 	// Calculate angle of ball relative to robot and correct for ball handler position on robot (along positive Y axis)
-	double ball_bearing = bearing_of_object( robot_pos, setpoint_pos ) - params.ball_angle_offset();
+	double ball_bearing = bearing_of_object( next_pos, setpoint_pos ) - params.ball_angle_offset();
 
 	// If the ball is in the area of the ball handler, we can move closer to the ball,
 	// otherwise we'll keep larger distance
@@ -234,16 +230,17 @@ int RobotsportsVelocityControl::RobotsportsVelocityControl::tick
 	else {
 		min_distance = params.dist_against_robot();
 	}
+	double robot_speed  = hypot(next_vel.y(),next_vel.x());
+	double vision_delay_distance =  robot_speed * params.vision_delay();
 
-	double vision_delay_distance = hypot(robot_vel.y(),robot_vel.x()) * params.vision_delay();
-
-     auto speed = pos_regulator( std::max(distance - min_distance - vision_delay_distance, 0.0), params.linear_limiting(), max_acc_lin, params.dt() );
+	auto reg_dist = std::max(distance - min_distance - vision_delay_distance, 0.0);
+    auto speed = pos_regulator(reg_dist , params.linear_limiting(), max_acc_lin, params.dt() );
 
      //    // Create a unity vector pointing towards the ball, multiply by speed, and add ball velocity
     MRA::Datatypes::Pose setpoint_fc;
 
-    setpoint_fc.set_x(-sin( ball_bearing + robot_pos.rz() ) * speed);
-    setpoint_fc.set_y( cos( ball_bearing + robot_pos.rz() ) * speed);
+    setpoint_fc.set_x(-sin( ball_bearing + next_pos.rz() ) * speed + ball_vel.x());
+    setpoint_fc.set_y( cos( ball_bearing + next_pos.rz() ) * speed + ball_vel.y());
 
     bool controlBallLeft  = params.ball_touching_left_ball_handler();
     bool controlBallRight = params.ball_touching_right_ball_handler();
@@ -266,19 +263,17 @@ int RobotsportsVelocityControl::RobotsportsVelocityControl::tick
     }
     else {
     	// Calculate rotational speed possible to stop at the wanted angle
-    	double vision_delay_rotation = robot_vel.rz() * params.vision_delay();
+    	double vision_delay_rotation = next_vel.rz() * params.vision_delay();
 
     	double rot_remaining = rot_mod( ball_bearing - vision_delay_rotation );
 
     	setpoint_fc.set_rz( SIGN(rot_remaining) * pos_regulator( fabs(rot_remaining), params.rotation_limiting(), max_acc_rot, params.dt() ));
     }
 
-
     // Transform setpoint to robot coordinates
     MRA::Datatypes::Pose zero_pos;
-    xform_t xf_r2f = fromto( robot_pos, zero_pos );
+    xform_t xf_r2f = fromto( next_pos, zero_pos );
     MRA::Datatypes::Pose setpoint_rc = xform_vel( setpoint_fc, xf_r2f );
-
     output.mutable_velocity()->CopyFrom(setpoint_rc);
 #ifdef DEBUG
     std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
