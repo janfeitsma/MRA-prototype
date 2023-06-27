@@ -5,10 +5,10 @@
 #define FIELDLUT_HPP
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/core/optim.hpp>
 
 #include "configurator.hpp"
 #include "linePointDetection.hpp"
-#include "optim.hpp"
 #include "robotFloor.hpp"
 
 class fieldLut: public cv::optim::Solver::Function {

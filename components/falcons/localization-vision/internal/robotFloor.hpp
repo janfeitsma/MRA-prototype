@@ -8,7 +8,7 @@
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-#include "optim.hpp"
+#include <opencv2/core/optim.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "configurator.hpp"
 

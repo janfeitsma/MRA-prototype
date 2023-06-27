@@ -3,13 +3,6 @@
 
 #include "configurator.hpp"
 
-#ifndef NOROS
-#include "falconsCommonDirs.hpp"
-#endif
-
-#include <unistd.h>
-#include <pwd.h>
-
 using namespace cv;
 using namespace std;
 
@@ -24,14 +17,7 @@ configurator::configurator(int robot) {
     magentaMutex.lock();
     cyanMutex.lock();
 
-#ifdef NOROS
-	struct passwd *pw = getpwuid(getuid());
-	std::string configFile("");
-	configFile.append(pw->pw_dir);
-	configFile.append("/falcons/code/config/multiCam.yaml");
-#else
     std::string configFile = pathToConfig() + "/multiCam.yaml";
-#endif
     FileStorage fs(configFile, FileStorage::READ);
 
     FileNode global = fs["global"];
