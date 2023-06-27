@@ -33,3 +33,10 @@ http_archive(
     ],
 )
 
+# Make system installation of opencv available (because opencv is used a lot next to bazel build use case)
+new_local_repository(
+    name = "opencv",
+    path = "/usr/include/opencv4",
+    build_file = "dependencies/bazel/BUILD.opencv",
+)
+
