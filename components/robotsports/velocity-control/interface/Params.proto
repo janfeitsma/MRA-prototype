@@ -7,19 +7,19 @@ import "datatypes/Pose.proto";
 message Params
 {
     float dt = 1; // [seconds] timestep to use, typically 1/motionfrequency
-    MRA.Datatypes.Pose requested_velocity = 2;
-    MRA.Datatypes.Pose requested_acceleration = 3;
-    float max_acceleration_linear = 4;
-    float max_acceleration_rotation = 5;  
+    MRA.Datatypes.Pose requested_velocity = 2;	// Requested velocity (x,y,rz) in previous tick
+    MRA.Datatypes.Pose requested_acceleration = 3; // Requested acceleration (x,y,rz) in previous tick
+    float max_acceleration_linear = 4; 	// maximum allowed linear acceleration [m/s^2] 
+    float max_acceleration_rotation = 5; // maximum allowed rotational acceleration [m/s^2]  
     float angle_pickup = 6; // angle to determinate if the ball is in the area of the ball handler
     float dist_picked_up = 7; // distance to the ball (from origin of robot) when angle to ball is small (take it under control) 
 	float dist_against_robot = 8;  // distance to the ball when angle to ball is small  
 	float ball_angle_offset = 9; // offset in angle (correction factor)
 	float vision_delay = 10; //  [s] vision delay, physical delay between capture and availability of an image  
-	float rotation_limiting = 11;
-	float linear_limiting = 12;
-	bool ball_touching_left_ball_handler = 13;
-	bool ball_touching_right_ball_handler = 14;
+	float rotation_limiting = 11; // rotation velocity limiter (max. wanted velocity) for current behavior [m/s]
+	float linear_limiting = 12; // linear velocity limiter (max. wanted velocity) for current behavior [m/s]
+	bool ball_touching_left_ball_handler = 13;  // ball is touchin the left ball handler (-x): True | False
+	bool ball_touching_right_ball_handler = 14;  // ball is touchin the right ball handler (+x): True | False
 	
 	
 }
