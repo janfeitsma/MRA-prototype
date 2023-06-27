@@ -52,7 +52,6 @@ private:
 	detPosSt optimizePosition(positionStDbl startPos, bool localSearch, cv::Ptr<cv::DownhillSolver> solverLUT);
 	static void* processOneLocation(void *id);
 	void goodEnough(); // determine the best position (if any)
-	void notifyNewPos();
 
 public:
 	determinePosition(configurator *conf, linePointDetection *linePoint, robotFloor *rFloor);

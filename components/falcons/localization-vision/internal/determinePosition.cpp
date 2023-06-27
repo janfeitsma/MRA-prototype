@@ -376,11 +376,6 @@ void determinePosition::pointsToPosition() {
 
 	goodEnough();
 
-	if( locList.size() > 0 ) {
-		notifyNewPos();
-		// Send new position to WorldModel if good enough
-		// if not good enough, then for diagnostics purposes we still want to see
-	}
 }
 
 vector<detPosSt> determinePosition::getLocList() {

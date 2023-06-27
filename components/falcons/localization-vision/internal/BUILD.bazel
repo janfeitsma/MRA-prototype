@@ -15,8 +15,12 @@ cc_library(
         "linePointDetection.hpp",
         "robotFloor.hpp",
     ],
+    includes = [
+        ".",
+    ],
     deps = [
         "@opencv",
     ],
+    visibility = ["//visibility:public"],
 )
 
