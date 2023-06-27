@@ -9,16 +9,25 @@ using namespace MRA;
 // custom includes, if any
 #include "determinePosition.hpp"
 
+#define DEBUG
+
+
 int FalconsLocalizationVision::FalconsLocalizationVision::tick
 (
-    double            timestamp,   // simulation timestamp, seconds since start of simulation
-    InputType  const &input,       // input data, type generated from Input.proto
-    ParamsType const &params,      // configuration parameters, type generated from Params.proto
-    StateType        &state,       // state data, type generated from State.proto
-    OutputType       &output,      // output data, type generated from Output.proto
-    LocalType        &local        // local/diagnostics data, type generated from Local.proto
+    google::protobuf::Timestamp timestamp,   // absolute timestamp
+    InputType  const           &input,       // input data, type generated from Input.proto
+    ParamsType const           &params,      // configuration parameters, type generated from Params.proto
+    StateType                  &state,       // state data, type generated from State.proto
+    OutputType                 &output,      // output data, type generated from Output.proto
+    LocalType                  &local        // local/diagnostics data, type generated from Local.proto
 )
 {
+#ifdef DEBUG
+    std::cout << "timestamp: " << timestamp << std::endl;
+    std::cout << "input: " << convert_proto_to_json_str(input) << std::endl;
+    std::cout << "params: " << convert_proto_to_json_str(params) << std::endl;
+    std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
+#endif // DEBUG
     int error_value = 0;
 
     // user implementation goes here
@@ -34,6 +43,12 @@ int FalconsLocalizationVision::FalconsLocalizationVision::tick
     detPos.pointsToPosition();
     std::vector<detPosSt> locResult = detPos.getLocList();
 
+#ifdef DEBUG
+    std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
+    std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
+    std::cout << "local: " << convert_proto_to_json_str(local) << std::endl;
+    std::cout << "error: " << error_value << std::endl;
+#endif // DEBUG
     return error_value;
 }
 
