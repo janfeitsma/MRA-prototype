@@ -2,10 +2,18 @@
 cc_library(
     name = "determinePosition",
     srcs = [
+        "configurator.cpp",
         "determinePosition.cpp",
+        "fieldLut.cpp",
+        "linePointDetection.cpp",
+        "robotFloor.cpp",
     ],
     hdrs = [
+        "configurator.hpp",
         "determinePosition.hpp",
+        "fieldLut.hpp",
+        "linePointDetection.hpp",
+        "robotFloor.hpp",
     ],
     deps = [
         "@opencv",
