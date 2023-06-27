@@ -11,7 +11,7 @@
 #include "linePointDetection.hpp"
 #include "robotFloor.hpp"
 
-class fieldLut: public cv::optim::Solver::Function {
+class fieldLut: public cv::MinProblemSolver::Function {
 
 private:
 	// pointers for access to other classes
@@ -26,6 +26,7 @@ private:
 public:
 	fieldLut(configurator *conf, linePointDetection *linePoint, robotFloor *rFloor);
 	double calc(const double *x) const;
+    int getDims() const { return 3; }
 	scoreStruct calcSimple(positionStDbl pos, double threshold);
 };
 

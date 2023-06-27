@@ -31,7 +31,7 @@ determinePosition::determinePosition(configurator *conf, linePointDetection *lin
 	// Create the solver
 	// the default solver epsilon is 1e-06 and maxcount 5000
 	for( unsigned int ii = 0; ii < numThreads; ii++ ) {
-		threads[ii].solverLUT = cv::optim::createDownhillSolver();
+		threads[ii].solverLUT = cv::DownhillSolver::create();
 		// connect the function to the solver
 		threads[ii].solverLUT->setFunction(LUT_ptr);
 		threads[ii].id = ii;
@@ -55,7 +55,7 @@ determinePosition::~determinePosition() {
 }
 
 detPosSt determinePosition::optimizePosition(positionStDbl startPos, bool localSearch,
-		cv::Ptr<cv::optim::DownhillSolver> solverLUT) {
+		cv::Ptr<cv::DownhillSolver> solverLUT) {
 	detPosSt result;
 
 	// if needed update the criteria maximum counter from the configuration interface
@@ -83,11 +83,11 @@ detPosSt determinePosition::optimizePosition(positionStDbl startPos, bool localS
 	double rzMax = 360.0f + rzStep;
 	// the robot can be anywhere on the floor, so also on the border, which is outside the field
 	// this means from the upper left corner (0,0) to the lower right corner
-	double minConst[] = { 0, 0, rzMin };
-	double maxConst[] = { (double)rFloor->getXFloorRight(), (double)rFloor->getYFloorBottom(), rzMax };
+	//double minConst[] = { 0, 0, rzMin };
+	//double maxConst[] = { (double)rFloor->getXFloorRight(), (double)rFloor->getYFloorBottom(), rzMax };
 
-	solverLUT->setMinConstraint(minConst, 3);
-	solverLUT->setMaxConstraint(maxConst, 3);
+	//solverLUT->setMinConstraint(minConst, 3); // TODO??
+	//solverLUT->setMaxConstraint(maxConst, 3); // TODO??
 
 	// create matrix with starting point for the solver algorithm
 	// the step size is influencing the center of solver, it looks like it is subtracted from the given position
@@ -100,7 +100,7 @@ detPosSt determinePosition::optimizePosition(positionStDbl startPos, bool localS
 	cv::Mat xTF = (cv::Mat_<double>(1, 3) << upperX, upperY, upperRz);
 	// start the solver with this starting point
 	result.score = solverLUT->minimize(xTF); // the found point will be in xTF
-	result.numberOfTries = solverLUT->numberOfTries();
+	//result.numberOfTries = solverLUT->numberOfTries(); // TODO??
 	// So now the algorithm is done, it might have found the final point, or it maybe stuck in a local minimum
 
 	// get the found position
@@ -600,7 +600,7 @@ void determinePosition::goodEnough() {
 		}
 	}
 	goodEnoughLoc.lastActive = lostLoc;
-	linePoint->setGoodEnoughLoc(goodEnoughLoc); // send last position to localization to filter the goal net for robot1
+	//linePoint->setGoodEnoughLoc(goodEnoughLoc); // send last position to localization to filter the goal net for robot1
 	exportMutex.unlock();
 	// printf(" watch %4zu sort candidates:", lostLoc);
 	// for( size_t ii = 0; ii < candSelList.size(); ii++ ) {

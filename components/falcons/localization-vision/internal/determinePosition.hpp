@@ -27,7 +27,7 @@ private:
 		int id;
 		int ret;
 		double scoreThreshHold;
-		cv::Ptr<cv::optim::DownhillSolver> solverLUT;
+		cv::Ptr<cv::DownhillSolver> solverLUT;
 		fieldLut *costTable;
 	};
 
@@ -49,7 +49,7 @@ private:
 	detPosSt goodEnoughLoc; // containing the last known position
 
 	positionStDbl createRandomPosition(positionStDbl previousPos, bool useRecentPos);
-	detPosSt optimizePosition(positionStDbl startPos, bool localSearch, cv::Ptr<cv::optim::DownhillSolver> solverLUT);
+	detPosSt optimizePosition(positionStDbl startPos, bool localSearch, cv::Ptr<cv::DownhillSolver> solverLUT);
 	static void* processOneLocation(void *id);
 	void goodEnough(); // determine the best position (if any)
 	void notifyNewPos();
