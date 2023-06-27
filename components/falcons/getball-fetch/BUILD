@@ -26,6 +26,8 @@ cc_library(
         "//base:abstract_interface",
         ":datatypes",
         "//libraries/geometry",
+        "@boost//:filesystem",
+        "@boost//:system",
     ],
 )
 
@@ -40,6 +42,8 @@ cc_test(
         ":implementation",
         "@com_google_googletest//:gtest_main",
         "@nlohmann_json",
+        "@boost//:filesystem",
+        "@boost//:system",
     ],
 )
 
