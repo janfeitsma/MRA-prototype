@@ -33,7 +33,6 @@ private:
 
 	// pointers for access to other classes
 	configurator *conf;
-	preprocessor *prep;
 	linePointDetection *linePoint;
 	robotFloor *rFloor;
 
@@ -56,7 +55,7 @@ private:
 	void notifyNewPos();
 
 public:
-	determinePosition(configurator *conf, linePointDetection *linePoint, preprocessor *prep, robotFloor *rFloor);
+	determinePosition(configurator *conf, linePointDetection *linePoint, robotFloor *rFloor);
 	~determinePosition();
 	void pointsToPosition();
 	std::vector<detPosSt> getLocList(); // contains result

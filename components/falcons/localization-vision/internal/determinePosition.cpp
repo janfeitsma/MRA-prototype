@@ -6,11 +6,9 @@
 using namespace cv;
 using namespace std;
 
-determinePosition::determinePosition(configurator *conf, linePointDetection *linePoint, preprocessor *prep,
-		robotFloor *rFloor) {
+determinePosition::determinePosition(configurator *conf, linePointDetection *linePoint, robotFloor *rFloor) {
 	this->conf = conf;
 	this->linePoint = linePoint;
-	this->prep = prep;
 	this->rFloor = rFloor;
 
 	scoreThreshHold = conf->getScoreThresHold();
