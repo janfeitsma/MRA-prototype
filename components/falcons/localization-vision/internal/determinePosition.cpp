@@ -2,18 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "determinePosition.hpp"
-#ifndef NOROS
-#include "tracing.hpp"
-#endif
 
 using namespace cv;
 using namespace std;
 
 determinePosition::determinePosition(configurator *conf, linePointDetection *linePoint, preprocessor *prep,
 		robotFloor *rFloor) {
-#ifndef NOROS
-    TRACE_FUNCTION("");
-#endif
 	this->conf = conf;
 	this->linePoint = linePoint;
 	this->prep = prep;
@@ -39,9 +33,6 @@ determinePosition::determinePosition(configurator *conf, linePointDetection *lin
 	// Create the solver
 	// the default solver epsilon is 1e-06 and maxcount 5000
 	for( unsigned int ii = 0; ii < numThreads; ii++ ) {
-#ifndef NOROS
-        TRACE_SCOPE("createDownhillSolver", "");
-#endif
 		threads[ii].solverLUT = cv::optim::createDownhillSolver();
 		// connect the function to the solver
 		threads[ii].solverLUT->setFunction(LUT_ptr);
@@ -67,9 +58,6 @@ determinePosition::~determinePosition() {
 
 detPosSt determinePosition::optimizePosition(positionStDbl startPos, bool localSearch,
 		cv::Ptr<cv::optim::DownhillSolver> solverLUT) {
-#ifndef NOROS
-    TRACE_FUNCTION("");
-#endif
 	detPosSt result;
 
 	// if needed update the criteria maximum counter from the configuration interface
@@ -140,9 +128,6 @@ detPosSt determinePosition::optimizePosition(positionStDbl startPos, bool localS
 }
 
 void* determinePosition::processOneLocation(void *id) {
-#ifndef NOROS
-    TRACE_FUNCTION("");
-#endif
 	struct th *context = (struct th*)id;
 	determinePosition *cls = context->classContext;
 
@@ -178,9 +163,6 @@ void* determinePosition::processOneLocation(void *id) {
 
 // function to create a random point on the field
 positionStDbl determinePosition::createRandomPosition(positionStDbl recentPos, bool useRecentPos) {
-#ifndef NOROS
-    TRACE_FUNCTION("");
-#endif
 	positionStDbl pos;
 	bool nearByPoint = true;
 	// int numTries = 0;
@@ -215,9 +197,6 @@ positionStDbl determinePosition::createRandomPosition(positionStDbl recentPos, b
 }
 
 void determinePosition::pointsToPosition() {
-#ifndef NOROS
-    TRACE_FUNCTION("");
-#endif
 	if( conf->getManualMode() ) {
 		if( locList.size() < 1 ) { // at least one location should be available for  manual mode
 			detPosSt newPos;
@@ -433,9 +412,6 @@ vector<detPosSt> determinePosition::getLocList() {
 // if such a candidate is available, take that candidate, otherwise do not provide a new localization candidate
 
 void determinePosition::goodEnough() {
-#ifndef NOROS
-    TRACE_FUNCTION("");
-#endif
 	struct candidateSelectorSt {
 		double error; // combined error of multiple variables e.g. xDelta, score, ..
 		double xDelta; // TODO: remove next 3 variables
@@ -635,134 +611,3 @@ void determinePosition::goodEnough() {
 	// printf("\n");
 }
 
-detPosSt determinePosition::getGoodEnoughLoc() {
-	exportMutex.lock();
-	detPosSt retVal = goodEnoughLoc;
-	exportMutex.unlock();
-	return retVal;
-}
-
-detPosSt determinePosition::getGoodEnoughLocExport() {
-	detPosSt retVal = getGoodEnoughLoc();
-	// x should not be set outside the field
-	if( retVal.pos.x < 0 ) {
-		printf("ERROR     : localization x position of %.1f is out of field, it should be higher then 0.0\n",
-				retVal.pos.x);
-		retVal.pos.x = 0.0;
-	}
-	double xFieldEnd = (double)(rFloor->getWidth() - 1);
-	if( retVal.pos.x > xFieldEnd ) {
-		printf("ERROR     : localization x position of %.1f is out of field, it should be lower then %.1f\n",
-				retVal.pos.x, xFieldEnd);
-		retVal.pos.x = xFieldEnd;
-	}
-
-	// y should not be set outside the field
-	if( retVal.pos.y < 0 ) {
-		printf("ERROR     : localization y position of %.1f is out of field, it should be higher then 0.0\n",
-				retVal.pos.y);
-		retVal.pos.y = 0.0;
-	}
-	double yFieldEnd = (double)(rFloor->getHeight() - 1);
-	if( retVal.pos.y > yFieldEnd ) {
-		printf("ERROR     : localization y position of %.1f is out of field, it should be lower then %.1f\n",
-				retVal.pos.y, yFieldEnd);
-		retVal.pos.y = yFieldEnd;
-	}
-	// normalize to prevent issues when running of range for remote viewer export
-	retVal.pos.rz = fmod(360.0 + retVal.pos.rz, 360.0); // in degrees
-	return retVal;
-}
-
-detPosSt determinePosition::getGoodEnoughLocExportRos() {
-	detPosSt retVal = getGoodEnoughLocExport();
-
-	// calculate the real world x, y and rz (meters and radians)
-	int xCenter = (rFloor->getWidth() - 1) / 2; // Width is odd number, -1 because index starts at 0
-	int yCenter = (rFloor->getHeight() - 1) / 2; // Height is odd number, -1 because index starts at 0
-	// printf("INFO      : xWidth %d xCenter %d yWidth %d yCenter %d\n", rFloor->getWidth(), xCenter, rFloor->getHeight(), yCenter);
-	double x = retVal.pos.x;
-	double y = retVal.pos.y;
-	double rz = retVal.pos.rz;
-	retVal.pos.x = -(yCenter - y) / rFloor->getMetersToPixels(); // range -(6+1) to (6+1) meter, center point is 0, negative number is on the top, positive number is on the bottom
-	retVal.pos.y = (x - xCenter) / rFloor->getMetersToPixels(); // range -(9+1) to (9+1) meter, center point is 0, negative number is on left half floor, positive numbers right half floor
-	retVal.pos.rz = fmod((rz - 90.0 + 360), 360.0) * (M_PI / 180.0); // input range 0 to 360 degrees, 0 is on short access (pointing upwards in rectangular viewer), anti clock wise
-	return retVal;
-}
-
-// TODO: cleanup function below
-void determinePosition::notifyNewPos() {
-	detPosStRosVect positionROS = getFLoorLocationsRos();
-#ifndef NOROS
-    std::vector<robotLocationType> robotLocations;
-
-    for (int i = 0; i < std::min((int) positionROS.numPositions, NUMPOSITION); i++) {
-        if (positionROS.lastActive[i] == 0) {
-            // only send new positions that just have been updated
-            robotLocationType robotLoc;
-
-            robotLoc.setX(positionROS.x[i]);
-            robotLoc.setY(positionROS.y[i]);
-            robotLoc.setTheta(positionROS.rz[i]);
-            robotLoc.setConfidence(1.0 - positionROS.score[i]); // switch good-bad [0,1] values
-            robotLoc.setAge(positionROS.age[i]);
-            robotLoc.setLastActive(positionROS.lastActive[i]);
-            robotLoc.setFPS(positionROS.fps[i]);
-            robotLoc.setLinePoints(positionROS.linePoints[i]);
-
-            robotLocations.push_back(robotLoc);
-        }
-    }
-
-    for (vector<observer*>::const_iterator iter = vecObservers.begin(); iter != vecObservers.end(); ++iter) {
-        if (*iter != NULL) {
-            (*iter)->update_own_position(robotLocations, conf->getLocLatencyOffset());
-        }
-    }
-#else
-	// containment for compile warning about not used variables
-	(void)positionROS;
-#endif
-}
-
-void determinePosition::attach(observer *observer) {
-	vecObservers.push_back(observer);
-}
-
-void determinePosition::detach(observer *observer) {
-	vecObservers.erase(std::remove(vecObservers.begin(), vecObservers.end(), observer), vecObservers.end());
-}
-
-detPosStRosVect determinePosition::getFLoorLocationsRos() {
-
-	detPosSt goodEoughLoc = getGoodEnoughLocExportRos();
-
-	detPosStRosVect retVal;
-	retVal.numPositions = 1;
-	// in the future all possible location candidates can be send to ros but the WorldModel filtering
-	// is not yet optimal, for the time being multiCam only sends one localization candidate if is good enough
-	if( goodEnoughLoc.goodEnough ) {
-		// TODO: align about +x and +y direction and where the 0 axis is for rz (it currently feels slightly inconsistent)
-		retVal.y[0] = goodEoughLoc.pos.y; // range -(9+1) to (9+1) meter, center point is 0, negative number is on left half floor, positive numbers right half floor
-		retVal.x[0] = goodEoughLoc.pos.x; // range -(6+1) to (6+1) meter, center point is 0, negative number is on the top, positive number is on the bottom
-		retVal.rz[0] = goodEoughLoc.pos.rz; // range 0 to 360 degrees, 0 is on short access (pointing upwards in rectangular viewer), anti clock wise
-		retVal.score[0] = goodEoughLoc.score; // range 0 (good) to 1 (bad), roughly below 0.2 is probably location lock -- note: confidence=1.0-score
-		retVal.age[0] = 1.0 * goodEoughLoc.age / prep->getFps(); // fps might be unreliable at startup
-		retVal.lastActive[0] =
-				1.0 * goodEoughLoc.lastActive / prep->getFps(); // fps might be unreliable at startup
-#ifndef NOROS
-        TRACE("x=%6.2f y=%6.2f phi=%6.2f score=%4.2f", retVal.x[0], retVal.y[0], retVal.rz[0], retVal.score[0]);
-#endif
-	} else {
-		retVal.y[0] = 0;
-		retVal.x[0] = 0;
-		retVal.rz[0] = 0;
-		retVal.score[0] = 1.0;
-		retVal.age[0] = -1;
-		retVal.lastActive[0] = -1;
-	}
-	retVal.linePoints[0] = linePoint->getLinePointsPolar().size();
-	retVal.fps[0] = prep->getFps();
-
-	return retVal;
-}
