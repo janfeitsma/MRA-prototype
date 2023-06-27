@@ -578,4 +578,10 @@ public:
 
 };
 
+inline std::string pathToConfig()
+{
+    return "";
+}
+
+
 #endif
