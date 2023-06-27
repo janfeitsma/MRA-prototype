@@ -1,0 +1,14 @@
+
+cc_library(
+    name = "determinePosition",
+    srcs = [
+        "determinePosition.cpp",
+    ],
+    hdrs = [
+        "determinePosition.hpp",
+    ],
+    deps = [
+        "@opencv",
+    ],
+)
+
