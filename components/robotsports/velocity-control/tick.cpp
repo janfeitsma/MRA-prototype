@@ -12,7 +12,7 @@
 
 using namespace MRA;
 
-#define DEBUG
+// #define DEBUG
 
 // internals
 #define SIGN(a) (((a)>0)-((a)<0))
