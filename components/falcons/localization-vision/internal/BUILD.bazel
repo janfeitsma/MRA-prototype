@@ -24,3 +24,21 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+cc_library(
+    name = "solver",
+    srcs = [
+        "solver.cpp",
+    ],
+    hdrs = [
+        "solver.hpp",
+    ],
+    includes = [
+        ".",
+    ],
+    deps = [
+        "@opencv",
+        "//components/falcons/localization-vision:datatypes",
+    ],
+    visibility = ["//visibility:public"],
+)
+
