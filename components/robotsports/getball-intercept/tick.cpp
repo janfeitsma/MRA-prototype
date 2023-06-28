@@ -80,13 +80,13 @@ int RobotsportsGetballIntercept::RobotsportsGetballIntercept::tick
         // fail when robot is inactive
         if (!ws.robot().active())
         {
-            output.set_actionresult(MRA::Datatypes::FAILED);
+            output.set_actionresult(MRA::Datatypes::NO_ROBOT_ACTIVE);
         }
 
         // fail when there is no ball
         if (!ws.has_ball())
         {
-            output.set_actionresult(MRA::Datatypes::FAILED);
+            output.set_actionresult(MRA::Datatypes::NO_BALL);
         }
 
         // check if not any failure mode was triggered

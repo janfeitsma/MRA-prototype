@@ -23,6 +23,12 @@ TEST(RobotsportsGetballInterceptTest, basicTick)
     input.mutable_worldstate()->mutable_robot()->mutable_position()->set_x(-2.0);
     input.mutable_worldstate()->mutable_ball()->mutable_position()->set_y(-8.0);
     input.mutable_worldstate()->mutable_ball()->mutable_velocity()->set_y(1.0);
+//    pos_t ball_pos_fc  = trs::WmInterface::LocalBallPosition();
+//	p_worldstate->mutable_ball()->mutable_position()->set_x(ball_pos_fc.x);
+//	p_worldstate->mutable_ball()->mutable_position()->set_y(ball_pos_fc.y);
+//	pos_t ball_vel_fc  = trs::WmInterface::LocalBallVelocity();
+//	p_worldstate->mutable_ball()->mutable_velocity()->set_x(ball_vel_fc.x);
+//	p_worldstate->mutable_ball()->mutable_velocity()->set_y(ball_vel_fc.y);
 
     // Act
     int error_value = m.tick();
