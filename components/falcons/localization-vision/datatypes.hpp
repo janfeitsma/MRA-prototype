@@ -6,7 +6,9 @@
 
 #include "components/falcons/localization-vision/interface/Input.pb.h"
 #include "components/falcons/localization-vision/interface/Params.pb.h"
+#include "components/falcons/localization-vision/interface/State.pb.h"
 #include "components/falcons/localization-vision/interface/Output.pb.h"
+#include "components/falcons/localization-vision/interface/Local.pb.h"
 
 
 #endif

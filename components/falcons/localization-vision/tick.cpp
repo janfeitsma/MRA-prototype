@@ -7,11 +7,9 @@
 using namespace MRA;
 
 // custom includes, if any
-#include "determinePosition.hpp"
+#include "solver.hpp"
 
 #define DEBUG
-
-using namespace MRA::internal::FLocVis;
 
 int FalconsLocalizationVision::FalconsLocalizationVision::tick
 (
@@ -34,15 +32,19 @@ int FalconsLocalizationVision::FalconsLocalizationVision::tick
     // user implementation goes here
 
     // setup
-    // TODO: how expensive is it to reconstruct everything each tick?
-    configurator conf = configurator(0);
-    linePointDetection linePoint;
-    robotFloor rFloor(&conf);
-    determinePosition detPos(&conf, &linePoint, &rFloor);
+    // TODO: how expensive is it to reconstruct everything each tick? we could use static data to improve performance at the cost of state observability/testability
+    Solver solver;
+    solver.configure(params);
+    solver.set_state(state);
+    solver.determine_reference_floor();
 
-    // call
-    detPos.pointsToPosition();
-    std::vector<detPosSt> locResult = detPos.getLocList();
+    // run
+    solver.set_input(input);
+    error_value = solver.run();
+
+    // store output
+    output.CopyFrom(solver.get_output());
+    local.CopyFrom(solver.get_diagnostics());
 
 #ifdef DEBUG
     std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;

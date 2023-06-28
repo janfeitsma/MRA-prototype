@@ -28,9 +28,15 @@ message StandardLetterModel
     float Q = 17; // [ 3.5]   off-center distance to restart spots (x)
 }
 
+message SolverParams
+{
+    int32 numThreads = 1;
+}
+
 message Params
 {
     StandardLetterModel model = 1; // optional MSL standard model of the field using letters, where A=22, B=14, etc, leading to a set of shapes
     repeated MRA.Datatypes.Shape shapes = 2; // optional extra shapes
+    SolverParams solver = 3;
 }
 

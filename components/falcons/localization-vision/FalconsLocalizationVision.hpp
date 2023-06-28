@@ -16,9 +16,9 @@ namespace MRA::FalconsLocalizationVision
 
 typedef MRA::FalconsLocalizationVision::Input InputType;
 typedef MRA::FalconsLocalizationVision::Params ParamsType;
-typedef google::protobuf::Empty StateType; // no .proto -> unused
+typedef MRA::FalconsLocalizationVision::State StateType;
 typedef MRA::FalconsLocalizationVision::Output OutputType;
-typedef google::protobuf::Empty LocalType; // no .proto -> unused
+typedef MRA::FalconsLocalizationVision::Local LocalType;
 
 
 class FalconsLocalizationVision: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>

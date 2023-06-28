@@ -26,7 +26,7 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         ":datatypes",
-        "//components/falcons/localization-vision/internal:determinePosition",
+        "//components/falcons/localization-vision/internal:solver",
     ],
 )
 
