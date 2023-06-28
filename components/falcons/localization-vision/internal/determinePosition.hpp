@@ -13,6 +13,8 @@
 #include "linePointDetection.hpp"
 #include "robotFloor.hpp"
 
+namespace MRA::internal::FLocVis
+{
 
 class determinePosition {
 
@@ -60,5 +62,7 @@ public:
 	std::vector<detPosSt> getLocList(); // contains result
 
 };
+
+} // namespace MRA::internal::FLocVis
 
 #endif

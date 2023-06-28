@@ -5,6 +5,7 @@
 
 using namespace cv;
 using namespace std;
+using namespace MRA::internal::FLocVis;
 
 configurator::configurator(int robot) {
     guiEnabled = false;

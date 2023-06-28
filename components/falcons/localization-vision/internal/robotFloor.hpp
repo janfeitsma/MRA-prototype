@@ -14,6 +14,9 @@
 
 #include <mutex>
 
+namespace MRA::internal::FLocVis
+{
+
 typedef struct
 {
 
@@ -107,5 +110,7 @@ public:
 	double getRemoteRatio() { return remoteRatio; }
 	int getMetersToPixels() { return metersToPixels; }
 };
+
+} // namespace MRA::internal::FLocVis
 
 #endif

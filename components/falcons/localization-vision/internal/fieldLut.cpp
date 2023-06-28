@@ -4,6 +4,7 @@
 #include "fieldLut.hpp"
 
 using namespace cv;
+using namespace MRA::internal::FLocVis;
 
 fieldLut::fieldLut(configurator *conf, linePointDetection *linePoint, robotFloor *rFloor) {
 	this->conf = conf;

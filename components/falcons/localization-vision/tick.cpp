@@ -11,6 +11,7 @@ using namespace MRA;
 
 #define DEBUG
 
+using namespace MRA::internal::FLocVis;
 
 int FalconsLocalizationVision::FalconsLocalizationVision::tick
 (

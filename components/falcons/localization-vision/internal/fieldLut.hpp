@@ -11,6 +11,9 @@
 #include "linePointDetection.hpp"
 #include "robotFloor.hpp"
 
+namespace MRA::internal::FLocVis
+{
+
 class fieldLut: public cv::MinProblemSolver::Function {
 
 private:
@@ -29,5 +32,7 @@ public:
     int getDims() const { return 3; }
 	scoreStruct calcSimple(positionStDbl pos, double threshold);
 };
+
+} // namespace MRA::internal::FLocVis
 
 #endif

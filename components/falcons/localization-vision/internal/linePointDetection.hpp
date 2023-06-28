@@ -6,6 +6,9 @@
 
 #include <vector>
 
+namespace MRA::internal::FLocVis
+{
+
 struct angleRadiusSt {
     double angle;
     double radius;
@@ -25,5 +28,7 @@ public:
     std::vector<angleRadiusSt> getLinePointsPolar();
 
 };
+
+} // namespace MRA::internal::FLocVis
 
 #endif

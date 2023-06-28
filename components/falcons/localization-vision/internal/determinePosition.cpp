@@ -5,6 +5,7 @@
 
 using namespace cv;
 using namespace std;
+using namespace MRA::internal::FLocVis;
 
 determinePosition::determinePosition(configurator *conf, linePointDetection *linePoint, robotFloor *rFloor) {
 	this->conf = conf;

@@ -47,6 +47,7 @@
 
 using namespace std;
 using namespace cv;
+using namespace MRA::internal::FLocVis;
 
 robotFloor::robotFloor(	configurator *conf ) {
 	this->conf = conf;

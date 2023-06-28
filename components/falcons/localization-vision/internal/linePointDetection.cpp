@@ -3,6 +3,7 @@
 
 
 #include "linePointDetection.hpp"
+using namespace MRA::internal::FLocVis;
 
 linePointDetection::linePointDetection()
 {

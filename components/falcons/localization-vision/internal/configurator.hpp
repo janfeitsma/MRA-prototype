@@ -9,6 +9,9 @@
 #include <iostream>
 #include <mutex>
 
+namespace MRA::internal::FLocVis
+{
+
 // IMX219 camera is configured for x4 binning : 3280/4 = 820, 2464/4 = 616
 // resolution is 820x616, but 820 does not divide by 8
 // TODO: get from yaml
@@ -583,5 +586,6 @@ inline std::string pathToConfig()
     return "";
 }
 
+} // namespace MRA::internal::FLocVis
 
 #endif
