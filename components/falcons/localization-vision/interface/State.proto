@@ -2,7 +2,16 @@ syntax = "proto3";
 
 package MRA.FalconsLocalizationVision;
 
+message CvMatProto // TODO: move this to common datatypes, move (de)serialize operations to common libraries
+{
+    int32 width = 1;
+    int32 height = 2;
+    bytes data = 3;
+    int32 type = 4;
+}
+
 message State
 {
+    CvMatProto referenceFloor = 1;
 }
 

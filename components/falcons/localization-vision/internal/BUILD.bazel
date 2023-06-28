@@ -27,9 +27,11 @@ cc_library(
 cc_library(
     name = "solver",
     srcs = [
+        "floor.cpp",
         "solver.cpp",
     ],
     hdrs = [
+        "floor.hpp",
         "solver.hpp",
     ],
     includes = [
