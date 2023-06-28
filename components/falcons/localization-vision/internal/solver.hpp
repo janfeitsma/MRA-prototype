@@ -20,6 +20,7 @@ public:
 
     Output const &get_output() const;
     Local const &get_diagnostics() const;
+    State const &get_state() const;
 
 private:
     Input  _input;

@@ -45,6 +45,7 @@ int FalconsLocalizationVision::FalconsLocalizationVision::tick
     // store output
     output.CopyFrom(solver.get_output());
     local.CopyFrom(solver.get_diagnostics());
+    state.CopyFrom(solver.get_state());
 
 #ifdef DEBUG
     std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
