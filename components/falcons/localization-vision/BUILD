@@ -7,6 +7,7 @@ cc_library(
         "datatypes.hpp",
     ],
     visibility = ["//visibility:public"],
+    includes = ["."],
     deps = [
         "//components/falcons/localization-vision/interface:interface",
     ],
