@@ -7,6 +7,7 @@ cc_library(
         "datatypes.hpp",
     ],
     visibility = ["//visibility:public"],
+    includes = ["."],
     deps = [
         "//MRA_COMPONENTS_ROOT/COMPONENT_REL_PATH/interface:interface",
     ],
