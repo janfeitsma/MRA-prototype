@@ -34,5 +34,6 @@ message Shape
         Rectangle rectangle = 2;
         Circle circle = 3;
     }
+    float linewidth = 4;
 }
 
