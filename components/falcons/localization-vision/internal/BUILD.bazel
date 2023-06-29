@@ -41,6 +41,7 @@ cc_library(
     ],
     deps = [
         "@opencv",
+        "//libraries/opencv_utils",
         "//components/falcons/localization-vision:datatypes",
     ],
     visibility = ["//visibility:public"],

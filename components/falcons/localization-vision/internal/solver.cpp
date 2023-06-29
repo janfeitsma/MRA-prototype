@@ -1,5 +1,8 @@
 #include "solver.hpp"
 
+// MRA libraries
+#include "opencv_utils.hpp"
+
 
 using namespace MRA::FalconsLocalizationVision;
 
@@ -59,7 +62,7 @@ void Solver::determine_reference_floor()
     _floor.shapesToCvMat(shapes, blurFactor, m);
 
     // store result as protobuf CvMatProto object
-    _floor.serializeCvMat(m, *_state.mutable_referencefloor());
+    MRA::OpenCVUtils::serializeCvMat(m, *_state.mutable_referencefloor());
 }
 
 int Solver::run()
@@ -71,7 +74,7 @@ int Solver::run()
 
     // get the reference floor
     cv::Mat referenceFloor;
-    _floor.deserializeCvMat(_state.referencefloor(), referenceFloor);
+    MRA::OpenCVUtils::deserializeCvMat(_state.referencefloor(), referenceFloor);
 
     // the core is a single fit operation (which uses opencv Downhill Simplex solver):
     // fit given white pixels and initial guess to the reference field
