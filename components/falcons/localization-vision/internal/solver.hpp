@@ -3,7 +3,7 @@
 
 #include "datatypes.hpp"
 #include "floor.hpp"
-
+#include "fit.hpp"
 
 namespace MRA::FalconsLocalizationVision
 {
@@ -32,6 +32,7 @@ private:
     Local  _diag;
 
     Floor  _floor;
+    FitAlgorithm _fit;
 
 }; // class Solver
 

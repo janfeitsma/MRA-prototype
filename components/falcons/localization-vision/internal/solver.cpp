@@ -66,8 +66,8 @@ int Solver::run()
 {
     // TODO: multithreading?
     // TODO: on input, specify guesses and randomness etc
-    // try to minimize state, trackers (that is for worldModel to handle)
-    // initially (and maybe also occasionally?) we should do some kind of grid search
+    // try to keep the design as simple as possible: minimize state, trackers (that is for worldModel to handle)
+    // initially (and maybe also occasionally?) we should perhaps do some kind of grid search
 
     // get the reference floor
     cv::Mat referenceFloor;
@@ -75,12 +75,15 @@ int Solver::run()
 
     // the core is a single fit operation (which uses opencv Downhill Simplex solver):
     // fit given white pixels and initial guess to the reference field
-    //MRA::Geometry::Pose guess(2.0, 2.0, 2.0);
-
-    //FitSettings;
-    //FitSolution solution = _fitMethod.run(guess, _state.referencefloor(), _params.solver());
-    
-    return 0;
+    _fit.settings.guess.x = -1.0;
+    _fit.settings.guess.y = 3.0;
+    _fit.settings.guess.rz = 2.0;
+    FitResult r = _fit.run(referenceFloor);
+    if (r.success)
+    {
+        return 0;
+    }
+    return 1;
 }
 
 Output const &Solver::get_output() const
