@@ -36,8 +36,15 @@ void Solver::determine_reference_floor()
     // serialize and store the mat in state, as this should not be recalculated each tick
     // some external python plot tool should be able to plot it
 
-    // create helper class
-    Floor floor;
+    // determine floor size
+    float ppm = _params.solver().pixelspermeter();
+    float sizeY = _params.model().a() + 2.0 * _params.solver().floorborder();
+    int numPixelsY = int(sizeY * ppm);
+    float sizeX = _params.model().b() + 2.0 * _params.solver().floorborder();
+    int numPixelsX = int(sizeX * ppm);
+
+    // create helper class, sizes in FCS
+    Floor floor(sizeX, sizeY, ppm);
 
     // determine set of shapes
     std::vector<MRA::Datatypes::Shape> shapes(_params.shapes().begin(), _params.shapes().end());
@@ -48,11 +55,7 @@ void Solver::determine_reference_floor()
 
     // create cv::Mat
     float blurFactor = _params.solver().blurfactor();
-    float sizeY = _params.model().a() + _params.solver().floorborder();
-    int numPixelsY = int(sizeY * _params.solver().pixelspermeter());
-    float sizeX = _params.model().b() + _params.solver().floorborder();
-    int numPixelsX = int(sizeX * _params.solver().pixelspermeter());
-    cv::Mat m = cv::Mat::zeros(numPixelsX, numPixelsY, CV_8UC1);
+    cv::Mat m = cv::Mat::zeros(numPixelsX, numPixelsY, CV_8UC1); // field is rotated screen-friendly: more columns than rows
     floor.shapesToCvMat(shapes, blurFactor, m);
 
     // store result
