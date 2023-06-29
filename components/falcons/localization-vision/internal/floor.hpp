@@ -11,12 +11,16 @@ namespace MRA::FalconsLocalizationVision
 class Floor
 {
 public:
-    Floor(float sizeX, float sizeY, float pixelsPerMeter);
+    Floor();
     ~Floor();
-    
+
+    void configure(float sizeX, float sizeY, float pixelsPerMeter);
+
     void letterModelToShapes(StandardLetterModel const &model, std::vector<MRA::Datatypes::Shape> &shapes);
     void shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, float blurFactor, cv::Mat &m);
-    void serializeCvMat(cv::Mat const &m, CvMatProto *result);
+
+    void serializeCvMat(cv::Mat const &src, CvMatProto &tgt);
+    void deserializeCvMat(CvMatProto const &src, cv::Mat &tgt);
 
 private:
     float _ppm = 1;

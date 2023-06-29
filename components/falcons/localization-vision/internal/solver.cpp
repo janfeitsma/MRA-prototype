@@ -1,5 +1,5 @@
 #include "solver.hpp"
-#include "floor.hpp"
+
 
 using namespace MRA::FalconsLocalizationVision;
 
@@ -43,27 +43,43 @@ void Solver::determine_reference_floor()
     float sizeX = _params.model().b() + 2.0 * _params.solver().floorborder();
     int numPixelsX = int(sizeX * ppm);
 
-    // create helper class, sizes in FCS
-    Floor floor(sizeX, sizeY, ppm);
+    // configure helper class, sizes in FCS
+    _floor.configure(sizeX, sizeY, ppm);
 
     // determine set of shapes
     std::vector<MRA::Datatypes::Shape> shapes(_params.shapes().begin(), _params.shapes().end());
     if (_params.has_model())
     {
-        floor.letterModelToShapes(_params.model(), shapes); // TODO: move this to MRA::libraries? could be useful elsewhere
+        _floor.letterModelToShapes(_params.model(), shapes); // TODO: move this to MRA::libraries? could be useful elsewhere
     }
 
-    // create cv::Mat
+    // create cv::Mat such that field is rotated screen-friendly: more columns than rows
     float blurFactor = _params.solver().blurfactor();
-    cv::Mat m = cv::Mat::zeros(numPixelsX, numPixelsY, CV_8UC1); // field is rotated screen-friendly: more columns than rows
-    floor.shapesToCvMat(shapes, blurFactor, m);
+    cv::Mat m = cv::Mat::zeros(numPixelsX, numPixelsY, CV_8UC1);
+    _floor.shapesToCvMat(shapes, blurFactor, m);
 
-    // store result
-    floor.serializeCvMat(m, _state.mutable_referencefloor());
+    // store result as protobuf CvMatProto object
+    _floor.serializeCvMat(m, *_state.mutable_referencefloor());
 }
 
 int Solver::run()
 {
+    // TODO: multithreading?
+    // TODO: on input, specify guesses and randomness etc
+    // try to minimize state, trackers (that is for worldModel to handle)
+    // initially (and maybe also occasionally?) we should do some kind of grid search
+
+    // get the reference floor
+    cv::Mat referenceFloor;
+    _floor.deserializeCvMat(_state.referencefloor(), referenceFloor);
+
+    // the core is a single fit operation (which uses opencv Downhill Simplex solver):
+    // fit given white pixels and initial guess to the reference field
+    //MRA::Geometry::Pose guess(2.0, 2.0, 2.0);
+
+    //FitSettings;
+    //FitSolution solution = _fitMethod.run(guess, _state.referencefloor(), _params.solver());
+    
     return 0;
 }
 

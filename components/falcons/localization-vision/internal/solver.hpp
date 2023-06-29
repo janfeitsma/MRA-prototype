@@ -2,6 +2,8 @@
 #define _MRA_FALCONS_LOCALIZATION_VISION_SOLVER_HPP
 
 #include "datatypes.hpp"
+#include "floor.hpp"
+
 
 namespace MRA::FalconsLocalizationVision
 {
@@ -28,6 +30,8 @@ private:
     State  _state;
     Output _output;
     Local  _diag;
+
+    Floor  _floor;
 
 }; // class Solver
 

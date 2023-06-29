@@ -2,16 +2,20 @@
 
 using namespace MRA::FalconsLocalizationVision;
 
-Floor::Floor(float sizeX, float sizeY, float pixelsPerMeter)
+Floor::Floor()
+{
+}
+
+Floor::~Floor()
+{
+}
+
+void Floor::configure(float sizeX, float sizeY, float pixelsPerMeter)
 {
     _ppm = pixelsPerMeter;
     // origin is the FCS point at pixel (0,0)
     _originX = -0.5 * sizeX;
     _originY = -0.5 * sizeY;
-}
-
-Floor::~Floor()
-{
 }
 
 void Floor::letterModelToShapes(StandardLetterModel const &model, std::vector<MRA::Datatypes::Shape> &shapes)
@@ -72,13 +76,22 @@ void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, floa
     }
 }
 
-void Floor::serializeCvMat(cv::Mat const &m, CvMatProto *result)
+// TODO: serializeCvMat and deserializeCvMat do not belong here specifically
+void Floor::serializeCvMat(cv::Mat const &src, CvMatProto &tgt)
 {
-    result->set_width(m.cols);
-    result->set_height(m.rows);
-    result->set_type(m.type());
+    tgt.set_width(src.cols);
+    tgt.set_height(src.rows);
+    tgt.set_type(src.type());
     // Copy the cv::Mat data into a Protobuf bytes field
-    const size_t dataSize = m.total() * m.elemSize();
-    result->set_data(m.data, dataSize);
+    const size_t dataSize = src.total() * src.elemSize();
+    tgt.set_data(src.data, dataSize);
+}
+
+void Floor::deserializeCvMat(CvMatProto const &src, cv::Mat &tgt)
+{
+    tgt.release();
+    tgt.create(src.height(), src.width(), src.type());
+    const std::string& data = src.data();
+    memcpy(tgt.data, data.data(), data.size());
 }
 
