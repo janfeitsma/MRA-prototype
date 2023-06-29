@@ -31,7 +31,7 @@ message StandardLetterModel
 message SolverParams
 {
     int32 numExtraThreads = 1;
-    float pixelsPerMeter = 2; // [25.0] used to create cv::Mat
+    float pixelsPerMeter = 2; // [40.0] used to create cv::Mat
     float floorBorder = 3; // like 'L': how far to extend outside field
     float blurFactor = 4; // blur factor, zero is no blur
 }
