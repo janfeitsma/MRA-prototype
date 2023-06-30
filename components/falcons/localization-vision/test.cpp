@@ -38,11 +38,11 @@ TEST(FalconsLocalizationVisionTest, somePixels)
     auto state = FalconsLocalizationVision::State();
     auto local = FalconsLocalizationVision::Local();
     auto params = m.defaultParams();
-    FalconsLocalizationVision::Pixel p;
-    p.set_x(3); p.set_y(3); *input.add_pixels() = p;
-    p.set_x(3); p.set_y(4); *input.add_pixels() = p;
-    p.set_x(4); p.set_y(3); *input.add_pixels() = p;
-    params.set_debug(false);
+    FalconsLocalizationVision::Landmark p;
+    p.set_x(3); p.set_y(3); *input.add_landmarks() = p;
+    p.set_x(3); p.set_y(4); *input.add_landmarks() = p;
+    p.set_x(4); p.set_y(3); *input.add_landmarks() = p;
+    params.set_debug(true);
 
     // Act
     int error_value = m.tick(input, params, state, output, local);

@@ -77,10 +77,10 @@ int Solver::run()
     cv::Mat referenceFloor;
     MRA::OpenCVUtils::deserializeCvMat(_state.referencefloor(), referenceFloor);
 
-    // create a floor (pixels RCS, robot at (0,0,0)) for input linepoints
+    // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
     cv::Mat rcsLinePoints = _floor.createMat();
-    std::vector<Pixel> pixels(_input.pixels().begin(), _input.pixels().end());
-    _floor.linePointsToCvMat(pixels, rcsLinePoints);
+    std::vector<Landmark> linePoints(_input.landmarks().begin(), _input.landmarks().end());
+    _floor.linePointsToCvMat(linePoints, rcsLinePoints);
 
     // the core is a single fit operation (which uses opencv Downhill Simplex solver):
     // fit given white pixels and initial guess to the reference field

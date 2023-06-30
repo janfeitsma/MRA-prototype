@@ -89,12 +89,12 @@ void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, floa
     }
 }
 
-void Floor::linePointsToCvMat(std::vector<Pixel> const &pixels, cv::Mat &m)
+void Floor::linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &m)
 {
-    // for every pixel, create a circle
+    // for every linepoint, create a circle
     std::vector<MRA::Datatypes::Shape> shapes;
     MRA::Datatypes::Shape s;
-    for (auto const &p: pixels)
+    for (auto const &p: linePoints)
     {
         s.mutable_circle()->mutable_center()->set_x(p.x());
         s.mutable_circle()->mutable_center()->set_y(p.y());

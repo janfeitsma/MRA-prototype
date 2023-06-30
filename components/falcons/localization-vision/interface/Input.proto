@@ -2,7 +2,8 @@ syntax = "proto3";
 
 package MRA.FalconsLocalizationVision;
 
-message Pixel
+// "landmark" is a generalized name, in practice we use white pixels and match against a generated reference floor
+message Landmark
 {
     float x = 1;
     float y = 2;
@@ -10,10 +11,10 @@ message Pixel
 
 message Input
 {
-    // list of pixels to use, produced by vision
-    // pixels should be in RCS, so, relative to robot
+    // list of landmarks (pixels) to use, produced by vision
+    // coordinates should be in RCS, so, relative to robot
     // the translation from (warped) camera image to RCS is supposed to be done beforehand
     // ideally list is "cleaned" already (no sun-spots, no goals) -- or is that the responsibility of this component?
-    repeated Pixel pixels = 1;
+    repeated Landmark landmarks = 1;
 }
 

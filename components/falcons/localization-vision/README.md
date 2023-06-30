@@ -1,16 +1,16 @@
 # Summary
 
-LocalizationVision is responsible for determining location candidate(s) in FCS based on white line pixels in RCS.
+LocalizationVision is responsible for determining location candidate(s) in FCS based on observed landmarks (typically white pixels) in RCS.
 
 It uses the Simplex Downhill solver from `opencv`.
 
 # Scope and context
 
-This component is responsible for fitting the observed white line pixels to the expected configured line layout.
+This component is responsible for fitting the observed white line pixels to the expected configured line floor layout.
 
-Its input should be in RCS, typically detected white pixels, filtered, already transformed from camera pixels coordinates.
+Its input should be in RCS, typically detected white line pixels, filtered, already transformed from camera pixels coordinates.
 
-Its output is passed to LocalizationWorldModel for fusion with other sensor data.
+Its output is intended to be passed to LocalizationWorldModel for fusion with other sensor data.
 
 # Interface details
 
@@ -24,5 +24,7 @@ Note that teams tend to borrow each others field measurements using the definiti
 
 # Design
 
-Simplex method. Maybe a little python tool to plot field.
+Simplex method.
+
+Includes a little python tool to plot field (serialized `CvMatProto`).
 

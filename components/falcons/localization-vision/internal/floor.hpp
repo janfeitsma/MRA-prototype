@@ -19,7 +19,7 @@ public:
     cv::Mat createMat();
     void letterModelToShapes(StandardLetterModel const &model, std::vector<MRA::Datatypes::Shape> &shapes);
     void shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, float blurFactor, cv::Mat &m);
-    void linePointsToCvMat(std::vector<Pixel> const &pixels, cv::Mat &m);
+    void linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &m);
 
 private:
     float _ppm = 1;
