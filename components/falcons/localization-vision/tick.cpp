@@ -53,11 +53,7 @@ int FalconsLocalizationVision::FalconsLocalizationVision::tick
     std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
     //std::cout << "state: " << convert_proto_to_json_str(state) << std::endl; // a lot of binary data ...
     std::cout << "state_img: " << state.referencefloor().height() << "x" << state.referencefloor().width() << std::endl;
-    std::ofstream dumpState;
-    dumpState.open("/tmp/locState.bin");
-    state.SerializeToOstream(&dumpState);
-    dumpState.close();
-    std::cout << "local: " << convert_proto_to_json_str(local) << std::endl;
+    //std::cout << "local: " << convert_proto_to_json_str(local) << std::endl;
     std::cout << "error: " << error_value << std::endl;
 #endif // DEBUG
     return error_value;

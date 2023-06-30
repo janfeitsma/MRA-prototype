@@ -34,6 +34,8 @@ private:
     Floor  _floor;
     FitAlgorithm _fit;
 
+    void configureFloor();
+
 }; // class Solver
 
 } // namespace MRA::FalconsLocalizationVision

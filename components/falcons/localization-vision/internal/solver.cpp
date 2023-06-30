@@ -3,8 +3,8 @@
 // MRA libraries
 #include "opencv_utils.hpp"
 
-
 using namespace MRA::FalconsLocalizationVision;
+
 
 Solver::Solver()
 {
@@ -17,6 +17,17 @@ Solver::~Solver()
 void Solver::configure(Params const &p)
 {
     _params = p;
+    configureFloor();
+}
+
+void Solver::configureFloor()
+{
+    // determine floor size
+    float ppm = _params.solver().pixelspermeter();
+    float sizeY = _params.model().a() + 2.0 * _params.solver().floorborder();
+    float sizeX = _params.model().b() + 2.0 * _params.solver().floorborder();
+    // configure helper class, sizes in FCS
+    _floor.configure(sizeX, sizeY, ppm);
 }
 
 void Solver::set_state(State const &s)
@@ -39,16 +50,6 @@ void Solver::determine_reference_floor()
     // serialize and store the mat in state, as this should not be recalculated each tick
     // some external python plot tool should be able to plot it
 
-    // determine floor size
-    float ppm = _params.solver().pixelspermeter();
-    float sizeY = _params.model().a() + 2.0 * _params.solver().floorborder();
-    int numPixelsY = int(sizeY * ppm);
-    float sizeX = _params.model().b() + 2.0 * _params.solver().floorborder();
-    int numPixelsX = int(sizeX * ppm);
-
-    // configure helper class, sizes in FCS
-    _floor.configure(sizeX, sizeY, ppm);
-
     // determine set of shapes
     std::vector<MRA::Datatypes::Shape> shapes(_params.shapes().begin(), _params.shapes().end());
     if (_params.has_model())
@@ -58,7 +59,7 @@ void Solver::determine_reference_floor()
 
     // create cv::Mat such that field is rotated screen-friendly: more columns than rows
     float blurFactor = _params.solver().blurfactor();
-    cv::Mat m = cv::Mat::zeros(numPixelsX, numPixelsY, CV_8UC1);
+    cv::Mat m = _floor.createMat();
     _floor.shapesToCvMat(shapes, blurFactor, m);
 
     // store result as protobuf CvMatProto object
@@ -76,14 +77,33 @@ int Solver::run()
     cv::Mat referenceFloor;
     MRA::OpenCVUtils::deserializeCvMat(_state.referencefloor(), referenceFloor);
 
+    // create a floor (pixels RCS, robot at (0,0,0)) for input linepoints
+    cv::Mat rcsLinePoints = _floor.createMat();
+    std::vector<Pixel> pixels(_input.pixels().begin(), _input.pixels().end());
+    _floor.linePointsToCvMat(pixels, rcsLinePoints);
+
     // the core is a single fit operation (which uses opencv Downhill Simplex solver):
     // fit given white pixels and initial guess to the reference field
     _fit.settings.guess.x = -1.0;
     _fit.settings.guess.y = 3.0;
     _fit.settings.guess.rz = 2.0;
-    FitResult r = _fit.run(referenceFloor);
+    FitResult r = _fit.run(referenceFloor, rcsLinePoints);
+
+    // optional dump of diagnostics data for plotting
+    if (_params.debug())
+    {
+        MRA::OpenCVUtils::serializeCvMat(r.floor, *_diag.mutable_fitresultfloor());
+    }
+
+    // process fit result
     if (r.success)
     {
+        Candidate c;
+        c.mutable_pose()->set_x(r.pose.x);
+        c.mutable_pose()->set_y(r.pose.y);
+        c.mutable_pose()->set_rz(r.pose.rz);
+        c.set_confidence(r.score);
+        *_output.add_candidates() = c;
         return 0;
     }
     return 1;

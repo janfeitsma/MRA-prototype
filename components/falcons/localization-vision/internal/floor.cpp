@@ -16,6 +16,14 @@ void Floor::configure(float sizeX, float sizeY, float pixelsPerMeter)
     // origin is the FCS point at pixel (0,0)
     _originX = -0.5 * sizeX;
     _originY = -0.5 * sizeY;
+    // number of pixels (rotated)
+    _numPixelsY = int(sizeY * _ppm);
+    _numPixelsX = int(sizeX * _ppm);
+}
+
+cv::Mat Floor::createMat()
+{
+    return cv::Mat::zeros(_numPixelsX, _numPixelsY, CV_8UC1);
 }
 
 void Floor::letterModelToShapes(StandardLetterModel const &model, std::vector<MRA::Datatypes::Shape> &shapes)
@@ -71,8 +79,29 @@ void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, floa
             auto pfrom = pointFcsToPixel(s.line().from());
             auto pto = pointFcsToPixel(s.line().to());
             cv::line(m, pfrom, pto, color, lw);
-            printf("line pfrom(%d,%d) pto(%d,%d)\n", pfrom.x, pfrom.y, pto.x, pto.y);
+        }
+        else if (s.has_circle())
+        {
+            int radius = s.circle().radius() * _ppm;
+            auto p = pointFcsToPixel(s.circle().center());
+            cv::circle(m, p, radius, color, -1);
         }
     }
+}
+
+void Floor::linePointsToCvMat(std::vector<Pixel> const &pixels, cv::Mat &m)
+{
+    // for every pixel, create a circle
+    std::vector<MRA::Datatypes::Shape> shapes;
+    MRA::Datatypes::Shape s;
+    for (auto const &p: pixels)
+    {
+        s.mutable_circle()->mutable_center()->set_x(p.x());
+        s.mutable_circle()->mutable_center()->set_y(p.y());
+        s.mutable_circle()->set_radius(0.1); // in meters, TODO make configurable pixelRadius
+        shapes.push_back(s);
+    }
+    // make use of shapesToCvMat
+    shapesToCvMat(shapes, 0.0, m);
 }
 

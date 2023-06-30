@@ -16,13 +16,17 @@ public:
 
     void configure(float sizeX, float sizeY, float pixelsPerMeter);
 
+    cv::Mat createMat();
     void letterModelToShapes(StandardLetterModel const &model, std::vector<MRA::Datatypes::Shape> &shapes);
     void shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, float blurFactor, cv::Mat &m);
+    void linePointsToCvMat(std::vector<Pixel> const &pixels, cv::Mat &m);
 
 private:
     float _ppm = 1;
     float _originX;
     float _originY;
+    int _numPixelsY;
+    int _numPixelsX;
 
     cv::Point pointFcsToPixel(MRA::Datatypes::Point const &p) const;
 

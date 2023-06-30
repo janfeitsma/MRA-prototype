@@ -25,15 +25,21 @@ struct FitResult
     bool success = false;
     float score = 0.0;
     FitPose pose;
+    cv::Mat floor;
 }; // struct FitResult
 
 
 class FitFunction: public cv::MinProblemSolver::Function
 {
 public:
-    FitFunction();
+    FitFunction(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints);
 	double calc(const double *x) const;
     int getDims() const { return 3; }
+    cv::Mat getFloor() const { return _lastFloor; }
+private:
+    cv::Mat _referenceFloor;
+    cv::Mat _rcsLinePoints;
+    cv::Mat _lastFloor;
 }; // class FitFunction
 
 
@@ -45,7 +51,7 @@ public:
 
     FitSettings settings;
 
-    FitResult run(cv::Mat const &referenceFloor);
+    FitResult run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints);
 
 }; // class FitAlgorithm
 

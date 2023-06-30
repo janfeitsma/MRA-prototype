@@ -21,7 +21,7 @@
     "shapes": [],
     "solver": {
         "numExtraThreads": 0,
-        "pixelsPerMeter": 40,
+        "pixelsPerMeter": 80,
         "floorBorder": 0.5,
         "blurFactor": 0.5
     }

@@ -8,6 +8,9 @@
 #include "test_factory.hpp"
 using namespace ::testing;
 
+// Other includes
+#include <fstream>
+
 // System under test:
 #include "FalconsLocalizationVision.hpp"
 using namespace MRA;
@@ -20,6 +23,38 @@ TEST(FalconsLocalizationVisionTest, basicTick)
 
     // Act
     int error_value = m.tick();
+
+    // Assert
+    EXPECT_EQ(error_value, 0);
+}
+
+// Some pixels
+TEST(FalconsLocalizationVisionTest, somePixels)
+{
+    // Arrange
+    auto m = FalconsLocalizationVision::FalconsLocalizationVision();
+    auto input = FalconsLocalizationVision::Input();
+    auto output = FalconsLocalizationVision::Output();
+    auto state = FalconsLocalizationVision::State();
+    auto local = FalconsLocalizationVision::Local();
+    auto params = m.defaultParams();
+    FalconsLocalizationVision::Pixel p;
+    p.set_x(3); p.set_y(3); *input.add_pixels() = p;
+    p.set_x(3); p.set_y(4); *input.add_pixels() = p;
+    p.set_x(4); p.set_y(3); *input.add_pixels() = p;
+    params.set_debug(false);
+
+    // Act
+    int error_value = m.tick(input, params, state, output, local);
+
+    // debug dump
+    if (params.debug())
+    {
+        std::ofstream dumpState;
+        dumpState.open("/tmp/locState.bin");
+        local.fitresultfloor().SerializeToOstream(&dumpState);
+        dumpState.close();
+    }
 
     // Assert
     EXPECT_EQ(error_value, 0);

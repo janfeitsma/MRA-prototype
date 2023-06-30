@@ -41,5 +41,6 @@ message Params
     StandardLetterModel model = 1; // optional MSL standard model of the field using letters, where A=22, B=14, etc, leading to a set of shapes
     repeated MRA.Datatypes.Shape shapes = 2; // optional extra shapes
     SolverParams solver = 3;
+    bool debug = 4; // enable to output CvMatProto local.fitResultFloor
 }
 
