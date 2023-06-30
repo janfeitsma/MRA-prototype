@@ -44,7 +44,7 @@ public:
         StateType s;
         OutputType o;
         LocalType l;
-        return tick(google::protobuf::util::TimeUtil::GetCurrentTime(), InputType(), defaultParams(), s, o, l);
+        return tick(GetCurrentTime(), InputType(), defaultParams(), s, o, l);
     };
 
     int tick(
@@ -54,7 +54,7 @@ public:
     {
         StateType s;
         LocalType l;
-        return tick(google::protobuf::util::TimeUtil::GetCurrentTime(), input, defaultParams(), s, output, l);
+        return tick(GetCurrentTime(), input, defaultParams(), s, output, l);
     };
 
     int tick(
@@ -65,7 +65,7 @@ public:
     {
         StateType s;
         LocalType l;
-        return tick(google::protobuf::util::TimeUtil::GetCurrentTime(), input, params, s, output, l);
+        return tick(GetCurrentTime(), input, params, s, output, l);
     };
 
     int tick(
@@ -76,7 +76,7 @@ public:
         LocalType        &local
     )
     {
-        return tick(google::protobuf::util::TimeUtil::GetCurrentTime(), input, params, state, output, local);
+        return tick(GetCurrentTime(), input, params, state, output, local);
     };
 
 }; // class COMPONENT_CPP_NAME_CAMELCASE
