@@ -19,7 +19,7 @@ public:
     LogTick(Tt const &timestamp, Ti const &input, Tp const &params, Ts *state, To *output, Tl *local, int *error_value)
     :
         // store data for inspection later
-        _t0(google::protobuf::util::TimeUtil::GetCurrentTime()),
+        _t0(GetCurrentTime()),
         _state(state),
         _output(output),
         _local(local),
@@ -35,7 +35,7 @@ public:
     ~LogTick()
     {
         // logging at END of the tick
-        double duration = 1e-6 * google::protobuf::util::TimeUtil::DurationToMicroseconds(google::protobuf::util::TimeUtil::GetCurrentTime() - _t0);
+        double duration = 1e-6 * google::protobuf::util::TimeUtil::DurationToMicroseconds(GetCurrentTime() - _t0);
         std::cout << "tick " << _counter++ << " END, error_value=" << *_err << std::endl;
         std::cout << "   duration: " << duration << std::endl;
         std::cout << "   output: " << convert_proto_to_json_str(*_output) << std::endl;
