@@ -8,10 +8,9 @@ using namespace MRA;
 
 // custom includes, if any
 #include "solver.hpp"
-#include <fstream>
+#include "logging.hpp" // TODO: automate, perhaps via generated hpp
 
 
-#define DEBUG
 
 int FalconsLocalizationVision::FalconsLocalizationVision::tick
 (
@@ -23,13 +22,8 @@ int FalconsLocalizationVision::FalconsLocalizationVision::tick
     LocalType                  &local        // local/diagnostics data, type generated from Local.proto
 )
 {
-#ifdef DEBUG
-    std::cout << "timestamp: " << timestamp << std::endl;
-    std::cout << "input: " << convert_proto_to_json_str(input) << std::endl;
-    std::cout << "params: " << convert_proto_to_json_str(params) << std::endl;
-    //std::cout << "state: " << convert_proto_to_json_str(state) << std::endl; // a lot of binary data ...
-#endif // DEBUG
     int error_value = 0;
+    MRA::Logging::LogTick scoped(timestamp, input, params, &state, &output, &local, &error_value);
 
     // user implementation goes here
 
@@ -49,13 +43,6 @@ int FalconsLocalizationVision::FalconsLocalizationVision::tick
     local.CopyFrom(solver.get_diagnostics());
     state.CopyFrom(solver.get_state());
 
-#ifdef DEBUG
-    std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
-    //std::cout << "state: " << convert_proto_to_json_str(state) << std::endl; // a lot of binary data ...
-    std::cout << "state_img: " << state.referencefloor().height() << "x" << state.referencefloor().width() << std::endl;
-    //std::cout << "local: " << convert_proto_to_json_str(local) << std::endl;
-    std::cout << "error: " << error_value << std::endl;
-#endif // DEBUG
     return error_value;
 }
 

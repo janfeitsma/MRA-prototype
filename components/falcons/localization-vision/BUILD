@@ -27,6 +27,7 @@ cc_library(
         "//base:abstract_interface",
         ":datatypes",
         "//components/falcons/localization-vision/internal:solver",
+        "//libraries/logging",
     ],
 )
 
