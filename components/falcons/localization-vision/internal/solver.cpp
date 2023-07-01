@@ -17,17 +17,50 @@ Solver::~Solver()
 void Solver::configure(Params const &p)
 {
     _params = p;
-    configureFloor();
+    // check for missing required parameters
+    checkParamsValid();
+    // configure helper classes
+    _floor.configure(_params);
+    _fit.configure(_params.solver());
 }
 
-void Solver::configureFloor()
+void Solver::checkParamsValid()
 {
-    // determine floor size
-    float ppm = _params.solver().pixelspermeter();
-    float sizeY = _params.model().a() + 2.0 * _params.solver().floorborder();
-    float sizeX = _params.model().b() + 2.0 * _params.solver().floorborder();
-    // configure helper class, sizes in FCS
-    _floor.configure(sizeX, sizeY, ppm);
+    // check field model params
+    if (_params.model().a() < 1)
+    {
+        throw std::runtime_error("invalid configuration: field model parameter A (field length in y) too small (got " + std::to_string(_params.model().a()) + ")");
+    }
+    if (_params.model().b() < 1)
+    {
+        throw std::runtime_error("invalid configuration: field model parameter B (field width in x) too small (got " + std::to_string(_params.model().b()) + ")");
+    }
+    if (_params.model().k() < 0.01)
+    {
+        throw std::runtime_error("invalid configuration: field model parameter K (line width) too small (got " + std::to_string(_params.model().k()) + ")");
+    }
+    // check solver params
+    auto solverParams = _params.solver();
+    if (solverParams.maxcount() < 1)
+    {
+        throw std::runtime_error("invalid configuration: maxCount should be a positive number (got " + std::to_string(solverParams.maxcount()) + ")");
+    }
+    if (solverParams.step().x() < 1)
+    {
+        throw std::runtime_error("invalid configuration: step.x too small (got " + std::to_string(solverParams.step().x()) + ")");
+    }
+    if (solverParams.step().y() < 1)
+    {
+        throw std::runtime_error("invalid configuration: step.y too small (got " + std::to_string(solverParams.step().y()) + ")");
+    }
+    if (solverParams.step().rz() < 1)
+    {
+        throw std::runtime_error("invalid configuration: step.rz too small (got " + std::to_string(solverParams.step().rz()) + ")");
+    }
+    if (solverParams.linepointradiusconstant() < 0.01)
+    {
+        throw std::runtime_error("invalid configuration: linePointRadiusConstant too small (got " + std::to_string(solverParams.linepointradiusconstant()) + ")");
+    }
 }
 
 void Solver::set_state(State const &s)
@@ -84,10 +117,7 @@ int Solver::run()
 
     // the core is a single fit operation (which uses opencv Downhill Simplex solver):
     // fit given white pixels and initial guess to the reference field
-    _fit.settings.guess.x = -1.0;
-    _fit.settings.guess.y = 3.0;
-    _fit.settings.guess.rz = 2.0;
-    FitResult r = _fit.run(referenceFloor, rcsLinePoints);
+    FitResult r = _fit.run(referenceFloor, rcsLinePoints, _input.guess());
 
     // optional dump of diagnostics data for plotting
     if (_params.debug())
@@ -99,9 +129,7 @@ int Solver::run()
     if (r.success)
     {
         Candidate c;
-        c.mutable_pose()->set_x(r.pose.x);
-        c.mutable_pose()->set_y(r.pose.y);
-        c.mutable_pose()->set_rz(r.pose.rz);
+        c.mutable_pose()->CopyFrom(r.pose);
         c.set_confidence(r.score);
         *_output.add_candidates() = c;
         return 0;

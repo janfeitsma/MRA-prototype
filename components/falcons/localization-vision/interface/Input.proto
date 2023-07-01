@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package MRA.FalconsLocalizationVision;
 
+import "datatypes/Pose.proto";
+
 // "landmark" is a generalized name, in practice we use white pixels and match against a generated reference floor
 message Landmark
 {
@@ -16,5 +18,8 @@ message Input
     // the translation from (warped) camera image to RCS is supposed to be done beforehand
     // ideally list is "cleaned" already (no sun-spots, no goals) -- or is that the responsibility of this component?
     repeated Landmark landmarks = 1;
+
+    // pose guess, to help the solver
+    MRA.Datatypes.Pose guess = 2;
 }
 

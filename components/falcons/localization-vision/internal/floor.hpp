@@ -14,7 +14,7 @@ public:
     Floor();
     ~Floor();
 
-    void configure(float sizeX, float sizeY, float pixelsPerMeter);
+    void configure(Params const &config);
 
     cv::Mat createMat();
     void letterModelToShapes(StandardLetterModel const &model, std::vector<MRA::Datatypes::Shape> &shapes);
@@ -22,11 +22,14 @@ public:
     void linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &m);
 
 private:
+    Params settings;
     float _ppm = 1;
+    float _sizeX;
+    float _sizeY;
     float _originX;
     float _originY;
-    int _numPixelsY;
     int _numPixelsX;
+    int _numPixelsY;
 
     cv::Point pointFcsToPixel(MRA::Datatypes::Point const &p) const;
 

@@ -14,7 +14,7 @@ FitAlgorithm::~FitAlgorithm()
 {
 }
 
-FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints)
+FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &guess)
 {
     FitResult result;
 
@@ -24,23 +24,23 @@ FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLin
     // configure solver
     cv::Ptr<FitFunction> f = new FitFunction(referenceFloor, rcsLinePoints);
     cvSolver->setFunction(f);
-    cv::Mat step = (cv::Mat_<double>(3, 1) << 50, 50, 40); // TODO make configurable
+    cv::Mat step = (cv::Mat_<double>(3, 1) << settings.step().x(), settings.step().y(), settings.step().rz());
     cvSolver->setInitStep(step);
 	cv::TermCriteria criteria = cvSolver->getTermCriteria();
-	criteria.maxCount = 400; // TODO make configurable
+	criteria.maxCount = settings.maxcount();
 	cvSolver->setTermCriteria(criteria);
 
     // set initial guess
-    cv::Mat vec = (cv::Mat_<double>(1, 3) << settings.guess.x, settings.guess.y, settings.guess.rz);
+    cv::Mat vec = (cv::Mat_<double>(1, 3) << guess.x(), guess.y(), guess.rz());
 
     // run solver, result will be in 'vec'
     result.score = cvSolver->minimize(vec);
 
     // store result
     result.success = true;
-    result.pose.x = vec.at<double>(0, 0);
-    result.pose.y = vec.at<double>(0, 1);
-    result.pose.rz = vec.at<double>(0, 2);
+    result.pose.set_x(vec.at<double>(0, 0));
+    result.pose.set_y(vec.at<double>(0, 1));
+    result.pose.set_rz(vec.at<double>(0, 2));
     result.floor = f->getFloor();
     return result;
 }

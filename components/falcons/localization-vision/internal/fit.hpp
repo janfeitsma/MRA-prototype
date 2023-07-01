@@ -3,28 +3,18 @@
 
 #include <opencv2/core/optim.hpp>
 
+// generated protobuf types from interface of this component
+#include "datatypes.hpp"
+
 
 namespace MRA::FalconsLocalizationVision
 {
-
-struct FitPose
-{
-    float x;
-    float y;
-    float rz;
-};
-
-struct FitSettings
-{
-    FitPose guess;
-}; // struct FitSettings
-
 
 struct FitResult
 {
     bool success = false;
     float score = 0.0;
-    FitPose pose;
+    MRA::Datatypes::Pose pose;
     cv::Mat floor;
 }; // struct FitResult
 
@@ -49,9 +39,10 @@ public:
     FitAlgorithm();
     ~FitAlgorithm();
 
-    FitSettings settings;
+    SolverParams settings;
+    void configure(SolverParams const &config) { settings.CopyFrom(config); }
 
-    FitResult run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints);
+    FitResult run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &guess);
 
 }; // class FitAlgorithm
 

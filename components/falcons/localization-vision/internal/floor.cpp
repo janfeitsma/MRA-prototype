@@ -10,15 +10,19 @@ Floor::~Floor()
 {
 }
 
-void Floor::configure(float sizeX, float sizeY, float pixelsPerMeter)
+void Floor::configure(Params const &config)
 {
-    _ppm = pixelsPerMeter;
+    settings.CopyFrom(config);
+    _ppm = settings.solver().pixelspermeter();
+    // determine floor size
+    _sizeX = settings.model().b() + 2.0 * settings.solver().floorborder();
+    _sizeY = settings.model().a() + 2.0 * settings.solver().floorborder();
     // origin is the FCS point at pixel (0,0)
-    _originX = -0.5 * sizeX;
-    _originY = -0.5 * sizeY;
+    _originX = -0.5 * _sizeX;
+    _originY = -0.5 * _sizeY;
     // number of pixels (rotated)
-    _numPixelsY = int(sizeY * _ppm);
-    _numPixelsX = int(sizeX * _ppm);
+    _numPixelsY = int(_sizeY * _ppm);
+    _numPixelsX = int(_sizeX * _ppm);
 }
 
 cv::Mat Floor::createMat()
@@ -31,15 +35,6 @@ void Floor::letterModelToShapes(StandardLetterModel const &model, std::vector<MR
     // all coordinates are in FCS - conversion to pixels (and potential 90degree rotation) happens at to cv::Mat operations
     MRA::Datatypes::Shape s;
     s.set_linewidth(model.k());
-    // hard checks
-    if (model.a() < 1.0)
-    {
-        throw std::runtime_error("configuration missing or value too small for field dimension A");
-    }
-    if (model.b() < 1.0)
-    {
-        throw std::runtime_error("configuration missing or value too small for field dimension B");
-    }
     s.mutable_line()->mutable_from()->set_x(-0.5 * model.b());
     s.mutable_line()->mutable_from()->set_y(-0.5 * model.a());
     s.mutable_line()->mutable_to()  ->set_x(-0.5 * model.b());
@@ -96,9 +91,16 @@ void Floor::linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &
     MRA::Datatypes::Shape s;
     for (auto const &p: linePoints)
     {
+        float r = settings.solver().linepointradiusconstant();
+        float sf = settings.solver().linepointradiusscalefactor();
+        if (sf)
+        {
+            float distance = sqrt(p.x() * p.x() + p.y() * p.y());
+            r += sf * distance;
+        }
         s.mutable_circle()->mutable_center()->set_x(p.x());
         s.mutable_circle()->mutable_center()->set_y(p.y());
-        s.mutable_circle()->set_radius(0.1); // in meters, TODO make configurable pixelRadius
+        s.mutable_circle()->set_radius(r); // in meters, not pixels (anymore)
         shapes.push_back(s);
     }
     // make use of shapesToCvMat

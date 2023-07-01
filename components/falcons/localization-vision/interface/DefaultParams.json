@@ -23,7 +23,10 @@
         "numExtraThreads": 0,
         "pixelsPerMeter": 80,
         "floorBorder": 0.5,
-        "blurFactor": 0.5
+        "blurFactor": 0.5,
+        "step": {"x": 50.0, "y": 50.0, "rz": 40.0},
+        "maxCount": 400,
+        "linePointRadiusConstant": 0.1
     }
 }
 

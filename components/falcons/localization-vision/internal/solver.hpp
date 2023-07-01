@@ -34,7 +34,9 @@ private:
     Floor  _floor;
     FitAlgorithm _fit;
 
+    void checkParamsValid();
     void configureFloor();
+    void configureFit();
 
 }; // class Solver
 
