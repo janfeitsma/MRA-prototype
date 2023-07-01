@@ -21,6 +21,9 @@ public:
     void shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, float blurFactor, cv::Mat &m);
     void linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &m);
 
+    // diagnostics-specific
+    void addGridLines(cv::Mat &m, float step, cv::Scalar color) const;
+
 private:
     Params settings;
     float _ppm = 1;

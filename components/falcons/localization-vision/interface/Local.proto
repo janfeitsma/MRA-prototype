@@ -7,6 +7,6 @@ import "datatypes/CvMat.proto";
 message Local
 {
     // optional debug Mat, for plotting, only set when params.debug is enabled
-    MRA.Datatypes.CvMatProto fitResultFloor = 1;
+    MRA.Datatypes.CvMatProto floor = 1;
 }
 

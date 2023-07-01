@@ -41,7 +41,6 @@ FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLin
     result.pose.set_x(vec.at<double>(0, 0));
     result.pose.set_y(vec.at<double>(0, 1));
     result.pose.set_rz(vec.at<double>(0, 2));
-    result.floor = f->getFloor();
     return result;
 }
 
@@ -49,8 +48,9 @@ FitFunction::FitFunction(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePo
 {
     _referenceFloor = referenceFloor;
     _rcsLinePoints = rcsLinePoints;
-    _lastFloor = MRA::OpenCVUtils::joinWhitePixels(_referenceFloor, _rcsLinePoints);
 }
+
+// TODO factor out transformation of linePoints such that diagnostics floor can be constructed later
 
 double FitFunction::calc(const double *x) const
 {

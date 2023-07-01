@@ -33,11 +33,12 @@ def parse_args(args: list) -> argparse.Namespace:
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
         pass
     parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=CustomFormatter)
+    parser.add_argument('-c', '--cvmatproto', help='treat given file as CvMatProto object', action='store_true')
     parser.add_argument('datafile', help='data file to load')
     return parser.parse_args(args)
 
 
-def load_image_from_tickbin(filename):
+def load_image_from_tick_bin(filename):
     # data is serialized, see MRA libraries/logging/logging.hpp dumpToFile
     # each protobuf object is an int (#bytes) followed by serialized protobuf bytes
     # dumped data:
@@ -60,11 +61,24 @@ def load_image_from_tickbin(filename):
     return image
 
 
+def load_image_from_cvmatproto_bin(filename):
+    data = None
+    with open(filename, "rb") as f:
+        data = f.read()
+    image = CvMat_pb2.CvMatProto()
+    image.ParseFromString(data)
+    print(f'{image.height} x {image.width}')
+    return image
+
+
 def main(args: argparse.Namespace) -> None:
     """
     Make the plot.
     """
-    image = load_image_from_tickbin(args.datafile)
+    if args.cvmatproto:
+        image = load_image_from_cvmatproto_bin(args.datafile)
+    else:
+        image = load_image_from_tick_bin(args.datafile)
 
     np_data = np.frombuffer(image.data, dtype=np.uint8).reshape(image.height, image.width, -1)
 

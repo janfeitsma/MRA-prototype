@@ -10,6 +10,8 @@ using namespace ::testing;
 
 // Other includes
 #include <fstream>
+#include <opencv2/opencv.hpp>
+#include "opencv_utils.hpp"
 
 // System under test:
 #include "FalconsLocalizationVision.hpp"
@@ -26,6 +28,51 @@ TEST(FalconsLocalizationVisionTest, basicTick)
 
     // Assert
     EXPECT_EQ(error_value, 0);
+}
+
+// Reference floor generation
+TEST(FalconsLocalizationVisionTest, referenceFloor)
+{
+    // The floor is stored in state.
+    // A pretty version with grid lines and input pixels (if present, not in this test)
+    // is stored in local, but only if debug is enabled.
+    // To visually inspect it, set the following boolean and run afterwards:
+    //    plot.py -c /tmp/floorDump.bin
+    std::string dumpFileName = "/tmp/floorDump.bin";
+    bool exportForPlot = true;
+
+    // Arrange
+    auto m = FalconsLocalizationVision::FalconsLocalizationVision();
+    auto input = FalconsLocalizationVision::Input();
+    auto output = FalconsLocalizationVision::Output();
+    auto state = FalconsLocalizationVision::State();
+    auto local = FalconsLocalizationVision::Local();
+    auto params = m.defaultParams(); // official MSL field definition, should not change too often ;)
+    // use high resolution
+    params.mutable_solver()->set_pixelspermeter(80);
+    // optional debug mode
+    params.set_debug(exportForPlot);
+
+    // Act
+    int error_value = m.tick(input, params, state, output, local);
+
+    // Inspect the resulting floor
+    cv::Mat referenceFloor;
+    MRA::OpenCVUtils::deserializeCvMat(state.referencefloor(), referenceFloor);
+    int pixel_count = cv::countNonZero(referenceFloor);
+
+    // debug dump?
+    if (exportForPlot)
+    {
+        std::ofstream dump(dumpFileName);
+        local.floor().SerializeToOstream(&dump);
+        dump.close();
+        std::cout << "referenceFloor written to dump file " << dumpFileName << std::endl;
+    }
+
+    // Assert
+    EXPECT_EQ(error_value, 0);
+    EXPECT_EQ(pixel_count, 86321);
 }
 
 // Some pixels
@@ -52,7 +99,7 @@ TEST(FalconsLocalizationVisionTest, somePixels)
     {
         std::ofstream dumpState;
         dumpState.open("/tmp/locState.bin");
-        local.fitresultfloor().SerializeToOstream(&dumpState);
+        local.floor().SerializeToOstream(&dumpState);
         dumpState.close();
     }
 

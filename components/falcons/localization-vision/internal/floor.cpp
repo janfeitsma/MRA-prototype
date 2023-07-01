@@ -1,4 +1,5 @@
 #include "floor.hpp"
+#include "geometry.hpp" // from MRA library geometry
 
 using namespace MRA::FalconsLocalizationVision;
 
@@ -35,25 +36,16 @@ void Floor::letterModelToShapes(StandardLetterModel const &model, std::vector<MR
     // all coordinates are in FCS - conversion to pixels (and potential 90degree rotation) happens at to cv::Mat operations
     MRA::Datatypes::Shape s;
     s.set_linewidth(model.k());
+    // field outer boundary rectangle
+    s.mutable_rectangle()->mutable_size()->set_x(model.b());
+    s.mutable_rectangle()->mutable_size()->set_y(model.a());
+    shapes.push_back(s);
+    // field middle line
     s.mutable_line()->mutable_from()->set_x(-0.5 * model.b());
-    s.mutable_line()->mutable_from()->set_y(-0.5 * model.a());
-    s.mutable_line()->mutable_to()  ->set_x(-0.5 * model.b());
-    s.mutable_line()->mutable_to()  ->set_y( 0.5 * model.a());
-    shapes.push_back(s);
-    s.mutable_line()->mutable_from()->set_x(-0.5 * model.b());
-    s.mutable_line()->mutable_from()->set_y( 0.5 * model.a());
     s.mutable_line()->mutable_to()  ->set_x( 0.5 * model.b());
-    s.mutable_line()->mutable_to()  ->set_y( 0.5 * model.a());
     shapes.push_back(s);
-    s.mutable_line()->mutable_from()->set_x( 0.5 * model.b());
-    s.mutable_line()->mutable_from()->set_y( 0.5 * model.a());
-    s.mutable_line()->mutable_to()  ->set_x( 0.5 * model.b());
-    s.mutable_line()->mutable_to()  ->set_y(-0.5 * model.a());
-    shapes.push_back(s);
-    s.mutable_line()->mutable_from()->set_x( 0.5 * model.b());
-    s.mutable_line()->mutable_from()->set_y(-0.5 * model.a());
-    s.mutable_line()->mutable_to()  ->set_x(-0.5 * model.b());
-    s.mutable_line()->mutable_to()  ->set_y(-0.5 * model.a());
+    // field middle circle
+    s.mutable_circle()->set_radius( 0.5 * model.h());
     shapes.push_back(s);
 }
 
@@ -77,9 +69,19 @@ void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, floa
         }
         else if (s.has_circle())
         {
+            int lw = s.linewidth() * _ppm;
             int radius = s.circle().radius() * _ppm;
             auto p = pointFcsToPixel(s.circle().center());
-            cv::circle(m, p, radius, color, -1);
+            cv::circle(m, p, radius, color, lw);
+        }
+        else if (s.has_rectangle())
+        {
+            int lw = s.linewidth() * _ppm;
+            MRA::Geometry::Point pc(s.rectangle().center()); // provides more operators
+            MRA::Geometry::Point ps(s.rectangle().size()); // provides more operators
+            auto p1 = pointFcsToPixel(pc - ps * 0.5);
+            auto p2 = pointFcsToPixel(pc + ps * 0.5);
+            cv::rectangle(m, p1, p2, color, lw);
         }
     }
 }
@@ -105,5 +107,25 @@ void Floor::linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &
     }
     // make use of shapesToCvMat
     shapesToCvMat(shapes, 0.0, m);
+}
+
+void Floor::addGridLines(cv::Mat &m, float step, cv::Scalar color) const
+{
+    int nx = ceil(_sizeX / step);
+    int ny = ceil(_sizeY / step);
+    float ox = nx * step;
+    float oy = ny * step;
+    for (int ix = -nx; ix <= nx; ++ix)
+    {
+        auto pfrom = pointFcsToPixel(MRA::Geometry::Point(ix * step, -oy));
+        auto pto = pointFcsToPixel(MRA::Geometry::Point(ix * step, oy));
+        cv::line(m, pfrom, pto, color, 1);
+    }
+    for (int iy = -ny; iy <= ny; ++iy)
+    {
+        auto pfrom = pointFcsToPixel(MRA::Geometry::Point(-ox, iy * step));
+        auto pto = pointFcsToPixel(MRA::Geometry::Point(ox, iy * step));
+        cv::line(m, pfrom, pto, color, 1);
+    }
 }
 

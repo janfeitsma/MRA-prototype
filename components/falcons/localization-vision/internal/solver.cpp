@@ -108,7 +108,7 @@ int Solver::run()
 
     // get the reference floor
     cv::Mat referenceFloor;
-    MRA::OpenCVUtils::deserializeCvMat(_state.referencefloor(), referenceFloor);
+    MRA::OpenCVUtils::deserializeCvMat(_state.referencefloor(), referenceFloor); // if not fast enough, then cache internally
 
     // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
     cv::Mat rcsLinePoints = _floor.createMat();
@@ -122,7 +122,13 @@ int Solver::run()
     // optional dump of diagnostics data for plotting
     if (_params.debug())
     {
-        MRA::OpenCVUtils::serializeCvMat(r.floor, *_diag.mutable_fitresultfloor());
+        cv::Mat transformedLinePoints = rcsLinePoints; // TODO transform
+        cv::Mat diagFloor = referenceFloor;
+        MRA::OpenCVUtils::joinWhitePixels(diagFloor, transformedLinePoints);
+        // add grid lines (all 1 pixel, so we can clearly see how the field line is positioned)
+        _floor.addGridLines(diagFloor, 1.0, cv::Scalar(100, 100, 100)); // 1meter grid: very faint
+        _floor.addGridLines(diagFloor, 2.0, cv::Scalar(200, 200, 200)); // 2meter grid: more prominent
+        MRA::OpenCVUtils::serializeCvMat(diagFloor, *_diag.mutable_floor());
     }
 
     // process fit result
