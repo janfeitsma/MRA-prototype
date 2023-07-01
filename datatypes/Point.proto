@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package MRA.Datatypes;
+
+message Point
+{
+    float x = 1;
+    float y = 2;
+}
+

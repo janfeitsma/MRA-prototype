@@ -2,27 +2,23 @@ syntax = "proto3";
 
 package MRA.Datatypes;
 
-message Point
-{
-    float x = 1;
-    float y = 2;
-}
+import "datatypes/Point.proto";
 
 message Line
 {
-    Point from = 1;
-    Point to = 2;
+    MRA.Datatypes.Point from = 1;
+    MRA.Datatypes.Point to = 2;
 }
 
 message Rectangle
 {
-    Point center = 1;
-    Point size = 2;
+    MRA.Datatypes.Point center = 1;
+    MRA.Datatypes.Point size = 2;
 }
 
 message Circle
 {
-    Point center = 1;
+    MRA.Datatypes.Point center = 1;
     float radius = 2; // use radius=0 for a dot
 }
 
