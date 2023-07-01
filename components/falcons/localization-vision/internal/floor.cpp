@@ -37,15 +37,15 @@ void Floor::letterModelToShapes(StandardLetterModel const &model, std::vector<MR
     MRA::Datatypes::Shape s;
     s.set_linewidth(model.k());
     // field outer boundary rectangle
-    s.mutable_rectangle()->mutable_size()->set_x(model.b());
-    s.mutable_rectangle()->mutable_size()->set_y(model.a());
+    s.mutable_rectangle()->mutable_size()->set_x(model.b() - model.k());
+    s.mutable_rectangle()->mutable_size()->set_y(model.a() - model.k());
     shapes.push_back(s);
     // field middle line
-    s.mutable_line()->mutable_from()->set_x(-0.5 * model.b());
-    s.mutable_line()->mutable_to()  ->set_x( 0.5 * model.b());
+    s.mutable_line()->mutable_from()->set_x(-0.5 * (model.b() - model.k()));
+    s.mutable_line()->mutable_to()  ->set_x( 0.5 * (model.b() - model.k()));
     shapes.push_back(s);
     // field middle circle
-    s.mutable_circle()->set_radius( 0.5 * model.h());
+    s.mutable_circle()->set_radius( 0.5 * (model.h() - model.k()));
     shapes.push_back(s);
 }
 
