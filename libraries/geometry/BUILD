@@ -10,6 +10,20 @@ cc_library(
 )
 
 cc_library(
+    name = "point",
+    hdrs = [
+        "point.hpp",
+    ],
+    srcs = [
+        "point.cpp",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//datatypes:MRA_cc_proto",
+    ],
+)
+
+cc_library(
     name = "pose",
     hdrs = [
         "pose.hpp",
@@ -63,6 +77,7 @@ cc_library(
     visibility = ["//visibility:public"],
     includes = ["."],
     deps = [
+        ":point",
         ":pose",
         ":position",
         ":velocity",
