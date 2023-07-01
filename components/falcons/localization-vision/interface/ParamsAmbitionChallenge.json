@@ -1,0 +1,51 @@
+{
+    "model": {
+        "A": 22.0,
+        "B": 14.0,
+        "C":  6.9,
+        "D":  3.9,
+        "E":  2.25,
+        "F":  0.75,
+        "G":  0.75,
+        "H":  4.0,
+        "I":  3.6,
+        "J":  0.15,
+        "K":  0.125,
+        "L":  1.0,
+        "M":  1.0,
+        "N":  7.5,
+        "O":  1.0,
+        "P":  0.5,
+        "Q":  3.5
+    },
+    "shapes": [
+        {
+            "line": {
+                "from": {"x": -6.9, "y": 1.7},
+                "to": {"x": 6.9, "y": 1.7}
+            }
+        },
+        {
+            "rectangle": {
+                "center": {"x": -6.625, "y": 6.5},
+                "size": {"x": 0.625, "y": 3.785}
+            }
+        },
+        {
+            "rectangle": {
+                "center": {"x": 6.625, "y": 6.5},
+                "size": {"x": 0.625, "y": 3.785}
+            }
+        }
+    ],
+    "solver": {
+        "numExtraThreads": 0,
+        "pixelsPerMeter": 80,
+        "floorBorder": 0.5,
+        "blurFactor": 0.5,
+        "step": {"x": 50.0, "y": 50.0, "rz": 40.0},
+        "maxCount": 400,
+        "linePointRadiusConstant": 0.1
+    }
+}
+

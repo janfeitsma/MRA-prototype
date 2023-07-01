@@ -33,6 +33,17 @@ cv::Mat Floor::createMat()
 
 void Floor::letterModelToShapes(StandardLetterModel const &model, std::vector<MRA::Datatypes::Shape> &shapes)
 {
+    // some elements can be omitted from the letter model, but not the main dimensions (A,B) and linewidth K
+
+    // usability: any existing custom shapes without specified linewidth get configured model.K value
+    for (auto &existing_shape: shapes)
+    {
+        if (existing_shape.linewidth() == 0)
+        {
+            existing_shape.set_linewidth(model.k());
+        }
+    }
+
     // all coordinates are in FCS - conversion to pixels (and potential 90degree rotation) happens at to cv::Mat operations
     MRA::Datatypes::Shape s;
     s.set_linewidth(model.k());
@@ -45,51 +56,69 @@ void Floor::letterModelToShapes(StandardLetterModel const &model, std::vector<MR
     s.mutable_line()->mutable_to()  ->set_x( 0.5 * (model.b() - model.k()));
     shapes.push_back(s);
     // field middle circle
-    s.mutable_circle()->set_radius( 0.5 * (model.h() - model.k()));
-    shapes.push_back(s);
+    if (model.h() > 0.1)
+    {
+        s.mutable_circle()->set_radius( 0.5 * (model.h() - model.k()));
+        shapes.push_back(s);
+    }
     // penalty and goal areas
     for (int sign = -1; sign <= 1; sign += 2)
     {
-        s.mutable_rectangle()->mutable_center()->set_x(0.0);
-        s.mutable_rectangle()->mutable_center()->set_y(sign * 0.5 * (model.a() - model.e()));
-        s.mutable_rectangle()->mutable_size()->set_x(model.c() - model.k());
-        s.mutable_rectangle()->mutable_size()->set_y(model.e() - model.k());
-        shapes.push_back(s);
-        s.mutable_rectangle()->mutable_center()->set_x(0.0);
-        s.mutable_rectangle()->mutable_center()->set_y(sign * 0.5 * (model.a() - model.f()));
-        s.mutable_rectangle()->mutable_size()->set_x(model.d() - model.k());
-        s.mutable_rectangle()->mutable_size()->set_y(model.f() - model.k());
-        shapes.push_back(s);
+        if (model.c() > 0.0 && model.e() > 0.0)
+        {
+            s.mutable_rectangle()->mutable_center()->set_x(0.0);
+            s.mutable_rectangle()->mutable_center()->set_y(sign * 0.5 * (model.a() - model.e()));
+            s.mutable_rectangle()->mutable_size()->set_x(model.c() - model.k());
+            s.mutable_rectangle()->mutable_size()->set_y(model.e() - model.k());
+            shapes.push_back(s);
+        }
+        if (model.d() > 0.0 && model.f() > 0.0)
+        {
+            s.mutable_rectangle()->mutable_center()->set_x(0.0);
+            s.mutable_rectangle()->mutable_center()->set_y(sign * 0.5 * (model.a() - model.f()));
+            s.mutable_rectangle()->mutable_size()->set_x(model.d() - model.k());
+            s.mutable_rectangle()->mutable_size()->set_y(model.f() - model.k());
+            shapes.push_back(s);
+        }
     }
     // corner circles (arcs)
     // angles on protobuf are in radians, however opencv ellipse() takes degrees
-    float deg2rad = M_PI / 180.0;
-    for (int signX = -1; signX <= 1; signX += 2)
+    if (model.g() > 0.0)
     {
-        for (int signY = -1; signY <= 1; signY += 2)
+        float deg2rad = M_PI / 180.0;
+        for (int signX = -1; signX <= 1; signX += 2)
         {
-            s.mutable_arc()->mutable_center()->set_x(signX * 0.5 * model.b());
-            s.mutable_arc()->mutable_center()->set_y(signY * 0.5 * model.a());
-            s.mutable_arc()->mutable_size()->set_x(model.g() - 0.5 * model.k());
-            s.mutable_arc()->mutable_size()->set_y(model.g() - 0.5 * model.k());
-            // which quadrant?
-            float a_quadrant = deg2rad * (signX>0 ? (signY>0 ? 180 : 270) : (signY>0 ? 90 : 0));
-            s.mutable_arc()->set_angle(a_quadrant);
-            // reduce 90degree arc angles a bit, to prevent painting pixels outside of the field boundary lines
-            // (TODO: make this robust for linewidth K)
-            s.mutable_arc()->set_startangle(5 * deg2rad);
-            s.mutable_arc()->set_endangle(85 * deg2rad);
-            shapes.push_back(s);
+            for (int signY = -1; signY <= 1; signY += 2)
+            {
+                s.mutable_arc()->mutable_center()->set_x(signX * 0.5 * model.b());
+                s.mutable_arc()->mutable_center()->set_y(signY * 0.5 * model.a());
+                s.mutable_arc()->mutable_size()->set_x(model.g() - 0.5 * model.k());
+                s.mutable_arc()->mutable_size()->set_y(model.g() - 0.5 * model.k());
+                // which quadrant?
+                float a_quadrant = deg2rad * (signX>0 ? (signY>0 ? 180 : 270) : (signY>0 ? 90 : 0));
+                s.mutable_arc()->set_angle(a_quadrant);
+                // reduce 90degree arc angles a bit, to prevent painting pixels outside of the field boundary lines
+                // (TODO: make this robust for linewidth K)
+                s.mutable_arc()->set_startangle(5 * deg2rad);
+                s.mutable_arc()->set_endangle(85 * deg2rad);
+                shapes.push_back(s);
+            }
         }
     }
     // center and penalty spots
     s.mutable_circle()->set_radius(0.0);
-    s.set_linewidth(2.0 * model.j());
-    shapes.push_back(s);
-    for (int signY = -1; signY <= 1; signY += 2)
+    if (model.j() > 0.0)
     {
-        s.mutable_circle()->mutable_center()->set_y(signY * (0.5 * model.a() - model.i()));
+        s.set_linewidth(2.0 * model.j());
         shapes.push_back(s);
+    }
+    if (model.i() > 0.0)
+    {
+        for (int signY = -1; signY <= 1; signY += 2)
+        {
+            s.mutable_circle()->mutable_center()->set_y(signY * (0.5 * model.a() - model.i()));
+            shapes.push_back(s);
+        }
     }
 }
 
