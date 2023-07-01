@@ -47,6 +47,50 @@ void Floor::letterModelToShapes(StandardLetterModel const &model, std::vector<MR
     // field middle circle
     s.mutable_circle()->set_radius( 0.5 * (model.h() - model.k()));
     shapes.push_back(s);
+    // penalty and goal areas
+    for (int sign = -1; sign <= 1; sign += 2)
+    {
+        s.mutable_rectangle()->mutable_center()->set_x(0.0);
+        s.mutable_rectangle()->mutable_center()->set_y(sign * 0.5 * (model.a() - model.e()));
+        s.mutable_rectangle()->mutable_size()->set_x(model.c() - model.k());
+        s.mutable_rectangle()->mutable_size()->set_y(model.e() - model.k());
+        shapes.push_back(s);
+        s.mutable_rectangle()->mutable_center()->set_x(0.0);
+        s.mutable_rectangle()->mutable_center()->set_y(sign * 0.5 * (model.a() - model.f()));
+        s.mutable_rectangle()->mutable_size()->set_x(model.d() - model.k());
+        s.mutable_rectangle()->mutable_size()->set_y(model.f() - model.k());
+        shapes.push_back(s);
+    }
+    // corner circles (arcs)
+    // angles on protobuf are in radians, however opencv ellipse() takes degrees
+    float deg2rad = M_PI / 180.0;
+    for (int signX = -1; signX <= 1; signX += 2)
+    {
+        for (int signY = -1; signY <= 1; signY += 2)
+        {
+            s.mutable_arc()->mutable_center()->set_x(signX * 0.5 * model.b());
+            s.mutable_arc()->mutable_center()->set_y(signY * 0.5 * model.a());
+            s.mutable_arc()->mutable_size()->set_x(model.g() - 0.5 * model.k());
+            s.mutable_arc()->mutable_size()->set_y(model.g() - 0.5 * model.k());
+            // which quadrant?
+            float a_quadrant = deg2rad * (signX>0 ? (signY>0 ? 180 : 270) : (signY>0 ? 90 : 0));
+            s.mutable_arc()->set_angle(a_quadrant);
+            // reduce 90degree arc angles a bit, to prevent painting pixels outside of the field boundary lines
+            // (TODO: make this robust for linewidth K)
+            s.mutable_arc()->set_startangle(5 * deg2rad);
+            s.mutable_arc()->set_endangle(85 * deg2rad);
+            shapes.push_back(s);
+        }
+    }
+    // center and penalty spots
+    s.mutable_circle()->set_radius(0.0);
+    s.set_linewidth(2.0 * model.j());
+    shapes.push_back(s);
+    for (int signY = -1; signY <= 1; signY += 2)
+    {
+        s.mutable_circle()->mutable_center()->set_y(signY * (0.5 * model.a() - model.i()));
+        shapes.push_back(s);
+    }
 }
 
 cv::Point Floor::pointFcsToPixel(MRA::Datatypes::Point const &p) const
@@ -73,6 +117,18 @@ void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, floa
             int radius = s.circle().radius() * _ppm;
             auto p = pointFcsToPixel(s.circle().center());
             cv::circle(m, p, radius, color, lw);
+        }
+        else if (s.has_arc())
+        {
+            int lw = s.linewidth() * _ppm;
+            // angles on protobuf are in radians, however opencv ellipse() takes degrees
+            float rad2deg = 180.0 / M_PI;
+            float a = s.arc().angle() * rad2deg;
+            float as = s.arc().startangle() * rad2deg;
+            float ae = s.arc().endangle() * rad2deg;
+            auto p = pointFcsToPixel(s.arc().center());
+            cv::Size2f sz(s.arc().size().x() * _ppm, s.arc().size().y() * _ppm);
+            cv::ellipse(m, p, sz, a, as, ae, color, lw);
         }
         else if (s.has_rectangle())
         {

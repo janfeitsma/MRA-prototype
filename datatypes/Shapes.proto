@@ -22,14 +22,25 @@ message Circle
     float radius = 2; // use radius=0 for a dot
 }
 
+message Arc
+{
+    // modeled as cv::ellipse, see its documentation for some nice pictures
+    MRA.Datatypes.Point center = 1;
+    MRA.Datatypes.Point size = 2;
+    float angle = 3; // all angles in radians (unlike opencv)
+    float startAngle = 4;
+    float endAngle = 5;
+}
+
 message Shape
 {
+    float linewidth = 1;
     oneof shape
     {
-        Line line = 1;
-        Rectangle rectangle = 2;
-        Circle circle = 3;
+        Line line = 2;
+        Rectangle rectangle = 3;
+        Circle circle = 4;
+        Arc arc = 5;
     }
-    float linewidth = 4;
 }
 

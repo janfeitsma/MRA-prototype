@@ -72,7 +72,7 @@ TEST(FalconsLocalizationVisionTest, referenceFloor)
 
     // Assert
     EXPECT_EQ(error_value, 0);
-    EXPECT_EQ(pixel_count, 86321);
+    EXPECT_EQ(pixel_count, 117051);
 }
 
 // Some pixels
