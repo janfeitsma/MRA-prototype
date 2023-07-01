@@ -116,7 +116,7 @@ private:
     Tl        *_local;
     int       *_err;
     static int _counter;
-    bool       _dump = true; // TODO improve configurability
+    bool       _dump = false; // TODO improve configurability
     std::string _filename;
     std::ofstream *_filepointer = NULL;
 
