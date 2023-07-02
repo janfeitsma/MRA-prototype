@@ -19,7 +19,7 @@ public:
     cv::Mat createMat();
     void letterModelToShapes(StandardLetterModel const &model, std::vector<MRA::Datatypes::Shape> &shapes);
     void shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, float blurFactor, cv::Mat &m);
-    void linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &m);
+    void linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &m, float overruleRadius = 0.0);
     cv::Point pointFcsToPixel(MRA::Datatypes::Point const &p) const;
 
     // diagnostics-specific

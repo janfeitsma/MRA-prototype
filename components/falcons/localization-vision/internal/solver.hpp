@@ -48,7 +48,7 @@ private:
 
     // input linepoints mat: calculate each tick, based on input landmarks / linepoints
     cv::Mat _linePointsMat;
-    cv::Mat createLinePointsMat();
+    cv::Mat createLinePointsMat(float overruleRadius = 0.0);
 
     // optional debug data export
     cv::Mat createDiagnosticsMat();

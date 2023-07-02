@@ -29,6 +29,24 @@ message StandardLetterModel
     float Q = 17; // [ 3.5]   off-center distance to restart spots (x)
 }
 
+message LinePointFitParams
+{
+    float radiusConstant = 1; // required: radius size of linepoints in FCS (used to create white pixels for fitting)
+    float radiusScaleFactor = 2; // optional: scaling factor based on distance to robot
+    float radiusMinimum = 3; // optional: limit in meters
+}
+
+message LinePointPlotParams
+{
+    float radius = 1;
+}
+
+message LinePointParams
+{
+    LinePointFitParams fit = 1;
+    LinePointPlotParams plot = 2;
+}
+
 message SolverParams
 {
     int32 numExtraThreads = 1;
@@ -38,9 +56,7 @@ message SolverParams
     MRA.Datatypes.Pose actionRadius = 5; // required: robot action radius (roughly max velocity * dt), for local optimization of previous result
     int32 maxCount = 6; // required: solver max iterations
     float epsilon = 7; // required: solver accuracy
-    float linePointRadiusConstant = 8; // required: radius size of linepoints in FCS (used to create white pixels for fitting)
-    float linePointRadiusScaleFactor = 9; // optional: scaling factor based on distance to robot
-    float linePointRadiusMinimum = 10; // optional: limit in meters
+    LinePointParams linePoints = 8;
 }
 
 message Params

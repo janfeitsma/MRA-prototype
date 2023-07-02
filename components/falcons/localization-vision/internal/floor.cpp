@@ -171,26 +171,30 @@ void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, floa
     }
 }
 
-void Floor::linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &m)
+void Floor::linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &m, float overruleRadius)
 {
     // for every linepoint, create a circle
     std::vector<MRA::Datatypes::Shape> shapes;
     MRA::Datatypes::Shape s;
     for (auto const &p: linePoints)
     {
-        float r = settings.solver().linepointradiusconstant();
-        float sf = settings.solver().linepointradiusscalefactor();
-        float rmin = settings.solver().linepointradiusminimum();
-        if (sf)
+        float r = overruleRadius;
+        if (overruleRadius == 0)
         {
-            float distance = sqrt(p.x() * p.x() + p.y() * p.y());
-            r += sf * distance;
+            r = settings.solver().linepoints().fit().radiusconstant();
+            float sf = settings.solver().linepoints().fit().radiusscalefactor();
+            float rmin = settings.solver().linepoints().fit().radiusminimum();
+            if (sf)
+            {
+                float distance = sqrt(p.x() * p.x() + p.y() * p.y());
+                r += sf * distance;
+            }
+            r = std::max(rmin, r); // clip, opencv can't handle negative circle radius
         }
-        r = std::max(rmin, r); // clip, opencv can't handle negative circle radius
         s.mutable_circle()->mutable_center()->set_x(p.x());
         s.mutable_circle()->mutable_center()->set_y(p.y());
         s.mutable_circle()->set_radius(r); // in meters, not pixels (anymore)
-        s.set_linewidth(-1);
+        s.set_linewidth(-1); // fill
         shapes.push_back(s);
     }
     // make use of shapesToCvMat

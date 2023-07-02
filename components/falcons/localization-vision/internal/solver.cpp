@@ -58,9 +58,9 @@ void Solver::checkParamsValid()
     {
         throw std::runtime_error("invalid configuration: actionRadius.rz too small (got " + std::to_string(solverParams.actionradius().rz()) + ")");
     }
-    if (solverParams.linepointradiusconstant() < 0.01)
+    if (solverParams.linepoints().fit().radiusconstant() < 0.01)
     {
-        throw std::runtime_error("invalid configuration: linePointRadiusConstant too small (got " + std::to_string(solverParams.linepointradiusconstant()) + ")");
+        throw std::runtime_error("invalid configuration: linePoints.fit.radiusConstant too small (got " + std::to_string(solverParams.linepoints().fit().radiusconstant()) + ")");
     }
 }
 
@@ -108,12 +108,12 @@ cv::Mat Solver::createReferenceFloorMat()
     return result;
 }
 
-cv::Mat Solver::createLinePointsMat()
+cv::Mat Solver::createLinePointsMat(float overruleRadius)
 {
     // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
     cv::Mat result = _floor.createMat();
     std::vector<Landmark> linePoints(_input.landmarks().begin(), _input.landmarks().end());
-    _floor.linePointsToCvMat(linePoints, result);
+    _floor.linePointsToCvMat(linePoints, result, overruleRadius);
     return result;
 }
 
@@ -138,9 +138,11 @@ cv::Mat Solver::createDiagnosticsMat()
     cv::cvtColor(_referenceFloorMat, result, cv::COLOR_GRAY2BGR);
 
     // add linepoints with blue/cyan color
+    // _linePointsMat has pixels for the fit, let's construct a new one for visualization using overruleRadius
+    cv::Mat linePointsMat = createLinePointsMat(_params.solver().linepoints().plot().radius());
     float ppm = _params.solver().pixelspermeter();
-    FitFunction ff(_referenceFloorMat, _linePointsMat, ppm);
-    cv::Mat transformedLinePoints = ff.transform3dof(_linePointsMat, _fitResult.pose.x, _fitResult.pose.y, _fitResult.pose.rz);
+    FitFunction ff(_referenceFloorMat, linePointsMat, ppm);
+    cv::Mat transformedLinePoints = ff.transform3dof(linePointsMat, _fitResult.pose.x, _fitResult.pose.y, _fitResult.pose.rz);
     cv::Mat transformedLinePointsColor;
     cv::cvtColor(transformedLinePoints, transformedLinePointsColor, cv::COLOR_GRAY2BGR);
     cv::Mat whiteMask;
