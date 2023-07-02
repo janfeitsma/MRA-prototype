@@ -15,6 +15,7 @@ using namespace ::testing;
 
 // System under test:
 #include "FalconsLocalizationVision.hpp"
+#include "fit.hpp" // internal actually
 using namespace MRA;
 
 // Basic tick shall run OK and return error_value 0.
@@ -75,7 +76,39 @@ TEST(FalconsLocalizationVisionTest, referenceFloor)
     EXPECT_EQ(pixel_count, 117051);
 }
 
-// Some pixels
+// Test core fit scoring function: fitting a reference field with itself should yield a perfect result
+TEST(FalconsLocalizationVisionTest, perfectFit)
+{
+    // Arrange
+    auto m = FalconsLocalizationVision::FalconsLocalizationVision();
+    auto input = FalconsLocalizationVision::Input();
+    auto output = FalconsLocalizationVision::Output();
+    auto state = FalconsLocalizationVision::State();
+    auto local = FalconsLocalizationVision::Local();
+    auto params = m.defaultParams();
+
+    // Act - part 1: get reference floor
+    int error_value = m.tick(input, params, state, output, local);
+    EXPECT_EQ(error_value, 0);
+    cv::Mat referenceFloor;
+    MRA::OpenCVUtils::deserializeCvMat(state.referencefloor(), referenceFloor);
+
+    // Act - part 2: score reference floor against itself
+    MRA::FalconsLocalizationVision::FitFunction fit(referenceFloor, referenceFloor, params.solver().pixelspermeter());
+    double overlapScore = fit.calcOverlap(referenceFloor, referenceFloor);
+
+    // Assert
+    EXPECT_EQ(overlapScore, 1.0);
+}
+
+// Test core fit scoring function: choose some pixels which match perfect field definition
+// This is data driven -> json test case
+TEST(FalconsLocalizationVisionTest, jsonTest1)
+{
+    auto output = TestFactory::run_testvector<FalconsLocalizationVision::FalconsLocalizationVision>(std::string("components/falcons/localization-vision/testdata/test1_perfect_fit.json"));
+}
+
+// Some pixels TODO REMOVE
 TEST(FalconsLocalizationVisionTest, somePixels)
 {
     // Arrange

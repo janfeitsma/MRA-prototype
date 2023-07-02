@@ -45,17 +45,17 @@ void Solver::checkParamsValid()
     {
         throw std::runtime_error("invalid configuration: maxCount should be a positive number (got " + std::to_string(solverParams.maxcount()) + ")");
     }
-    if (solverParams.step().x() < 1)
+    if (solverParams.actionradius().x() == 0.0)
     {
-        throw std::runtime_error("invalid configuration: step.x too small (got " + std::to_string(solverParams.step().x()) + ")");
+        throw std::runtime_error("invalid configuration: actionRadius.x too small (got " + std::to_string(solverParams.actionradius().x()) + ")");
     }
-    if (solverParams.step().y() < 1)
+    if (solverParams.actionradius().y() == 0.0)
     {
-        throw std::runtime_error("invalid configuration: step.y too small (got " + std::to_string(solverParams.step().y()) + ")");
+        throw std::runtime_error("invalid configuration: actionRadius.y too small (got " + std::to_string(solverParams.actionradius().y()) + ")");
     }
-    if (solverParams.step().rz() < 1)
+    if (solverParams.actionradius().rz() == 0.0)
     {
-        throw std::runtime_error("invalid configuration: step.rz too small (got " + std::to_string(solverParams.step().rz()) + ")");
+        throw std::runtime_error("invalid configuration: actionRadius.rz too small (got " + std::to_string(solverParams.actionradius().rz()) + ")");
     }
     if (solverParams.linepointradiusconstant() < 0.01)
     {
@@ -117,18 +117,25 @@ int Solver::run()
 
     // the core is a single fit operation (which uses opencv Downhill Simplex solver):
     // fit given white pixels and initial guess to the reference field
-    FitResult r = _fit.run(referenceFloor, rcsLinePoints, _input.guess());
+    FitResult r = _fit.run(referenceFloor, rcsLinePoints, _input.guess(), _params.solver().actionradius());
 
     // optional dump of diagnostics data for plotting
     if (_params.debug())
     {
-        cv::Mat transformedLinePoints = rcsLinePoints; // TODO transform
+        FitFunction ff(referenceFloor, rcsLinePoints, _params.solver().pixelspermeter());
+        cv::Mat transformedLinePoints = ff.transform3dof(rcsLinePoints, r.pose.x(), r.pose.y(), r.pose.rz());
         cv::Mat diagFloor = referenceFloor;
+        // TODO: add colors, blue for pixels?
         MRA::OpenCVUtils::joinWhitePixels(diagFloor, transformedLinePoints);
         // add grid lines (all 1 pixel, so we can clearly see how the field line is positioned)
+        /*
         _floor.addGridLines(diagFloor, 1.0, cv::Scalar(100, 100, 100)); // 1meter grid: very faint
         _floor.addGridLines(diagFloor, 2.0, cv::Scalar(200, 200, 200)); // 2meter grid: more prominent
         MRA::OpenCVUtils::serializeCvMat(diagFloor, *_diag.mutable_floor());
+        */
+        _floor.addGridLines(transformedLinePoints, 1.0, cv::Scalar(100, 100, 100)); // 1meter grid: very faint
+        _floor.addGridLines(transformedLinePoints, 2.0, cv::Scalar(200, 200, 200)); // 2meter grid: more prominent
+        MRA::OpenCVUtils::serializeCvMat(transformedLinePoints, *_diag.mutable_floor());
     }
 
     // process fit result

@@ -35,7 +35,7 @@ message SolverParams
     float pixelsPerMeter = 2; // [40.0] used to create cv::Mat
     float floorBorder = 3; // like 'L': how far to extend outside field
     float blurFactor = 4; // blur factor, zero is no blur
-    MRA.Datatypes.Pose step = 5; // required: solver step
+    MRA.Datatypes.Pose actionRadius = 5; // required: robot action radius (roughly max velocity * dt), for local optimization of previous result
     int32 maxCount = 6; // required: solver max iterations
     float linePointRadiusConstant = 7; // required: radius size of linepoints in FCS (used to create white pixels for fitting)
     float linePointRadiusScaleFactor = 8; // optional: scaling factor based on distance to robot

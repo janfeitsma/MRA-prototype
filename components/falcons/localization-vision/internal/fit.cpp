@@ -14,7 +14,7 @@ FitAlgorithm::~FitAlgorithm()
 {
 }
 
-FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &guess)
+FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &guess, MRA::Datatypes::Pose const &step)
 {
     FitResult result;
 
@@ -22,10 +22,10 @@ FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLin
     auto cvSolver = cv::DownhillSolver::create();
 
     // configure solver
-    cv::Ptr<FitFunction> f = new FitFunction(referenceFloor, rcsLinePoints);
+    cv::Ptr<FitFunction> f = new FitFunction(referenceFloor, rcsLinePoints, settings.pixelspermeter());
     cvSolver->setFunction(f);
-    cv::Mat step = (cv::Mat_<double>(3, 1) << settings.step().x(), settings.step().y(), settings.step().rz());
-    cvSolver->setInitStep(step);
+    cv::Mat stepVec = (cv::Mat_<double>(3, 1) << step.x(), step.y(), step.rz());
+    cvSolver->setInitStep(stepVec);
 	cv::TermCriteria criteria = cvSolver->getTermCriteria();
 	criteria.maxCount = settings.maxcount();
 	cvSolver->setTermCriteria(criteria);
@@ -44,29 +44,45 @@ FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLin
     return result;
 }
 
-FitFunction::FitFunction(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints)
+FitFunction::FitFunction(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, float ppm)
 {
+    _ppm = ppm;
     _referenceFloor = referenceFloor;
     _rcsLinePoints = rcsLinePoints;
+    // count pixels for normalization, prevent division by zero when no linepoints present (yet)
+    _rcsLinePointsPixelCount = std::max(double(cv::countNonZero(_rcsLinePoints)), 1.0);
+    printf("FitFunction _rcsLinePointsPixelCount %9.3f\n", _rcsLinePointsPixelCount);
 }
 
-// TODO factor out transformation of linePoints such that diagnostics floor can be constructed later
+double FitFunction::calcOverlap(cv::Mat const &m1, cv::Mat const &m2) const
+{
+    // calculate the intersection of the white pixels using bitwise AND operation
+    cv::Mat overlapMask;
+    cv::bitwise_and(m1, m2, overlapMask);
+    // calculate score, normalize on the value stored at construction time
+    // (which runtime is passed as m2 after transformation)
+    return static_cast<double>(countNonZero(overlapMask)) / _rcsLinePointsPixelCount;
+}
+
+cv::Mat FitFunction::transform3dof(cv::Mat const &m, double x, double y, double rz) const
+{
+    cv::Mat result;
+    // create a transformation matrix
+    float rad2deg = 180.0 / M_PI;
+    cv::Mat transformationMatrix = cv::getRotationMatrix2D(cv::Point2f(m.cols/2, m.rows/2), rz * rad2deg, 1.0);
+    transformationMatrix.at<double>(0, 2) += y * _ppm;
+    transformationMatrix.at<double>(1, 2) += x * _ppm;
+    // apply the transformation
+    cv::warpAffine(m, result, transformationMatrix, m.size());
+    return result;
+}
 
 double FitFunction::calc(const double *x) const
 {
-    // create a transformation matrix
-    cv::Mat transformationMatrix = cv::getRotationMatrix2D(cv::Point2f(_rcsLinePoints.cols/2, _rcsLinePoints.rows/2), x[2], 1.0);
-    transformationMatrix.at<double>(0, 2) += x[0];
-    transformationMatrix.at<double>(1, 2) += x[1];
-    // apply the transformation to _rcsLinePoints
-    cv::Mat transformedLinePoints;
-    cv::warpAffine(_rcsLinePoints, transformedLinePoints, transformationMatrix, _rcsLinePoints.size());
-    // calculate the intersection of the white pixels using bitwise AND operation
-    cv::Mat overlapMask;
-    cv::bitwise_and(_referenceFloor, transformedLinePoints, overlapMask);
-    // calculate score
-    double overlapScore = static_cast<double>(countNonZero(overlapMask)); // / (_rcsLinePoints.rows * _rcsLinePoints.cols);
-    printf("FitFunction::calc (%7.3f,%7.3f,%7.3f) -> score %7.3f\n", x[0], x[1], x[2], overlapScore);
-    return overlapScore;
+    cv::Mat transformedLinePoints = transform3dof(_rcsLinePoints, x[0], x[1], x[2]);
+    double overlapNormalized = calcOverlap(_referenceFloor, transformedLinePoints);
+    double score = 1.0 - overlapNormalized;
+    printf("FitFunction::calc (%7.3f,%7.3f,%7.3f) -> score %7.3f\n", x[0], x[1], x[2], score);
+    return score;
 }
 

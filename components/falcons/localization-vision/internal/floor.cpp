@@ -188,6 +188,7 @@ void Floor::linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &
         s.mutable_circle()->mutable_center()->set_x(p.x());
         s.mutable_circle()->mutable_center()->set_y(p.y());
         s.mutable_circle()->set_radius(r); // in meters, not pixels (anymore)
+        s.set_linewidth(-1);
         shapes.push_back(s);
     }
     // make use of shapesToCvMat
