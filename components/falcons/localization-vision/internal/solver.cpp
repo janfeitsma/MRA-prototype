@@ -1,6 +1,7 @@
 #include "solver.hpp"
 
 // MRA libraries
+#include "geometry.hpp"
 #include "opencv_utils.hpp"
 
 using namespace MRA::FalconsLocalizationVision;
@@ -21,7 +22,7 @@ void Solver::configure(Params const &p)
     checkParamsValid();
     // configure helper classes
     _floor.configure(_params);
-    _fit.configure(_params.solver());
+    _fitAlgorithm.configure(_params.solver());
 }
 
 void Solver::checkParamsValid()
@@ -63,20 +64,26 @@ void Solver::checkParamsValid()
     }
 }
 
-void Solver::set_state(State const &s)
+void Solver::setState(State const &s)
 {
     _state = s;
 }
 
-void Solver::set_input(Input const &in)
+void Solver::setInput(Input const &in)
 {
     _input = in;
 }
 
-void Solver::determine_reference_floor()
+cv::Mat Solver::createReferenceFloorMat()
 {
+    cv::Mat result;
+
     // check if (re)calculation is needed
-    if (_state.has_referencefloor()) return;
+    if (_state.has_referencefloor())
+    {
+        MRA::OpenCVUtils::deserializeCvMat(_state.referencefloor(), result); // if not fast enough, then cache internally
+        return result;
+    }
 
     // given the configured field (letter model and optional custom shapes),
     // create a CV::mat representation, using a blur factor
@@ -92,77 +99,120 @@ void Solver::determine_reference_floor()
 
     // create cv::Mat such that field is rotated screen-friendly: more columns than rows
     float blurFactor = _params.solver().blurfactor();
-    cv::Mat m = _floor.createMat();
-    _floor.shapesToCvMat(shapes, blurFactor, m);
+    result = _floor.createMat();
+    _floor.shapesToCvMat(shapes, blurFactor, result);
 
-    // store result as protobuf CvMatProto object
-    MRA::OpenCVUtils::serializeCvMat(m, *_state.mutable_referencefloor());
+    // store result as protobuf CvMatProto object for next iteration (via state)
+    MRA::OpenCVUtils::serializeCvMat(result, *_state.mutable_referencefloor());
+
+    return result;
+}
+
+cv::Mat Solver::createLinePointsMat()
+{
+    // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
+    cv::Mat result = _floor.createMat();
+    std::vector<Landmark> linePoints(_input.landmarks().begin(), _input.landmarks().end());
+    _floor.linePointsToCvMat(linePoints, result);
+    return result;
+}
+
+// TODO move to opencv_utils?
+// combine non-black pixels from m_other into m
+void combineImages(cv::Mat m, cv::Mat m_other)
+{
+    CV_Assert(m.size() == m_other.size() && m.type() == CV_8UC3 && m_other.type() == CV_8UC3);
+    cv::Mat mask;
+    cv::cvtColor(m_other, mask, cv::COLOR_BGR2GRAY);
+    cv::threshold(mask, mask, 1, 255, cv::THRESH_BINARY);
+    cv::Mat tmp;
+    m_other.copyTo(tmp, mask);
+    m.setTo(cv::Scalar(0, 0, 0), mask);
+    m += tmp;
+}
+
+cv::Mat Solver::createDiagnosticsMat()
+{
+    // create diagnostics floor, upscale to colors
+    cv::Mat result;
+    cv::cvtColor(_referenceFloorMat, result, cv::COLOR_GRAY2BGR);
+
+    // add linepoints with blue/cyan color
+    float ppm = _params.solver().pixelspermeter();
+    FitFunction ff(_referenceFloorMat, _linePointsMat, ppm);
+    cv::Mat transformedLinePoints = ff.transform3dof(_linePointsMat, _fitResult.pose.x, _fitResult.pose.y, _fitResult.pose.rz);
+    cv::Mat transformedLinePointsColor;
+    cv::cvtColor(transformedLinePoints, transformedLinePointsColor, cv::COLOR_GRAY2BGR);
+    cv::Mat whiteMask;
+    cv::compare(transformedLinePointsColor, cv::Scalar(255, 255, 255), whiteMask, cv::CMP_EQ);
+    transformedLinePointsColor.setTo(cv::Scalar(255, 0, 0), whiteMask);
+    combineImages(result, transformedLinePointsColor);
+
+    // show robot as red circle with orientation line
+    auto color = cv::Scalar(0, 0, 255);
+    int linewidth = 4;
+    MRA::Geometry::Position robotPoint(_fitResult.pose);
+    MRA::Geometry::Position directionOffset = MRA::Geometry::Position(0.0, 0.4, 0.0); // point towards y direction (where the robot is aiming at)
+    MRA::Geometry::Position directionPoint = directionOffset.transformRcsToFcs(robotPoint);
+	cv::circle(result, _floor.pointFcsToPixel(robotPoint), ppm * 0.28, color, linewidth);
+	cv::circle(result, _floor.pointFcsToPixel(directionPoint), ppm * 0.04, color, linewidth);
+	cv::line(result, _floor.pointFcsToPixel(robotPoint), _floor.pointFcsToPixel(directionPoint), color, linewidth);
+
+    // add green grid lines on top (all 1 pixel, so we can clearly see how the field lines are positioned)
+    _floor.addGridLines(result, 1.0, cv::Scalar(0, 100, 0)); // 1meter grid: very faint
+    _floor.addGridLines(result, 2.0, cv::Scalar(0, 255, 0)); // 2meter grid: bright, more prominent
+
+    return result;
 }
 
 int Solver::run()
 {
-    // TODO: multithreading?
-    // TODO: on input, specify guesses and randomness etc
-    // try to keep the design as simple as possible: minimize state, trackers (that is for worldModel to handle)
+    // try to keep the design as simple as possible: minimize state, trackers over time (that is for worldModel to handle)
     // initially (and maybe also occasionally?) we should perhaps do some kind of grid search
+    // that is handled in the FitAlgorithm, also optional multithreading and guessing / search space partitioning
 
-    // get the reference floor
-    cv::Mat referenceFloor;
-    MRA::OpenCVUtils::deserializeCvMat(_state.referencefloor(), referenceFloor); // if not fast enough, then cache internally
+    // the FitCore is a single fit operation (which uses opencv Downhill Simplex solver):
+    // fit given white pixels and initial guess to the reference field
+
+    // create or get the cached reference floor
+     _referenceFloorMat = createReferenceFloorMat();
 
     // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
-    cv::Mat rcsLinePoints = _floor.createMat();
-    std::vector<Landmark> linePoints(_input.landmarks().begin(), _input.landmarks().end());
-    _floor.linePointsToCvMat(linePoints, rcsLinePoints);
+    _linePointsMat = createLinePointsMat();
 
-    // the core is a single fit operation (which uses opencv Downhill Simplex solver):
-    // fit given white pixels and initial guess to the reference field
-    FitResult r = _fit.run(referenceFloor, rcsLinePoints, _input.guess(), _params.solver().actionradius());
+    // run the algorithm
+    _fitResult = _fitAlgorithm.run(_referenceFloorMat, _linePointsMat, _input.guess());
 
     // optional dump of diagnostics data for plotting
     if (_params.debug())
     {
-        FitFunction ff(referenceFloor, rcsLinePoints, _params.solver().pixelspermeter());
-        cv::Mat transformedLinePoints = ff.transform3dof(rcsLinePoints, r.pose.x(), r.pose.y(), r.pose.rz());
-        cv::Mat diagFloor = referenceFloor;
-        // TODO: add colors, blue for pixels?
-        MRA::OpenCVUtils::joinWhitePixels(diagFloor, transformedLinePoints);
-        // add grid lines (all 1 pixel, so we can clearly see how the field line is positioned)
-        /*
-        _floor.addGridLines(diagFloor, 1.0, cv::Scalar(100, 100, 100)); // 1meter grid: very faint
-        _floor.addGridLines(diagFloor, 2.0, cv::Scalar(200, 200, 200)); // 2meter grid: more prominent
-        MRA::OpenCVUtils::serializeCvMat(diagFloor, *_diag.mutable_floor());
-        */
-        _floor.addGridLines(transformedLinePoints, 1.0, cv::Scalar(100, 100, 100)); // 1meter grid: very faint
-        _floor.addGridLines(transformedLinePoints, 2.0, cv::Scalar(200, 200, 200)); // 2meter grid: more prominent
-        MRA::OpenCVUtils::serializeCvMat(transformedLinePoints, *_diag.mutable_floor());
+        MRA::OpenCVUtils::serializeCvMat(createDiagnosticsMat(), *_diag.mutable_floor());
     }
 
     // process fit result
-    if (r.success)
+    if (_fitResult.success)
     {
         Candidate c;
-        c.mutable_pose()->CopyFrom(r.pose);
-        c.set_confidence(r.score);
+        c.mutable_pose()->CopyFrom((MRA::Datatypes::Pose)_fitResult.pose);
+        c.set_confidence(_fitResult.score);
         *_output.add_candidates() = c;
         return 0;
     }
     return 1;
 }
 
-Output const &Solver::get_output() const
+Output const &Solver::getOutput() const
 {
     return _output;
 }
 
-Local const &Solver::get_diagnostics() const
+Local const &Solver::getDiagnostics() const
 {
     return _diag;
 }
 
-State const &Solver::get_state() const
+State const &Solver::getState() const
 {
     return _state;
 }
-
 

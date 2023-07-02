@@ -37,8 +37,10 @@ message SolverParams
     float blurFactor = 4; // blur factor, zero is no blur
     MRA.Datatypes.Pose actionRadius = 5; // required: robot action radius (roughly max velocity * dt), for local optimization of previous result
     int32 maxCount = 6; // required: solver max iterations
-    float linePointRadiusConstant = 7; // required: radius size of linepoints in FCS (used to create white pixels for fitting)
-    float linePointRadiusScaleFactor = 8; // optional: scaling factor based on distance to robot
+    float epsilon = 7; // required: solver accuracy
+    float linePointRadiusConstant = 8; // required: radius size of linepoints in FCS (used to create white pixels for fitting)
+    float linePointRadiusScaleFactor = 9; // optional: scaling factor based on distance to robot
+    float linePointRadiusMinimum = 10; // optional: limit in meters
 }
 
 message Params

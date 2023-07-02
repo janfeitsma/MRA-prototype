@@ -31,17 +31,16 @@ int FalconsLocalizationVision::FalconsLocalizationVision::tick
     // TODO: how expensive is it to reconstruct everything each tick? we could use static data to improve performance at the cost of state observability/testability
     Solver solver;
     solver.configure(params);
-    solver.set_state(state);
-    solver.determine_reference_floor();
+    solver.setState(state);
 
     // run
-    solver.set_input(input);
+    solver.setInput(input);
     error_value = solver.run();
 
     // store output
-    output.CopyFrom(solver.get_output());
-    local.CopyFrom(solver.get_diagnostics());
-    state.CopyFrom(solver.get_state());
+    output.CopyFrom(solver.getOutput());
+    local.CopyFrom(solver.getDiagnostics());
+    state.CopyFrom(solver.getState());
 
     return error_value;
 }

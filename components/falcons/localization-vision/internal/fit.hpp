@@ -2,6 +2,7 @@
 #define _MRA_FALCONS_LOCALIZATION_VISION_FIT_HPP
 
 #include <opencv2/core/optim.hpp>
+#include "geometry.hpp"
 
 // generated protobuf types from interface of this component
 #include "datatypes.hpp"
@@ -14,8 +15,7 @@ struct FitResult
 {
     bool success = false;
     float score = 0.0;
-    MRA::Datatypes::Pose pose;
-    cv::Mat floor;
+    MRA::Geometry::Pose pose;
 }; // struct FitResult
 
 
@@ -38,20 +38,40 @@ private:
 }; // class FitFunction
 
 
-class FitAlgorithm
+class FitCore
 {
 public:
-    FitAlgorithm();
-    ~FitAlgorithm();
+    FitCore() {};
+    ~FitCore() {};
 
     SolverParams settings;
     void configure(SolverParams const &config) { settings.CopyFrom(config); }
 
     FitResult run(
-        cv::Mat const &referenceFloor,     // params translated once (at first tick) to reference floor to fit against, white pixels, potentially blurred
-        cv::Mat const &rcsLinePoints,      // input pixels translated to a floor that can be compared / fitted
-        MRA::Datatypes::Pose const &guess, // initial guess for the algorithm, note that the simplex is constructed AROUND it, so somewhere a shift might be needed
-        MRA::Datatypes::Pose const &step); // initial step: search region
+        cv::Mat const &referenceFloor,      // params translated once (at first tick) to reference floor to fit against, white pixels, potentially blurred
+        cv::Mat const &rcsLinePoints,       // input pixels translated to a floor that can be compared / fitted
+        MRA::Datatypes::Pose const &guess,  // initial guess for the algorithm, note that the simplex is constructed AROUND it, so somewhere a shift might be needed
+        MRA::Datatypes::Pose const &step);  // initial step: search region
+
+}; // class FitCore
+
+
+class FitAlgorithm
+{
+public:
+    FitAlgorithm() {};
+    ~FitAlgorithm() {};
+
+    SolverParams settings;
+    void configure(SolverParams const &config) { settings.CopyFrom(config); _fitCore.configure(config); }
+
+    FitResult run(
+        cv::Mat const &referenceFloor,      // params translated once (at first tick) to reference floor to fit against, white pixels, potentially blurred
+        cv::Mat const &rcsLinePoints,       // input pixels translated to a floor that can be compared / fitted
+        MRA::Datatypes::Pose const &guess); // initial guess for the algorithm, note that the simplex is constructed AROUND it, so somewhere a shift might be needed
+
+private:
+    FitCore _fitCore;
 
 }; // class FitAlgorithm
 

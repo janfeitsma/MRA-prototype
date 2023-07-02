@@ -25,8 +25,11 @@
         "floorBorder": 0.5,
         "blurFactor": 0.5,
         "actionRadius": {"x": 0.1, "y": 0.1, "rz": 0.3},
-        "maxCount": 5,
-        "linePointRadiusConstant": 0.05
+        "maxCount": 400,
+        "epsilon": 1e-4,
+        "linePointRadiusConstant": 0.05,
+        "linePointRadiusScaleFactor": -0.003,
+        "linePointRadiusMinimum": 0.0
     },
     "debug": true
 }

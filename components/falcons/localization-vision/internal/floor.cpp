@@ -180,11 +180,13 @@ void Floor::linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &
     {
         float r = settings.solver().linepointradiusconstant();
         float sf = settings.solver().linepointradiusscalefactor();
+        float rmin = settings.solver().linepointradiusminimum();
         if (sf)
         {
             float distance = sqrt(p.x() * p.x() + p.y() * p.y());
             r += sf * distance;
         }
+        r = std::max(rmin, r); // clip, opencv can't handle negative circle radius
         s.mutable_circle()->mutable_center()->set_x(p.x());
         s.mutable_circle()->mutable_center()->set_y(p.y());
         s.mutable_circle()->set_radius(r); // in meters, not pixels (anymore)

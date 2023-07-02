@@ -103,43 +103,14 @@ TEST(FalconsLocalizationVisionTest, perfectFit)
 
 // Test core fit scoring function: choose some pixels which match perfect field definition
 // This is data driven -> json test case
-TEST(FalconsLocalizationVisionTest, jsonTest1)
+TEST(FalconsLocalizationVisionTest, jsonTest1PerfectFit)
 {
     auto output = TestFactory::run_testvector<FalconsLocalizationVision::FalconsLocalizationVision>(std::string("components/falcons/localization-vision/testdata/test1_perfect_fit.json"));
 }
-
-// Some pixels TODO REMOVE
-TEST(FalconsLocalizationVisionTest, somePixels)
+TEST(FalconsLocalizationVisionTest, jsonTest2ShiftXY)
 {
-    // Arrange
-    auto m = FalconsLocalizationVision::FalconsLocalizationVision();
-    auto input = FalconsLocalizationVision::Input();
-    auto output = FalconsLocalizationVision::Output();
-    auto state = FalconsLocalizationVision::State();
-    auto local = FalconsLocalizationVision::Local();
-    auto params = m.defaultParams();
-    FalconsLocalizationVision::Landmark p;
-    p.set_x(3); p.set_y(3); *input.add_landmarks() = p;
-    p.set_x(3); p.set_y(4); *input.add_landmarks() = p;
-    p.set_x(4); p.set_y(3); *input.add_landmarks() = p;
-    params.set_debug(true);
-
-    // Act
-    int error_value = m.tick(input, params, state, output, local);
-
-    // debug dump
-    if (params.debug())
-    {
-        std::ofstream dumpState;
-        dumpState.open("/tmp/locState.bin");
-        local.floor().SerializeToOstream(&dumpState);
-        dumpState.close();
-    }
-
-    // Assert
-    EXPECT_EQ(error_value, 0);
+    auto output = TestFactory::run_testvector<FalconsLocalizationVision::FalconsLocalizationVision>(std::string("components/falcons/localization-vision/testdata/test2_shift_xy.json"));
 }
-
 
 int main(int argc, char **argv)
 {

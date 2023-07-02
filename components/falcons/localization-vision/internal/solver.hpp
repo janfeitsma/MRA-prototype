@@ -13,16 +13,16 @@ class Solver
 public:
     Solver();
     ~Solver();
+
     void configure(Params const &p);
-    void set_state(State const &s);
-    void set_input(Input const &in);
-    void determine_reference_floor();
+    void setState(State const &s);
+    void setInput(Input const &in);
 
     int run();
 
-    Output const &get_output() const;
-    Local const &get_diagnostics() const;
-    State const &get_state() const;
+    Output const &getOutput() const;
+    Local const &getDiagnostics() const;
+    State const &getState() const;
 
 private:
     Input  _input;
@@ -31,12 +31,27 @@ private:
     Output _output;
     Local  _diag;
 
-    Floor  _floor;
-    FitAlgorithm _fit;
+    FitResult _fitResult;
 
+    // checks at config time (typically once right after construction, or more often when tuning)
     void checkParamsValid();
+
+    // helper classes
+    Floor  _floor;
+    FitAlgorithm _fitAlgorithm;
     void configureFloor();
     void configureFit();
+
+    // reference floor: calculate once, based on letter model and optional extra shapes
+    cv::Mat _referenceFloorMat;
+    cv::Mat createReferenceFloorMat();
+
+    // input linepoints mat: calculate each tick, based on input landmarks / linepoints
+    cv::Mat _linePointsMat;
+    cv::Mat createLinePointsMat();
+
+    // optional debug data export
+    cv::Mat createDiagnosticsMat();
 
 }; // class Solver
 

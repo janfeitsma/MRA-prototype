@@ -20,6 +20,7 @@ public:
     void letterModelToShapes(StandardLetterModel const &model, std::vector<MRA::Datatypes::Shape> &shapes);
     void shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, float blurFactor, cv::Mat &m);
     void linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &m);
+    cv::Point pointFcsToPixel(MRA::Datatypes::Point const &p) const;
 
     // diagnostics-specific
     void addGridLines(cv::Mat &m, float step, cv::Scalar color) const;
@@ -33,8 +34,6 @@ private:
     float _originY;
     int _numPixelsX;
     int _numPixelsY;
-
-    cv::Point pointFcsToPixel(MRA::Datatypes::Point const &p) const;
 
 }; // class Floor
 

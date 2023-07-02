@@ -6,15 +6,30 @@
 using namespace MRA::FalconsLocalizationVision;
 
 
-FitAlgorithm::FitAlgorithm()
+FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &guess)
 {
+    std::vector<FitResult> results;
+
+    // offset the guess to ensure that it is included,
+    // since by default the generate simplex would not hit it
+    //     if the step is configured to be (sx,sy,srz) and initial guess is zero
+    //     then the initial simplex evaluates at the following simplex:
+    //         (-0.5*sx, -0.5*sy, -0.5*srz)
+    //         ( 0.5*sx,       0,        0)
+    //         (      0,  0.5*sy,        0)
+    //         (      0,       0,  0.5*srz)
+
+    MRA::Datatypes::Pose step = settings.actionradius();
+    MRA::Datatypes::Pose g = guess;
+    g.set_rz(-0.5 * step.rz() + g.rz());
+    results.push_back(_fitCore.run(referenceFloor, rcsLinePoints, g, step));
+
+    // sort on decreasing quality
+    //std::sort(results.begin(), results.end());
+    return results[0];
 }
 
-FitAlgorithm::~FitAlgorithm()
-{
-}
-
-FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &guess, MRA::Datatypes::Pose const &step)
+FitResult FitCore::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &guess, MRA::Datatypes::Pose const &step)
 {
     FitResult result;
 
@@ -28,6 +43,7 @@ FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLin
     cvSolver->setInitStep(stepVec);
 	cv::TermCriteria criteria = cvSolver->getTermCriteria();
 	criteria.maxCount = settings.maxcount();
+	criteria.epsilon = settings.epsilon();
 	cvSolver->setTermCriteria(criteria);
 
     // set initial guess
@@ -38,9 +54,9 @@ FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLin
 
     // store result
     result.success = true;
-    result.pose.set_x(vec.at<double>(0, 0));
-    result.pose.set_y(vec.at<double>(0, 1));
-    result.pose.set_rz(vec.at<double>(0, 2));
+    result.pose.x = (vec.at<double>(0, 0));
+    result.pose.y = (vec.at<double>(0, 1));
+    result.pose.rz = (vec.at<double>(0, 2));
     return result;
 }
 
@@ -61,7 +77,10 @@ double FitFunction::calcOverlap(cv::Mat const &m1, cv::Mat const &m2) const
     cv::bitwise_and(m1, m2, overlapMask);
     // calculate score, normalize on the value stored at construction time
     // (which runtime is passed as m2 after transformation)
-    return static_cast<double>(countNonZero(overlapMask)) / _rcsLinePointsPixelCount;
+    double result = static_cast<double>(countNonZero(overlapMask)) / _rcsLinePointsPixelCount;
+    // clip score & confidence into [0.0, 1.0]
+    result = std::max(0.0, std::min(1.0, result));
+    return result;
 }
 
 cv::Mat FitFunction::transform3dof(cv::Mat const &m, double x, double y, double rz) const
@@ -70,8 +89,8 @@ cv::Mat FitFunction::transform3dof(cv::Mat const &m, double x, double y, double 
     // create a transformation matrix
     float rad2deg = 180.0 / M_PI;
     cv::Mat transformationMatrix = cv::getRotationMatrix2D(cv::Point2f(m.cols/2, m.rows/2), rz * rad2deg, 1.0);
-    transformationMatrix.at<double>(0, 2) += y * _ppm;
-    transformationMatrix.at<double>(1, 2) += x * _ppm;
+    transformationMatrix.at<double>(0, 2) += y * _ppm; // flip xy, cv::Mat is landscape mode
+    transformationMatrix.at<double>(1, 2) += x * _ppm; // flip xy, cv::Mat is landscape mode
     // apply the transformation
     cv::warpAffine(m, result, transformationMatrix, m.size());
     return result;
@@ -82,7 +101,8 @@ double FitFunction::calc(const double *x) const
     cv::Mat transformedLinePoints = transform3dof(_rcsLinePoints, x[0], x[1], x[2]);
     double overlapNormalized = calcOverlap(_referenceFloor, transformedLinePoints);
     double score = 1.0 - overlapNormalized;
-    printf("FitFunction::calc (%7.3f,%7.3f,%7.3f) -> score %7.3f\n", x[0], x[1], x[2], score);
+    printf("FitFunction::calc (%9.5f,%9.5f,%9.5f) -> score %7.5f\n", x[0], x[1], x[2], score);
+    fflush(stdout);
     return score;
 }
 
