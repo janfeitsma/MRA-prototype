@@ -27,7 +27,14 @@ typename Tc::OutputType run_testvector(std::string tv_filename)
     std::string js = read_file_as_string(tv_filename);
     nlohmann::json j = nlohmann::json::parse(js);
     convert_json_to_proto(j, "Input", input);
-    convert_json_to_proto(j, "Params", params);
+    if (j.contains("Params"))
+    {
+        convert_json_to_proto(j, "Params", params);
+    }
+    else
+    {
+        params = m.defaultParams();
+    }
     convert_json_to_proto(j, "State", state);
     convert_json_to_proto(j, "Output", expected_output);
 
