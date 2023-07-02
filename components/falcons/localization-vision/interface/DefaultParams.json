@@ -30,6 +30,14 @@
         "linePoints": {
             "fit": {"radiusConstant": 0.05, "radiusScaleFactor": -0.003, "radiusMinimum": 0.0},
             "plot": {"radius": 0.07}
+        },
+        "guessing": {
+            "initial": [
+                {"x": -4.0, "y": -4.0, "range": 5.0},
+                {"x": -4.0, "y": 4.0, "range": 5.0},
+                {"x": 4.0, "y": -4.0, "range": 5.0},
+                {"x": 4.0, "y": 4.0, "range": 5.0}
+            ]
         }
     },
     "debug": true

@@ -47,6 +47,20 @@ message LinePointParams
     LinePointPlotParams plot = 2;
 }
 
+message GuessingSubParams
+{
+    float x = 1;
+    float y = 2;
+    float range = 3;
+    // rotation range hardcoded
+}
+
+message GuessingParams
+{
+    repeated GuessingSubParams initial = 1;
+    repeated GuessingSubParams structural = 2;
+}
+
 message SolverParams
 {
     int32 numExtraThreads = 1;
@@ -57,6 +71,7 @@ message SolverParams
     int32 maxCount = 6; // required: solver max iterations
     float epsilon = 7; // required: solver accuracy
     LinePointParams linePoints = 8;
+    GuessingParams guessing = 9;
 }
 
 message Params

@@ -7,5 +7,6 @@ import "datatypes/CvMat.proto";
 message State
 {
     MRA.Datatypes.CvMatProto referenceFloor = 1;
+    int32 tick = 2;
 }
 

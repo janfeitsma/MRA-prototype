@@ -16,6 +16,7 @@ struct FitResult
     bool success = false;
     float score = 0.0;
     MRA::Geometry::Pose pose;
+    bool operator<(FitResult const &other) { return score < other.score; }
 }; // struct FitResult
 
 
@@ -68,7 +69,8 @@ public:
     FitResult run(
         cv::Mat const &referenceFloor,      // params translated once (at first tick) to reference floor to fit against, white pixels, potentially blurred
         cv::Mat const &rcsLinePoints,       // input pixels translated to a floor that can be compared / fitted
-        MRA::Datatypes::Pose const &guess); // initial guess for the algorithm, note that the simplex is constructed AROUND it, so somewhere a shift might be needed
+        MRA::Datatypes::Pose const &inputGuess,  // initial guess for the algorithm, note that the simplex is constructed AROUND it, so somewhere a shift might be needed
+        std::vector<GuessingSubParams> const &extraGuesses); // extra guesses (with range) if so configured
 
 private:
     FitCore _fitCore;

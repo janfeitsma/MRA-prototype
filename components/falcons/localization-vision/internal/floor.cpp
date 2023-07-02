@@ -26,12 +26,12 @@ void Floor::configure(Params const &config)
     _numPixelsX = int(_sizeX * _ppm);
 }
 
-cv::Mat Floor::createMat()
+cv::Mat Floor::createMat() const
 {
     return cv::Mat::zeros(_numPixelsX, _numPixelsY, CV_8UC1);
 }
 
-void Floor::letterModelToShapes(StandardLetterModel const &model, std::vector<MRA::Datatypes::Shape> &shapes)
+void Floor::letterModelToShapes(StandardLetterModel const &model, std::vector<MRA::Datatypes::Shape> &shapes) const
 {
     // some elements can be omitted from the letter model, but not the main dimensions (A,B) and linewidth K
 
@@ -128,7 +128,7 @@ cv::Point Floor::pointFcsToPixel(MRA::Datatypes::Point const &p) const
     return cv::Point((p.y() - _originY) * _ppm, (p.x() - _originX) * _ppm);
 }
 
-void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, float blurFactor, cv::Mat &m)
+void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, float blurFactor, cv::Mat &m) const
 {
     cv::Scalar color(255, 255, 255); // white
     for (auto const &s: shapes)
@@ -171,7 +171,7 @@ void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, floa
     }
 }
 
-void Floor::linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &m, float overruleRadius)
+void Floor::linePointsToCvMat(std::vector<Landmark> const &linePoints, cv::Mat &m, float overruleRadius) const
 {
     // for every linepoint, create a circle
     std::vector<MRA::Datatypes::Shape> shapes;

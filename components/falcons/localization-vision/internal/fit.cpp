@@ -6,11 +6,11 @@
 using namespace MRA::FalconsLocalizationVision;
 
 
-FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &guess)
+FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &inputGuess, std::vector<GuessingSubParams> const &extraGuesses)
 {
     std::vector<FitResult> results;
 
-    // offset the guess to ensure that it is included,
+    // offset the input guess to ensure that it is included,
     // since by default the generate simplex would not hit it
     //     if the step is configured to be (sx,sy,srz) and initial guess is zero
     //     then the initial simplex evaluates at the following simplex:
@@ -20,13 +20,25 @@ FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLin
     //         (      0,       0,  0.5*srz)
 
     MRA::Datatypes::Pose step = settings.actionradius();
-    MRA::Datatypes::Pose g = guess;
+    MRA::Datatypes::Pose g = inputGuess;
     g.set_rz(-0.5 * step.rz() + g.rz());
     results.push_back(_fitCore.run(referenceFloor, rcsLinePoints, g, step));
 
-    // sort on decreasing quality
-    //std::sort(results.begin(), results.end());
-    return results[0];
+    // if so configured, run more fit attempts
+    for (auto const &gp: extraGuesses)
+    {
+        g.set_x(gp.x());
+        g.set_y(gp.y());
+        g.set_rz(0.0);
+        step.set_x(gp.range());
+        step.set_y(gp.range());
+        step.set_rz(2 * M_PI);
+        results.push_back(_fitCore.run(referenceFloor, rcsLinePoints, g, step));
+    }
+
+    // sort results on decreasing quality
+    std::sort(results.begin(), results.end());
+    return results.at(0);
 }
 
 FitResult FitCore::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &guess, MRA::Datatypes::Pose const &step)

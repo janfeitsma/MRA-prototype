@@ -25,7 +25,7 @@ void Solver::configure(Params const &p)
     _fitAlgorithm.configure(_params.solver());
 }
 
-void Solver::checkParamsValid()
+void Solver::checkParamsValid() const
 {
     // check field model params
     if (_params.model().a() < 1)
@@ -108,12 +108,25 @@ cv::Mat Solver::createReferenceFloorMat()
     return result;
 }
 
-cv::Mat Solver::createLinePointsMat(float overruleRadius)
+cv::Mat Solver::createLinePointsMat(float overruleRadius) const
 {
     // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
     cv::Mat result = _floor.createMat();
     std::vector<Landmark> linePoints(_input.landmarks().begin(), _input.landmarks().end());
     _floor.linePointsToCvMat(linePoints, result, overruleRadius);
+    return result;
+}
+
+std::vector<GuessingSubParams> Solver::createExtraGuesses() const
+{
+    auto gvec = _params.solver().guessing().structural();
+    std::vector<GuessingSubParams> result(gvec.begin(), gvec.end());
+    // initial guesses only at the very first tick
+    if (_state.tick() == 0)
+    {
+        gvec = _params.solver().guessing().initial();
+        std::copy(gvec.begin(), gvec.end(), std::back_inserter(result));
+    }
     return result;
 }
 
@@ -131,7 +144,7 @@ void combineImages(cv::Mat m, cv::Mat m_other)
     m += tmp;
 }
 
-cv::Mat Solver::createDiagnosticsMat()
+cv::Mat Solver::createDiagnosticsMat() const
 {
     // create diagnostics floor, upscale to colors
     cv::Mat result;
@@ -183,13 +196,17 @@ int Solver::run()
     _linePointsMat = createLinePointsMat();
 
     // run the algorithm
-    _fitResult = _fitAlgorithm.run(_referenceFloorMat, _linePointsMat, _input.guess());
+    std::vector<GuessingSubParams> const &extraGuesses = createExtraGuesses();
+    _fitResult = _fitAlgorithm.run(_referenceFloorMat, _linePointsMat, _input.guess(), extraGuesses);
 
     // optional dump of diagnostics data for plotting
     if (_params.debug())
     {
         MRA::OpenCVUtils::serializeCvMat(createDiagnosticsMat(), *_diag.mutable_floor());
     }
+
+    // prepare for next tick
+    _state.set_tick(1 + _state.tick());
 
     // process fit result
     if (_fitResult.success)
