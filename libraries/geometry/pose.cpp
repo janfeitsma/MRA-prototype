@@ -132,6 +132,28 @@ Pose& Pose::operator/=(double f)
     return operator*=(1.0 / f);
 }
 
+Pose::operator MRA::Geometry::Point() const
+{
+    return MRA::Geometry::Point(x, y);
+}
+
+Pose::operator MRA::Datatypes::Point() const
+{
+    MRA::Datatypes::Point result;
+    result.set_x(x);
+    result.set_y(y);
+    return result;
+}
+
+Pose::operator MRA::Datatypes::Pose() const
+{
+    MRA::Datatypes::Pose result;
+    result.set_x(x);
+    result.set_y(y);
+    result.set_rz(rz);
+    return result;
+}
+
 void Pose::wrap_angles()
 {
     // do nothing for Pose

@@ -33,6 +33,7 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
+        ":point",
         ":angles",
         "//datatypes:MRA_cc_proto",
     ],

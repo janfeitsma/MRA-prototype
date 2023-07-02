@@ -2,6 +2,7 @@
 #define _MRA_LIBRARIES_GEOMETRY_POSE_HPP
 
 #include "datatypes/Pose.pb.h"
+#include "point.hpp"
 
 // MRA::Geometry::Pose is a base class that adds operations to protobuf MRA::Datatypes::Pose
 // MRA::Geometry::Velocity is special version of Pose that adds coordinate transformations
@@ -45,6 +46,11 @@ public:
     virtual Pose& operator*=(double f);
     virtual Pose operator/(double f) const;
     virtual Pose& operator/=(double f);
+
+    // other operators
+    operator MRA::Geometry::Point() const;
+    operator MRA::Datatypes::Point() const;
+    operator MRA::Datatypes::Pose() const;
 
     // functions call wrap_angles, left to be implemented by Position
     virtual void wrap_angles();
