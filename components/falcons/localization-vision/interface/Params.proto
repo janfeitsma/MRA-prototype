@@ -47,18 +47,19 @@ message LinePointParams
     LinePointPlotParams plot = 2;
 }
 
-message GuessingSubParams
+message RandomGuessingParams
 {
-    float x = 1;
-    float y = 2;
-    float range = 3;
-    // rotation range hardcoded
+    int32 count = 1; // number of random searches to attempt
+    float searchRadius = 2; // a random search happens around a random point (x,y) with this search radius (solver step)
+    float exclusionRadius = 3; // random point cannot be this close to existing trackers
+    int32 maxTries = 4; // number of attempts to find a random point that satisfies exclusionRadius
 }
 
 message GuessingParams
 {
-    repeated GuessingSubParams initial = 1;
-    repeated GuessingSubParams structural = 2;
+    repeated MRA.Datatypes.Circle initial = 1;
+    repeated MRA.Datatypes.Circle structural = 2;
+    RandomGuessingParams random = 3;
 }
 
 message SolverParams

@@ -1,4 +1,5 @@
 #include "solver.hpp"
+#include "guessing.hpp"
 
 // MRA libraries
 #include "geometry.hpp"
@@ -113,17 +114,12 @@ cv::Mat Solver::createLinePointsMat(float overruleRadius) const
     return result;
 }
 
-std::vector<GuessingSubParams> Solver::createExtraGuesses() const
+std::vector<MRA::Datatypes::Circle> Solver::createExtraGuesses() const
 {
-    auto gvec = _params.solver().guessing().structural();
-    std::vector<GuessingSubParams> result(gvec.begin(), gvec.end());
-    // initial guesses only at the very first tick
-    if (_state.tick() == 0)
-    {
-        gvec = _params.solver().guessing().initial();
-        std::copy(gvec.begin(), gvec.end(), std::back_inserter(result));
-    }
-    return result;
+    std::vector<MRA::Geometry::Point> pointsToAvoid; // = _trackers.xyList()
+    Guesser g(_params);
+    bool initial = (_state.tick() == 0);
+    return g.run(pointsToAvoid, initial);
 }
 
 // TODO move to opencv_utils?
@@ -200,8 +196,10 @@ int Solver::run()
     // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
     _linePointsMat = createLinePointsMat();
 
+    // setup guesses
+    std::vector<MRA::Datatypes::Circle> const &extraGuesses = createExtraGuesses();
+
     // run the algorithm
-    std::vector<GuessingSubParams> const &extraGuesses = createExtraGuesses();
     _fitResult = _fitAlgorithm.run(_referenceFloorMat, _linePointsMat, _input.guess(), extraGuesses);
 
     // optional dump of diagnostics data for plotting

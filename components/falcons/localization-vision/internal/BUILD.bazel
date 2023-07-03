@@ -4,11 +4,13 @@ cc_library(
     srcs = [
         "fit.cpp",
         "floor.cpp",
+        "guessing.cpp",
         "solver.cpp",
     ],
     hdrs = [
         "fit.hpp",
         "floor.hpp",
+        "guessing.hpp",
         "solver.hpp",
     ],
     includes = [

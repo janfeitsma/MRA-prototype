@@ -70,7 +70,7 @@ public:
         cv::Mat const &referenceFloor,      // params translated once (at first tick) to reference floor to fit against, white pixels, potentially blurred
         cv::Mat const &rcsLinePoints,       // input pixels translated to a floor that can be compared / fitted
         MRA::Datatypes::Pose const &inputGuess,  // initial guess for the algorithm, note that the simplex is constructed AROUND it, so somewhere a shift might be needed
-        std::vector<GuessingSubParams> const &extraGuesses); // extra guesses (with range) if so configured
+        std::vector<MRA::Datatypes::Circle> const &extraGuesses); // extra guesses (with range) if so configured
 
 private:
     FitCore _fitCore;

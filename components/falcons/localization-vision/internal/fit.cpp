@@ -6,7 +6,7 @@
 using namespace MRA::FalconsLocalizationVision;
 
 
-FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &inputGuess, std::vector<GuessingSubParams> const &extraGuesses)
+FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &inputGuess, std::vector<MRA::Datatypes::Circle> const &extraGuesses)
 {
     std::vector<FitResult> results;
 
@@ -27,11 +27,11 @@ FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLin
     // if so configured, run more fit attempts
     for (auto const &gp: extraGuesses)
     {
-        g.set_x(gp.x());
-        g.set_y(gp.y());
+        g.set_x(gp.center().x());
+        g.set_y(gp.center().y());
         g.set_rz(0.0);
-        step.set_x(gp.range());
-        step.set_y(gp.range());
+        step.set_x(gp.radius());
+        step.set_y(gp.radius());
         step.set_rz(2 * M_PI);
         results.push_back(_fitCore.run(referenceFloor, rcsLinePoints, g, step));
     }

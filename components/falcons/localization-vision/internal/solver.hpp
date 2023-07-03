@@ -51,7 +51,7 @@ private:
     cv::Mat createLinePointsMat(float overruleRadius = 0.0) const;
 
     // control the guessing procedure
-    std::vector<GuessingSubParams> createExtraGuesses() const;
+    std::vector<MRA::Datatypes::Circle> createExtraGuesses() const;
 
     // optional debug data export
     cv::Mat createDiagnosticsMat() const;
