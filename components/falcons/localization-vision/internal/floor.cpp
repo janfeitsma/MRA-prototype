@@ -128,6 +128,25 @@ cv::Point Floor::pointFcsToPixel(MRA::Datatypes::Point const &p) const
     return cv::Point((p.y() - _originY) * _ppm, (p.x() - _originX) * _ppm);
 }
 
+cv::Mat applyBlur(cv::Mat m, int kernelSize)
+{
+    cv::Mat mask;
+    if (m.channels() == 1)
+    {
+        cv::threshold(m, mask, 1, 255, cv::THRESH_BINARY);
+    }
+    else
+    {
+        cv::Mat grayscaleImage;
+        cv::cvtColor(m, grayscaleImage, cv::COLOR_BGR2GRAY);
+        cv::threshold(grayscaleImage, mask, 1, 255, cv::THRESH_BINARY);
+    }
+    cv::Mat result;
+    blur(m, result, cv::Size(kernelSize, kernelSize));
+    m.copyTo(result, mask);
+    return result;
+}
+
 void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, float blurFactor, cv::Mat &m) const
 {
     cv::Scalar color(255, 255, 255); // white
@@ -168,6 +187,12 @@ void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, floa
             auto p2 = pointFcsToPixel(pc + ps * 0.5);
             cv::rectangle(m, p1, p2, color, lw);
         }
+    }
+    // apply blur
+    int blurKernelSize = (int)_ppm * blurFactor;
+    if (blurKernelSize)
+    {
+        m = applyBlur(m, blurKernelSize);
     }
 }
 

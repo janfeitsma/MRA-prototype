@@ -74,7 +74,7 @@ void Solver::setInput(Input const &in)
     _input = in;
 }
 
-cv::Mat Solver::createReferenceFloorMat()
+cv::Mat Solver::createReferenceFloorMat(float blurFactor) const
 {
     cv::Mat result;
 
@@ -98,12 +98,8 @@ cv::Mat Solver::createReferenceFloorMat()
     }
 
     // create cv::Mat such that field is rotated screen-friendly: more columns than rows
-    float blurFactor = _params.solver().blurfactor();
     result = _floor.createMat();
     _floor.shapesToCvMat(shapes, blurFactor, result);
-
-    // store result as protobuf CvMatProto object for next iteration (via state)
-    MRA::OpenCVUtils::serializeCvMat(result, *_state.mutable_referencefloor());
 
     return result;
 }
@@ -146,15 +142,19 @@ void combineImages(cv::Mat m, cv::Mat m_other)
 
 cv::Mat Solver::createDiagnosticsMat() const
 {
+    // reference floor either with or without blur
+    bool withBlur = true;
+    cv::Mat referenceFloorMat = withBlur ? _referenceFloorMat : createReferenceFloorMat();
+
     // create diagnostics floor, upscale to colors
     cv::Mat result;
-    cv::cvtColor(_referenceFloorMat, result, cv::COLOR_GRAY2BGR);
+    cv::cvtColor(referenceFloorMat, result, cv::COLOR_GRAY2BGR);
 
     // add linepoints with blue/cyan color
     // _linePointsMat has pixels for the fit, let's construct a new one for visualization using overruleRadius
     cv::Mat linePointsMat = createLinePointsMat(_params.solver().linepoints().plot().radius());
     float ppm = _params.solver().pixelspermeter();
-    FitFunction ff(_referenceFloorMat, linePointsMat, ppm);
+    FitFunction ff(referenceFloorMat, linePointsMat, ppm);
     cv::Mat transformedLinePoints = ff.transform3dof(linePointsMat, _fitResult.pose.x, _fitResult.pose.y, _fitResult.pose.rz);
     cv::Mat transformedLinePointsColor;
     cv::cvtColor(transformedLinePoints, transformedLinePointsColor, cv::COLOR_GRAY2BGR);
@@ -190,7 +190,12 @@ int Solver::run()
     // fit given white pixels and initial guess to the reference field
 
     // create or get the cached reference floor
-     _referenceFloorMat = createReferenceFloorMat();
+    _referenceFloorMat = createReferenceFloorMat(_params.solver().blurfactor());
+    if (!_state.has_referencefloor())
+    {
+        // store result as protobuf CvMatProto object for next iteration (via state)
+        MRA::OpenCVUtils::serializeCvMat(_referenceFloorMat, *_state.mutable_referencefloor());
+    }
 
     // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
     _linePointsMat = createLinePointsMat();

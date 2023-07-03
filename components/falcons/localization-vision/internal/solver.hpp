@@ -44,7 +44,7 @@ private:
 
     // reference floor: calculate once, based on letter model and optional extra shapes
     cv::Mat _referenceFloorMat;
-    cv::Mat createReferenceFloorMat();
+    cv::Mat createReferenceFloorMat(float blurFactor = 0.0) const;
 
     // input linepoints mat: calculate each tick, based on input landmarks / linepoints
     cv::Mat _linePointsMat;

@@ -51,6 +51,8 @@ TEST(FalconsLocalizationVisionTest, referenceFloor)
     auto params = m.defaultParams(); // official MSL field definition, should not change too often ;)
     // use high resolution
     params.mutable_solver()->set_pixelspermeter(80);
+    // disable blur
+    params.mutable_solver()->set_blurfactor(0.0);
     // optional debug mode
     params.set_debug(exportForPlot);
 
@@ -110,6 +112,12 @@ TEST(FalconsLocalizationVisionTest, jsonTest1PerfectFit)
 TEST(FalconsLocalizationVisionTest, jsonTest2ShiftXY)
 {
     auto output = TestFactory::run_testvector<FalconsLocalizationVision::FalconsLocalizationVision>(std::string("components/falcons/localization-vision/testdata/test2_shift_xy.json"));
+}
+
+// Integration bugfixes
+TEST(FalconsLocalizationVisionTest, jsonTest3GrabsR5BadInit)
+{
+    auto output = TestFactory::run_testvector<FalconsLocalizationVision::FalconsLocalizationVision>(std::string("components/falcons/localization-vision/testdata/test3_grabs_r5_20191219_210335_bad_init.json"));
 }
 
 int main(int argc, char **argv)
