@@ -31,7 +31,7 @@ using namespace MRA;
  * @return Intersection point D. Note that c.distanceTo(D) is the distance of c to the line (p1,p2).
  */
 static MRA::Geometry::Position intersectPerpendicular(const MRA::Geometry::Position& r_pose1, const MRA::Geometry::Position& r_pose2,
-		const MRA::Geometry::Position& r_pose_p) {
+	const MRA::Geometry::Position& r_pose_p) {
 	double p1x = r_pose1.x;
 	double p1y = r_pose1.y;
 	double p2x = r_pose2.x;
@@ -43,6 +43,10 @@ static MRA::Geometry::Position intersectPerpendicular(const MRA::Geometry::Posit
 	intersection.x = p1x + lambda * (p2x - p1x);
 	intersection.y = p1y + lambda * (p2y - p1y);
 	return intersection;
+}
+
+static double distanceXY(const MRA::Geometry::Position& r_pose1, const MRA::Geometry::Position& r_pose2) {
+	return hypot(r_pose1.x - r_pose2.x, r_pose1.y - r_pose2.y);
 }
 
 
@@ -80,13 +84,13 @@ int RobotsportsGetballIntercept::RobotsportsGetballIntercept::tick
         // fail when robot is inactive
         if (!ws.robot().active())
         {
-            output.set_actionresult(MRA::Datatypes::NO_ROBOT_ACTIVE);
+            output.set_actionresult(MRA::Datatypes::FAILED);
         }
 
         // fail when there is no ball
         if (!ws.has_ball())
         {
-            output.set_actionresult(MRA::Datatypes::NO_BALL);
+            output.set_actionresult(MRA::Datatypes::FAILED);
         }
 
         // check if not any failure mode was triggered
@@ -98,25 +102,39 @@ int RobotsportsGetballIntercept::RobotsportsGetballIntercept::tick
         	MRA::Datatypes::Pose ball_pos_fc  = ws.ball().position();
         	MRA::Datatypes::Pose target_vel_fc  = ws.ball().velocity();
 
+        	// get extrapolated ball position : add velocity vector (position over 1 sec)
         	MRA::Geometry::Position ball_pos_fc_extrapolated = ball_pos_fc;
         	ball_pos_fc_extrapolated += target_vel_fc;
 
         	MRA::Geometry::Position target_position = intersectPerpendicular(ball_pos_fc, ball_pos_fc_extrapolated, robot_pos);
-        	target_position.faceAwayFrom(ws.robot().position()); // facing ball
+        	target_position.faceTowards(ball_pos_fc); // facing ball
 
-            // write output
-            output.mutable_target()->mutable_position()->set_x(target_position.x);
-            output.mutable_target()->mutable_position()->set_y(target_position.y);
-            output.mutable_target()->mutable_position()->set_rz(target_position.rz);
+
+            if (distanceXY(target_position, robot_pos) > params.actionradius())
+            {
+                // To far from interception point:
+                // - Mark as failed. 
+                // - Stay at current position (safe output values). 
+                output.set_actionresult(MRA::Datatypes::FAILED);
+                output.mutable_target()->mutable_position()->set_x(robot_pos.x());
+                output.mutable_target()->mutable_position()->set_y(robot_pos.y());
+                output.mutable_target()->mutable_position()->set_rz(robot_pos.rz());
+            }
+            else {
+                // write output
+                output.mutable_target()->mutable_position()->set_x(target_position.x);
+                output.mutable_target()->mutable_position()->set_y(target_position.y);
+                output.mutable_target()->mutable_position()->set_rz(target_position.rz);
+            }
         }
     }
-//#ifdef DEBUG
+#ifdef DEBUG
     std::cout << __FILE__ << " output: " << convert_proto_to_json_str(output) << std::endl;
     std::cerr << __FILE__ << " output: " << convert_proto_to_json_str(output) << std::endl;
     std::cout << __FILE__ << " state: " << convert_proto_to_json_str(state) << std::endl;
     std::cout << __FILE__ << " local: " << convert_proto_to_json_str(local) << std::endl;
     std::cout << __FILE__ << " error: " << error_value << std::endl;
-//#endif // DEBUG
+#endif // DEBUG
     return error_value;
 }
 
