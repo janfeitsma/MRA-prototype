@@ -25,6 +25,8 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         ":datatypes",
+        "@boost//:filesystem",
+        "@boost//:system",
         BAZEL_IMPLEMENTATION_DEPENDENCIES
     ],
 )
@@ -40,6 +42,8 @@ cc_test(
         ":implementation",
         "@com_google_googletest//:gtest_main",
         "@nlohmann_json",
+        "@boost//:filesystem",
+        "@boost//:system",
     ],
 )
 

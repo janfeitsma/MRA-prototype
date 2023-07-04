@@ -25,6 +25,8 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         ":datatypes",
+        "@boost//:filesystem",
+        "@boost//:system",
         "//libraries/geometry",
     ],
 )

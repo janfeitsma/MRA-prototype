@@ -25,6 +25,8 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         ":datatypes",
+        "@boost//:filesystem",
+        "@boost//:system",
         "//libraries/geometry",
     ],
 )
@@ -42,7 +44,6 @@ cc_test(
         "@nlohmann_json",
         "@boost//:filesystem",
         "@boost//:system",
-        
     ],
 )
 

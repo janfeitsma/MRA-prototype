@@ -25,6 +25,8 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         ":datatypes",
+        "@boost//:filesystem",
+        "@boost//:system",
         "//components/falcons/getball-fetch:implementation",
         "//components/falcons/getball-intercept:implementation",
     ],
@@ -41,6 +43,8 @@ cc_test(
         ":implementation",
         "@com_google_googletest//:gtest_main",
         "@nlohmann_json",
+        "@boost//:filesystem",
+        "@boost//:system",
     ],
 )
 
