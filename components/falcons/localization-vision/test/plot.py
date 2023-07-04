@@ -13,14 +13,17 @@ import cv2
 import struct
 from matplotlib import pyplot as plt
 
-# protobuf import (needs a little hack)
-sys.path.append('/home/jan/github/MRA-prototype/bazel-bin')
+# protobuf imports
+SCRIPT_FOLDER = os.path.dirname(os.path.realpath(__file__))
+os.chdir(SCRIPT_FOLDER)
+MRA_BASE_FOLDER = os.path.realpath(os.path.join(SCRIPT_FOLDER, '../../../..'))
+sys.path.append(f'{MRA_BASE_FOLDER}/bazel-bin')
+from datatypes import CvMat_pb2
 try:
     import Local_pb2
 except:
-    os.system("protoc -I=../../.. -I=../../../datatypes -I=interface --python_out=. interface/Local.proto")
+    os.system(f'protoc -I={MRA_BASE_FOLDER} -I={MRA_BASE_FOLDER}/datatypes -I=../interface --python_out=. ../interface/Local.proto')
     import Local_pb2
-from datatypes import CvMat_pb2
 
 
 
@@ -56,7 +59,7 @@ def load_image_from_tick_bin(filename):
             data = f.read(n)
     local = Local_pb2.Local()
     local.ParseFromString(data)
-    image = local.fitResultFloor
+    image = local.floor
     print(f'{image.height} x {image.width}')
     return image
 
