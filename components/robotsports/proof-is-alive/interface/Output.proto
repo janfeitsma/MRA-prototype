@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package MRA.RobotsportsProofIsAlive;
+
+import "datatypes/ActionResult.proto";
+import "datatypes/PosVel.proto";
+
+message Output
+{
+    MRA.Datatypes.ActionResult actionresult = 1;
+    MRA.Datatypes.PosVel target = 2; // in FCS
+}
+

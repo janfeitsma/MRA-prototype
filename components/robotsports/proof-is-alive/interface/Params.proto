@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package MRA.RobotsportsProofIsAlive;
+
+message Params
+{
+    float angle_in_degrees = 1; // rotation to proof robot is alive [deg]
+    float angle_tolerance_deg = 2; // allowed tolerance to be on requested angle
+    float max_time_per_phase = 3; // time-out per phase; prevent action not ending in case of hardware failure
+}
