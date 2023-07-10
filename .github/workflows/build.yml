@@ -16,16 +16,17 @@ jobs:
 
     - name: Set up dependencies which are not handled via bazel
       run: sudo apt-get install protobuf-compiler
+      # TODO: the following dependencies are undesired/unexpected: protobuf-compiler
 
     - name: Set up Bazel
       uses: bazelbuild/setup-bazelisk@v2
 
     - name: Run code generator
-      run: ./MRA-codegen.py
-      # TODO: check that codegen did not modify or add any files
+      run: ./MRA-codegen.py -e
 
     - name: Build and test with Bazel
       run: ./MRA-build.py -t
 
-      # TODO: add also cmake build steps here, or as separate action
+      # TODO: add also cmake build steps here, or as separate action/yml
+      # TODO: configure a cache
 
