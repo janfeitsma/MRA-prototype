@@ -14,6 +14,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Set up dependencies which are not handled via bazel
+      run: sudo apt-get install protobuf-compiler
+
     - name: Set up Bazel
       uses: bazelbuild/setup-bazelisk@v2
 
