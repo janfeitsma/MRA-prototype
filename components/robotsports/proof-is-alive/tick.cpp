@@ -7,7 +7,7 @@
 using namespace MRA;
 
 // custom includes, if any
-#define DEBUG
+// #define DEBUG
 
 // -----------------------------------------------------------------------------
 // get shortest angle between two angle [rad]
@@ -61,60 +61,67 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 	{
 		// time out: to long before reaching new state
 #ifdef DEBUG
-	    std::cout << "TIMEOUT -> deactived - too much time between phases (max: " << std::setprecision(2) << max_time_per_phase << " seconds)" << std::endl;
+	    std::cout << "TIMEOUT: FAILED due to too much time between phases (max: " << std::setprecision(2) << max_time_per_phase << " seconds)" << std::endl;
 #endif // DEBUG
         output.set_actionresult(MRA::Datatypes::FAILED);
 	}
+	else if (!ws.robot().active())
+    {
+		// fail when robot is inactive
+		output.set_actionresult(MRA::Datatypes::FAILED);
+    }
+	else
+	{
 
-    output.set_actionresult(MRA::Datatypes::RUNNING);
+	    output.set_actionresult(MRA::Datatypes::RUNNING);
 
-	if (state.phase() == StateType::TO_BE_STARTED) 
-	{
-	    state.set_timestamp_start_phase(timestamp);		
-	    state.mutable_requested_position()->set_x(ws.robot().position().x());
-	    state.mutable_requested_position()->set_y(ws.robot().position().y());
-	    state.mutable_requested_position()->set_rz(ws.robot().position().rz() + rotation_angle_rad);
-		state.set_phase(StateType::TURN_TO_LEFT);
-	}
-	else if (state.phase() == StateType::TURN_TO_LEFT) 
-	{
-		if (min_angle(state.requested_position().rz(), ws.robot().position().rz()) < deg2rad(params.angle_tolerance_deg()))
-		{
-			// Robot is turned to the left
-		    state.set_timestamp_start_phase(timestamp);		
-	    	state.mutable_requested_position()->set_x(ws.robot().position().x());
-	    	state.mutable_requested_position()->set_y(ws.robot().position().y());
-	    	state.mutable_requested_position()->set_rz(ws.robot().position().rz() - 2 * rotation_angle_rad);
-			state.set_phase(StateType::TURN_TO_RIGHT);
-		}
-	}
-	else if (state.phase() == StateType::TURN_TO_RIGHT) 
-	{
-		if (min_angle(state.requested_position().rz(), ws.robot().position().rz()) < deg2rad(params.angle_tolerance_deg()))
+		if (state.phase() == StateType::TO_BE_STARTED)
 		{
 		    state.set_timestamp_start_phase(timestamp);		
-	    	state.mutable_requested_position()->set_x(ws.robot().position().x());
-	    	state.mutable_requested_position()->set_y(ws.robot().position().y());
-	    	state.mutable_requested_position()->set_rz(ws.robot().position().rz() + rotation_angle_rad);
-			state.set_phase(StateType::TURN_TO_MIDDLE);
+		    state.mutable_requested_position()->set_x(ws.robot().position().x());
+		    state.mutable_requested_position()->set_y(ws.robot().position().y());
+		    state.mutable_requested_position()->set_rz(ws.robot().position().rz() + rotation_angle_rad);
+			state.set_phase(StateType::TURN_TO_LEFT);
 		}
-	}
-	else if (state.phase() == StateType::TURN_TO_MIDDLE) 
-	{
-		if (min_angle(state.requested_position().rz(), ws.robot().position().rz()) < deg2rad(params.angle_tolerance_deg()))
+		else if (state.phase() == StateType::TURN_TO_LEFT)
 		{
-		    state.set_timestamp_start_phase(timestamp);		
-	    	state.mutable_requested_position()->set_x(ws.robot().position().x());
-	    	state.mutable_requested_position()->set_y(ws.robot().position().y());
-	    	state.mutable_requested_position()->set_rz(ws.robot().position().rz() + rotation_angle_rad);
-			state.set_phase(StateType::FINISHED);
-        	output.set_actionresult(MRA::Datatypes::PASSED);
+			if (min_angle(state.requested_position().rz(), ws.robot().position().rz()) < deg2rad(params.angle_tolerance_deg()))
+			{
+				// Robot is turned to the left
+			    state.set_timestamp_start_phase(timestamp);
+		    	state.mutable_requested_position()->set_x(ws.robot().position().x());
+		    	state.mutable_requested_position()->set_y(ws.robot().position().y());
+		    	state.mutable_requested_position()->set_rz(ws.robot().position().rz() - 2 * rotation_angle_rad);
+				state.set_phase(StateType::TURN_TO_RIGHT);
+			}
 		}
+		else if (state.phase() == StateType::TURN_TO_RIGHT)
+		{
+			if (min_angle(state.requested_position().rz(), ws.robot().position().rz()) < deg2rad(params.angle_tolerance_deg()))
+			{
+			    state.set_timestamp_start_phase(timestamp);
+		    	state.mutable_requested_position()->set_x(ws.robot().position().x());
+		    	state.mutable_requested_position()->set_y(ws.robot().position().y());
+		    	state.mutable_requested_position()->set_rz(ws.robot().position().rz() + rotation_angle_rad);
+				state.set_phase(StateType::TURN_TO_MIDDLE);
+			}
+		}
+		else if (state.phase() == StateType::TURN_TO_MIDDLE)
+		{
+			if (min_angle(state.requested_position().rz(), ws.robot().position().rz()) < deg2rad(params.angle_tolerance_deg()))
+			{
+			    state.set_timestamp_start_phase(timestamp);
+		    	state.mutable_requested_position()->set_x(ws.robot().position().x());
+		    	state.mutable_requested_position()->set_y(ws.robot().position().y());
+		    	state.mutable_requested_position()->set_rz(ws.robot().position().rz() - rotation_angle_rad);
+				state.set_phase(StateType::FINISHED);
+	        	output.set_actionresult(MRA::Datatypes::PASSED);
+			}
+		}
+	    output.mutable_target()->mutable_position()->set_x(state.requested_position().x());
+	    output.mutable_target()->mutable_position()->set_y(state.requested_position().y());
+	    output.mutable_target()->mutable_position()->set_rz(state.requested_position().rz());
 	}
-    output.mutable_target()->mutable_position()->set_x(state.requested_position().x());
-    output.mutable_target()->mutable_position()->set_y(state.requested_position().y());
-    output.mutable_target()->mutable_position()->set_rz(state.requested_position().rz());
-
 
 #ifdef DEBUG
     std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
