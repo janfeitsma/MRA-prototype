@@ -7,7 +7,7 @@
 using namespace MRA;
 
 // custom includes, if any
-
+#define DEBUG
 
 // -----------------------------------------------------------------------------
 // get shortest angle between two angle [rad]
@@ -26,7 +26,7 @@ static double min_angle(double start_angle, double end_angle)
 // convert angle given in degrees to radians
 static double deg2rad(double angle_in_degrees)
 {
-	return angle_in_degrees * M_PI * 180.0;
+	return angle_in_degrees * (M_PI / 180.0);
 }
 
 // -----------------------------------------------------------------------------
@@ -40,7 +40,14 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
     LocalType        &local        // local/diagnostics data, type generated from Local.proto
 )
 {
-    int error_value = 0;
+#ifdef DEBUG
+    std::cout << "timestamp: " << timestamp << std::endl;
+    std::cout << "input: " << convert_proto_to_json_str(input) << std::endl;
+    std::cout << "params: " << convert_proto_to_json_str(params) << std::endl;
+    std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
+#endif // DEBUG
+
+	int error_value = 0;
     auto const ws = input.worldstate();
 	double rotation_angle_rad = deg2rad(params.angle_in_degrees());
 
@@ -66,7 +73,6 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 	    state.set_timestamp_start_phase(timestamp);		
 	    state.mutable_requested_position()->set_x(ws.robot().position().x());
 	    state.mutable_requested_position()->set_y(ws.robot().position().y());
-
 	    state.mutable_requested_position()->set_rz(ws.robot().position().rz() + rotation_angle_rad);
 		state.set_phase(StateType::TURN_TO_LEFT);
 	}
@@ -105,6 +111,17 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
         	output.set_actionresult(MRA::Datatypes::PASSED);
 		}
 	}
+    output.mutable_target()->mutable_position()->set_x(state.requested_position().x());
+    output.mutable_target()->mutable_position()->set_y(state.requested_position().y());
+    output.mutable_target()->mutable_position()->set_rz(state.requested_position().rz());
+
+
+#ifdef DEBUG
+    std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
+    std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
+    std::cout << "local: " << convert_proto_to_json_str(local) << std::endl;
+    std::cout << "error: " << error_value << std::endl;
+#endif // DEBUG
 
     return error_value;
 }

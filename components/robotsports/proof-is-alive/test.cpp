@@ -10,6 +10,7 @@ using namespace ::testing;
 
 // System under test:
 #include "RobotsportsProofIsAlive.hpp"
+#include <cmath>
 using namespace MRA;
 
 // Basic tick shall run OK and return error_value 0.
@@ -24,6 +25,33 @@ TEST(RobotsportsProofIsAliveTest, basicTick)
     // Assert
     EXPECT_EQ(error_value, 0);
 }
+
+// Basic tick shall run OK and return error_value 0.
+TEST(RobotsportsProofIsAliveTest, turnTest)
+{
+    // Arrange
+    auto m = RobotsportsProofIsAlive::RobotsportsProofIsAlive();
+    auto input = RobotsportsProofIsAlive::Input();
+    auto output = RobotsportsProofIsAlive::Output();
+    auto state = RobotsportsProofIsAlive::State();
+    auto local = RobotsportsProofIsAlive::Local();
+    auto params = m.defaultParams();
+
+    input.mutable_worldstate()->mutable_robot()->set_active(true);
+
+    // Act
+    int error_value = m.tick(0.0, input, params, state, output, local);
+
+
+    // Assert
+    EXPECT_EQ(error_value, 0);
+    EXPECT_EQ(output.actionresult(), MRA::Datatypes::RUNNING);
+    EXPECT_EQ(output.target().position().x(), 0.0);
+    EXPECT_EQ(output.target().position().y(), 0.0);
+    EXPECT_NEAR(output.target().position().rz(), params.angle_in_degrees()*(M_PI/180), 1e-4);
+
+}
+
 
 
 int main(int argc, char **argv)

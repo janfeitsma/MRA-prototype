@@ -8,6 +8,7 @@
 #include "components/robotsports/proof-is-alive/interface/Params.pb.h"
 #include "components/robotsports/proof-is-alive/interface/State.pb.h"
 #include "components/robotsports/proof-is-alive/interface/Output.pb.h"
+#include "components/robotsports/proof-is-alive/interface/Local.pb.h"
 
 
 #endif

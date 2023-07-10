@@ -18,7 +18,7 @@ typedef MRA::RobotsportsProofIsAlive::Input InputType;
 typedef MRA::RobotsportsProofIsAlive::Params ParamsType;
 typedef MRA::RobotsportsProofIsAlive::State StateType;
 typedef MRA::RobotsportsProofIsAlive::Output OutputType;
-typedef google::protobuf::Empty LocalType; // no .proto -> unused
+typedef MRA::RobotsportsProofIsAlive::Local LocalType;
 
 
 class RobotsportsProofIsAlive: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>
