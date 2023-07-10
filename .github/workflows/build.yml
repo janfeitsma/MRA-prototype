@@ -1,0 +1,28 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Bazel
+      uses: bazelbuild/setup-bazel@v3
+
+    - name: Run code generator
+      run: ./MRA-codegen.py
+      # TODO: check that codegen did not modify or add any files
+
+    - name: Build and test with Bazel
+      run: ./MRA-build.py -t
+
+      # TODO: add also cmake build steps here, or as separate action
+
