@@ -7,7 +7,8 @@ cmake_minimum_required(VERSION 3.5.1)
 project(MRA LANGUAGES CXX)
 
 # use C++17 standard, or suffer errors re. using std::filesystem
-set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror")
+set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror -Wno-address -Wno-reorder")
+ # to prevent compiler errors added the not preferred flags: -Wno-address -Wno-reorder
 
 # dependency: ProtoBuf
 find_package(Protobuf REQUIRED)
@@ -25,11 +26,11 @@ FetchContent_MakeAvailable(json)
 
 set(MESSAGE_PROTOS_COMMON
     datatypes/ActionResult.proto
-    datatypes/Pose.proto
     datatypes/Ball.proto
     datatypes/Obstacle.proto
     datatypes/Player.proto
-    datatypes/Target.proto
+    datatypes/Pose.proto
+    datatypes/PosVel.proto
     datatypes/WorldState.proto
 )
 
@@ -78,7 +79,7 @@ add_library(MRA-libraries
     libraries/reflexxes/RMLTypeII/src/TypeIIRML/TypeIIRMLStep2.cpp
     libraries/reflexxes/RMLTypeII/src/TypeIIRML/TypeIIRMLStep2IntermediateProfiles.cpp
 )
-target_include_directories(MRA-datatypes PUBLIC libraries/geometry)
+target_include_directories(MRA-datatypes PUBLIC libraries/geometry libraries/reflexxes/RMLTypeII/include .)
 target_link_libraries(MRA-libraries MRA-datatypes)
 
 
@@ -135,4 +136,5 @@ add_library(MRA-components
 
     components/robotsports/getball-intercept/tick.cpp
 )
+target_include_directories(MRA-components PUBLIC components/falcons/velocity-control/internal/include )
 target_link_libraries(MRA-components MRA-libraries MRA-components-proto MRA-base nlohmann_json::nlohmann_json)

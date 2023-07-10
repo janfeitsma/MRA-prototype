@@ -18,6 +18,20 @@ TEST(RobotsportsGetballInterceptTest, basicTick)
 {
     // Arrange
     auto m = RobotsportsGetballIntercept::RobotsportsGetballIntercept();
+
+    // Act
+    int error_value = m.tick();
+
+    // Assert
+    EXPECT_EQ(error_value, 0);
+}
+
+
+// test simple intercept
+TEST(RobotsportsGetballInterceptTest, simpleIntercept)
+{
+    // Arrange
+    auto m = RobotsportsGetballIntercept::RobotsportsGetballIntercept();
     auto input = RobotsportsGetballIntercept::Input();
     auto output = RobotsportsGetballIntercept::Output();
     auto params = RobotsportsGetballIntercept::Params();
@@ -40,7 +54,7 @@ TEST(RobotsportsGetballInterceptTest, basicTick)
     EXPECT_NEAR(output.target().position().rz(), -M_PI, 1e-2);
 }
 
-// Basic tick shall run OK and return error_value 0.
+// test intercept with interception position too far from robot
 TEST(RobotsportsGetballInterceptTest, intercept_outside_actionradius)
 {
     // Arrange
