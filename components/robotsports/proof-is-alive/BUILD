@@ -7,6 +7,7 @@ cc_library(
         "datatypes.hpp",
     ],
     visibility = ["//visibility:public"],
+    includes = ["."],
     deps = [
         "//components/robotsports/proof-is-alive/interface:interface",
     ],
