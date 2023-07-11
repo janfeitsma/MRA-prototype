@@ -18,7 +18,6 @@ This variant is RobotSport variant of getball-fetch.
 * **outputs**:  See link:./interface/Output.proto[Output.proto] for the exact definition.  
 	** robot target set-point (type posvel in FCS) [to PathPlanning]
 	** actionResult [to Reasoning]
-	** estimated time to get the ball (s), for query/decisioning purpose [to Reasoning]
 
 * *parameters*:  
 The action has some configuration parameters. These parameters are specific for this variant of get ball fetch, 
