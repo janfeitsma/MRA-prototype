@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package MRA.RobotsportsProofIsAlive;
+
+import "google/protobuf/timestamp.proto";
+import "datatypes/Pose.proto";
+
+message State
+{
+    enum ProofIsAlivePhase
+    {
+        TO_BE_STARTED = 0;
+        TURN_TO_LEFT = 1;
+        TURN_TO_RIGHT = 2;
+        TURN_TO_MIDDLE = 3;
+        FINISHED = 4;
+    };
+
+    ProofIsAlivePhase phase = 1;
+    MRA.Datatypes.Pose requested_position = 2;
+    //# google.protobuf.Timestamp timestamp_start_phase = 3;
+    double timestamp_start_phase = 3;
+
+}
+
