@@ -64,6 +64,31 @@ TEST(RobotsportsGetballFetchTest, getStationaryBall)
     EXPECT_EQ(output.target().position().x(), 2.0);
 }
 
+// Move towards stationary ball in positive x and y direction.
+TEST(RobotsportsGetballFetchTest, getStationaryBall_xy)
+{
+    // Arrange
+    auto m = RobotsportsGetballFetch::RobotsportsGetballFetch();
+    auto input = RobotsportsGetballFetch::Input();
+    auto output = RobotsportsGetballFetch::Output();
+    input.mutable_worldstate()->mutable_robot()->set_active(true);
+    input.mutable_worldstate()->mutable_robot()->mutable_position()->set_x(-2.0);
+    input.mutable_worldstate()->mutable_robot()->mutable_position()->set_y(-2.0);
+    input.mutable_worldstate()->mutable_ball()->mutable_position()->set_x(2.0);
+    input.mutable_worldstate()->mutable_ball()->mutable_position()->set_y(0.1);
+
+    // Act
+    int error_value = m.tick(input, output);
+
+    // Assert
+    EXPECT_EQ(error_value, 0);
+    EXPECT_EQ(output.actionresult(), MRA::Datatypes::RUNNING);
+    EXPECT_NEAR(output.target().position().x(), 2.0, 1e-4);
+    EXPECT_NEAR(output.target().position().y(), 0.1, 1e-4);
+    EXPECT_NEAR(output.target().position().rz(), -1.08734, 1e-4);
+}
+
+
 // When robot has the ball, the action PASSED.
 TEST(RobotsportsGetballFetchTest, hasBallPassed)
 {

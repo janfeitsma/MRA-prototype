@@ -27,6 +27,7 @@ link:./interface/DefaultParams.json[DefaultParams.json].
 == Design
 
 Calculate setpoint to fetch the ball. Using the current ball position and extrapolate it by velocity * parameter "vision_delay".
+The calculated setpoint contains a X, Y and Rz. The Rz setpoint rotates the robot facing the ball with the beak.
 
 == History
 
