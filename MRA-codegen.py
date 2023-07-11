@@ -115,6 +115,7 @@ class ComponentGenerator():
 
     def run(self) -> None:
         """Perform all the work for current component."""
+        self.changed = False
         self.make_replace_dict()
         self.handle_interface_bazel_build()
         self.handle_implementation_bazel_build()
@@ -122,9 +123,11 @@ class ComponentGenerator():
         self.handle_header_hpp()
         self.generate_copy_files_unless_existing()
         # TODO: cmake generators?
+        return self.changed
 
     def notify_copy(self, src: str, tgt: str, level: int = 1) -> None:
         """Print an info message about a copy action."""
+        self.changed = True
         # hide full path, only report paths w.r.t. MRA root
         src = str(src).replace(str(MRA_ROOT) + '/', '')
         tgt = str(tgt).replace(str(MRA_ROOT) + '/', '')
@@ -299,12 +302,16 @@ def find_components() -> list:
     return result
 
 
-def main(verbosity: int = DEFAULT_VERBOSE_LEVEL) -> None:
+def main(verbosity: int = DEFAULT_VERBOSE_LEVEL, error_on_change: bool = False) -> None:
     """Perform the work for all detected components."""
     os.chdir(MRA_ROOT)
     components = find_components()
+    num_components_changed = 0
     for cc in components:
-        ComponentGenerator(cc, verbosity).run()
+        num_components_changed += ComponentGenerator(cc, verbosity).run()
+    if error_on_change and num_components_changed:
+        print(f'ERROR: code generator changed {num_components_changed} component' + ['', 's'][num_components_changed>1])
+        sys.exit(1)
 
 
 def parse_args(args: list) -> argparse.Namespace:
@@ -314,6 +321,7 @@ def parse_args(args: list) -> argparse.Namespace:
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
         pass
     parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=CustomFormatter)
+    parser.add_argument('-e', '--error-on-change', help='error if any change is done (used in github action)', action='store_true')
     parser.add_argument('-v', '--verbosity', help='set verbosity level, 0 is entirely quiet, 2 is fully verbose', type=int, default=DEFAULT_VERBOSE_LEVEL)
     return parser.parse_args(args)
 
