@@ -3,17 +3,17 @@
 
 #include <opencv2/core/optim.hpp>
 #include "geometry.hpp"
-
-// generated protobuf types from interface of this component
 #include "datatypes.hpp"
+#include "tracker.hpp"
 
 
 namespace MRA::FalconsLocalizationVision
 {
 
+
 struct FitResult
 {
-    bool success = false;
+    bool valid = false;
     float score = 0.0;
     MRA::Geometry::Pose pose;
     bool operator<(FitResult const &other) { return score < other.score; }
@@ -51,8 +51,8 @@ public:
     FitResult run(
         cv::Mat const &referenceFloor,      // params translated once (at first tick) to reference floor to fit against, white pixels, potentially blurred
         cv::Mat const &rcsLinePoints,       // input pixels translated to a floor that can be compared / fitted
-        MRA::Datatypes::Pose const &guess,  // initial guess for the algorithm, note that the simplex is constructed AROUND it, so somewhere a shift might be needed
-        MRA::Datatypes::Pose const &step);  // initial step: search region
+        MRA::Geometry::Pose const &guess,   // initial guess for the algorithm, note that the simplex is constructed AROUND it, so somewhere a shift might be needed
+        MRA::Geometry::Pose const &step);   // initial step: search region
 
 }; // class FitCore
 
@@ -66,11 +66,10 @@ public:
     SolverParams settings;
     void configure(SolverParams const &config) { settings.CopyFrom(config); _fitCore.configure(config); }
 
-    FitResult run(
+    void run(
         cv::Mat const &referenceFloor,      // params translated once (at first tick) to reference floor to fit against, white pixels, potentially blurred
         cv::Mat const &rcsLinePoints,       // input pixels translated to a floor that can be compared / fitted
-        MRA::Datatypes::Pose const &inputGuess,  // initial guess for the algorithm, note that the simplex is constructed AROUND it, so somewhere a shift might be needed
-        std::vector<MRA::Datatypes::Circle> const &extraGuesses); // extra guesses (with range) if so configured
+        std::vector<Tracker> &trackers);    // list of trackers/attempts to run, multithreaded if so configured
 
 private:
     FitCore _fitCore;

@@ -105,6 +105,15 @@ cv::Mat Solver::createReferenceFloorMat(float blurFactor) const
     return result;
 }
 
+void Solver::updateReferenceFloorMat()
+{
+    if (!_state.has_referencefloor())
+    {
+        // store result as protobuf CvMatProto object for next iteration (via state)
+        MRA::OpenCVUtils::serializeCvMat(_referenceFloorMat, *_state.mutable_referencefloor());
+    }
+}
+
 cv::Mat Solver::createLinePointsMat(float overruleRadius) const
 {
     // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
@@ -114,12 +123,67 @@ cv::Mat Solver::createLinePointsMat(float overruleRadius) const
     return result;
 }
 
-std::vector<MRA::Datatypes::Circle> Solver::createExtraGuesses() const
+std::vector<Tracker> Solver::createTrackers() const
 {
-    std::vector<MRA::Geometry::Point> pointsToAvoid; // = _trackers.xyList()
+    std::vector<Tracker> result;
+
+    // load from state
+    for (auto const &st: _state.trackers())
+    {
+        result.push_back(Tracker(_params, st));
+    }
+
+    // state trackers are sorted by descending quality, so the first tracker is expected to be the best one
+    // given input guess is intended to finetune, taking action radius into account
+    // offset the input guess to ensure that it is included,
+    // since by default the generated simplex would not hit it
+    //     if the step is configured to be (sx,sy,srz) and initial guess is zero
+    //     then the initial simplex evaluates at the following simplex:
+    //         (-0.5*sx, -0.5*sy, -0.5*srz)
+    //         ( 0.5*sx,       0,        0)
+    //         (      0,  0.5*sy,        0)
+    //         (      0,       0,  0.5*srz)
+    if (result.size() == 0)
+    {
+        result.push_back(Tracker(_params, TrackerState()));
+    }
+    Tracker &tracker = result.at(0);
+    tracker.guess = _input.guess();
+    tracker.guess.rz -= 0.5 * tracker.step.rz;
+
+    // run the guesser to add more attempts/trackers
     Guesser g(_params);
     bool initial = (_state.tick() == 0);
-    return g.run(pointsToAvoid, initial);
+    g.run(result, initial);
+
+    return result;
+}
+
+void Solver::runFitUpdateTrackers()
+{
+    // run the fit algorithm (multithreaded, one per tracker) and update trackers
+    _fitAlgorithm.run(_referenceFloorMat, _linePointsMat, _trackers);
+
+    // set _fitResult
+    _fitResult.valid = false;
+    if (_trackers.size())
+    {
+        auto tr = _trackers.at(0);
+        _fitResult.valid = tr.fitValid;
+        _fitResult.pose = tr.fitResult;
+        _fitResult.score = tr.fitScore;
+        if (_fitResult.valid)
+        {
+            Candidate c;
+            c.mutable_pose()->CopyFrom((MRA::Datatypes::Pose)_fitResult.pose);
+            c.set_confidence(_fitResult.score);
+            *_output.add_candidates() = c;
+        }
+    }
+}
+
+void Solver::cleanupBadTrackers()
+{
 }
 
 // TODO move to opencv_utils?
@@ -176,6 +240,11 @@ cv::Mat Solver::createDiagnosticsMat() const
     return result;
 }
 
+void Solver::dumpDiagnosticsMat()
+{
+    MRA::OpenCVUtils::serializeCvMat(createDiagnosticsMat(), *_diag.mutable_floor());
+}
+
 int Solver::run()
 {
     // try to keep the design as simple as possible: minimize state, trackers over time (that is for worldModel to handle)
@@ -187,40 +256,26 @@ int Solver::run()
 
     // create or get the cached reference floor
     _referenceFloorMat = createReferenceFloorMat(_params.solver().blurfactor());
-    if (!_state.has_referencefloor())
-    {
-        // store result as protobuf CvMatProto object for next iteration (via state)
-        MRA::OpenCVUtils::serializeCvMat(_referenceFloorMat, *_state.mutable_referencefloor());
-    }
+    updateReferenceFloorMat();
 
     // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
+    // TODO: factor out LinePoints object with operations (the mat transform implementation seems too slow)
     _linePointsMat = createLinePointsMat();
 
-    // setup guesses
-    std::vector<MRA::Datatypes::Circle> const &extraGuesses = createExtraGuesses();
+    // setup trackers: existing from state and new from guessing configuration
+    _trackers = createTrackers();
 
-    // run the algorithm
-    _fitResult = _fitAlgorithm.run(_referenceFloorMat, _linePointsMat, _input.guess(), extraGuesses);
+    // run the fit algorithm (multithreaded), update trackers, update _fitResult
+    runFitUpdateTrackers();
 
     // optional dump of diagnostics data for plotting
-    if (_params.debug())
-    {
-        MRA::OpenCVUtils::serializeCvMat(createDiagnosticsMat(), *_diag.mutable_floor());
-    }
+    dumpDiagnosticsMat();
 
     // prepare for next tick
     _state.set_tick(1 + _state.tick());
 
-    // process fit result
-    if (_fitResult.success)
-    {
-        Candidate c;
-        c.mutable_pose()->CopyFrom((MRA::Datatypes::Pose)_fitResult.pose);
-        c.set_confidence(_fitResult.score);
-        *_output.add_candidates() = c;
-        return 0;
-    }
-    return 1;
+    // set best fit result as output, or return error code
+    return 0;
 }
 
 Output const &Solver::getOutput() const

@@ -31,8 +31,19 @@ std::optional<MRA::Datatypes::Point> Guesser::createRandomGuess(std::vector<MRA:
     return result;
 }
 
-std::vector<MRA::Datatypes::Circle> Guesser::run(std::vector<MRA::Geometry::Point> pointsToAvoid, bool initial) const
+void Guesser::run(std::vector<Tracker> &trackers, bool initial) const
 {
+/*
+
+    // if so configured, add new fit attempts (as trackers)
+    // so that the fit algorithm can run them all
+
+    std::vector<MRA::Geometry::Point> pointsToAvoid;
+    for (auto const &tr: trackers)
+    {
+        pointsToAvoid.push_back(tr.xy());
+    }
+
     // note: pointsToAvoid is a vector copy that might be growing
     auto gvec = _config.structural();
     std::vector<MRA::Datatypes::Circle> result(gvec.begin(), gvec.end());
@@ -65,6 +76,6 @@ std::vector<MRA::Datatypes::Circle> Guesser::run(std::vector<MRA::Geometry::Poin
             pointsToAvoid.push_back(*pt);
         }
     }
-    return result;
+*/
 }
 

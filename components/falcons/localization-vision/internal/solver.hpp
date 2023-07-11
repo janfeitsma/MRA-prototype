@@ -4,6 +4,7 @@
 #include "datatypes.hpp"
 #include "floor.hpp"
 #include "fit.hpp"
+#include "tracker.hpp"
 
 namespace MRA::FalconsLocalizationVision
 {
@@ -45,16 +46,23 @@ private:
     // reference floor: calculate once, based on letter model and optional extra shapes
     cv::Mat _referenceFloorMat;
     cv::Mat createReferenceFloorMat(float blurFactor = 0.0) const;
+    void updateReferenceFloorMat();
 
     // input linepoints mat: calculate each tick, based on input landmarks / linepoints
     cv::Mat _linePointsMat;
     cv::Mat createLinePointsMat(float overruleRadius = 0.0) const;
 
-    // control the guessing procedure
-    std::vector<MRA::Datatypes::Circle> createExtraGuesses() const;
+    // setup trackers: existing ones from state and new ones from guessing configuration
+    std::vector<Tracker> _trackers;
+    std::vector<Tracker> createTrackers() const;
+
+    // run the fit algorithm (multithreaded) and update trackers
+    void runFitUpdateTrackers();
+    void cleanupBadTrackers();
 
     // optional debug data export
     cv::Mat createDiagnosticsMat() const;
+    void dumpDiagnosticsMat();
 
 }; // class Solver
 

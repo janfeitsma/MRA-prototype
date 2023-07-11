@@ -2,7 +2,7 @@
 #define _MRA_FALCONS_LOCALIZATION_VISION_GUESSING_HPP
 
 #include "datatypes.hpp"
-#include "geometry.hpp"
+#include "tracker.hpp"
 
 namespace MRA::FalconsLocalizationVision
 {
@@ -13,7 +13,7 @@ public:
     Guesser(Params const &params);
     ~Guesser() {};
 
-    std::vector<MRA::Datatypes::Circle> run(std::vector<MRA::Geometry::Point> pointsToAvoid, bool initial = true) const;
+    void run(std::vector<Tracker> &trackers, bool initial = true) const;
 
 private:
     GuessingParams _config;

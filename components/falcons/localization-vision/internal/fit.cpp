@@ -6,42 +6,24 @@
 using namespace MRA::FalconsLocalizationVision;
 
 
-FitResult FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &inputGuess, std::vector<MRA::Datatypes::Circle> const &extraGuesses)
+void FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, std::vector<Tracker> &trackers)
 {
-    std::vector<FitResult> results;
+    // TODO: multithreading
 
-    // offset the input guess to ensure that it is included,
-    // since by default the generate simplex would not hit it
-    //     if the step is configured to be (sx,sy,srz) and initial guess is zero
-    //     then the initial simplex evaluates at the following simplex:
-    //         (-0.5*sx, -0.5*sy, -0.5*srz)
-    //         ( 0.5*sx,       0,        0)
-    //         (      0,  0.5*sy,        0)
-    //         (      0,       0,  0.5*srz)
-
-    MRA::Datatypes::Pose step = settings.actionradius();
-    MRA::Datatypes::Pose g = inputGuess;
-    g.set_rz(-0.5 * step.rz() + g.rz());
-    results.push_back(_fitCore.run(referenceFloor, rcsLinePoints, g, step));
-
-    // if so configured, run more fit attempts
-    for (auto const &gp: extraGuesses)
+    // run all fit attempts
+    for (auto &tr: trackers)
     {
-        g.set_x(gp.center().x());
-        g.set_y(gp.center().y());
-        g.set_rz(0.0);
-        step.set_x(gp.radius());
-        step.set_y(gp.radius());
-        step.set_rz(2 * M_PI);
-        results.push_back(_fitCore.run(referenceFloor, rcsLinePoints, g, step));
+        FitResult fr = _fitCore.run(referenceFloor, rcsLinePoints, tr.guess, tr.step);
+        tr.fitResult = fr.pose;
+        tr.fitValid = fr.valid;
+        tr.fitScore = fr.score;
     }
 
-    // sort results on decreasing quality
-    std::sort(results.begin(), results.end());
-    return results.at(0);
+    // sort trackers on decreasing quality
+    std::sort(trackers.begin(), trackers.end());
 }
 
-FitResult FitCore::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Datatypes::Pose const &guess, MRA::Datatypes::Pose const &step)
+FitResult FitCore::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Geometry::Pose const &guess, MRA::Geometry::Pose const &step)
 {
     FitResult result;
 
@@ -51,7 +33,7 @@ FitResult FitCore::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoin
     // configure solver
     cv::Ptr<FitFunction> f = new FitFunction(referenceFloor, rcsLinePoints, settings.pixelspermeter());
     cvSolver->setFunction(f);
-    cv::Mat stepVec = (cv::Mat_<double>(3, 1) << step.x(), step.y(), step.rz());
+    cv::Mat stepVec = (cv::Mat_<double>(3, 1) << step.x, step.y, step.rz);
     cvSolver->setInitStep(stepVec);
 	cv::TermCriteria criteria = cvSolver->getTermCriteria();
 	criteria.maxCount = settings.maxcount();
@@ -59,13 +41,13 @@ FitResult FitCore::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoin
 	cvSolver->setTermCriteria(criteria);
 
     // set initial guess
-    cv::Mat vec = (cv::Mat_<double>(1, 3) << guess.x(), guess.y(), guess.rz());
+    cv::Mat vec = (cv::Mat_<double>(1, 3) << guess.x, guess.y, guess.rz);
 
     // run solver, result will be in 'vec'
     result.score = cvSolver->minimize(vec);
 
     // store result
-    result.success = true;
+    result.valid = true; // TODO score threshold
     result.pose.x = (vec.at<double>(0, 0));
     result.pose.y = (vec.at<double>(0, 1));
     result.pose.rz = (vec.at<double>(0, 2));

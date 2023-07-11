@@ -6,12 +6,14 @@ cc_library(
         "floor.cpp",
         "guessing.cpp",
         "solver.cpp",
+        "tracker.cpp",
     ],
     hdrs = [
         "fit.hpp",
         "floor.hpp",
         "guessing.hpp",
         "solver.hpp",
+        "tracker.hpp",
     ],
     includes = [
         ".",
