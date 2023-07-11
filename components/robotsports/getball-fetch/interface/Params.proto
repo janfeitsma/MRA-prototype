@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package MRA.RobotsportsGetballFetch;
+
+message Params
+{
+    float vision_delay = 1; //  [s] vision delay, physical delay between capture and availability of an image  
+}
+

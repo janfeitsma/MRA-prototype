@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package MRA.RobotsportsGetballFetch;
+
+import "datatypes/WorldState.proto";
+
+message Input
+{
+    MRA.Datatypes.WorldState worldstate = 1;
+}
+

@@ -1,0 +1,35 @@
+= GetBallFetch Robotsports Variant
+
+== Summary
+
+GetBallFetch is an action that direct the robot to the ball till it is in the beak of the robot.
+
+== Scope and context
+
+This action implements the sub-action getball-fetch (get a stationary ball) of the getball action.
+This variant is RobotSport variant of getball-fetch.
+
+== Interface details
+
+* **purpose**: get the ball
+* **inputs**: See link:./interface/Input.proto[Input.proto] for the exact definition.
+	** WorldState  
+
+* **outputs**:  See link:./interface/Output.proto[Output.proto] for the exact definition.  
+	** robot target set-point (type posvel in FCS) [to PathPlanning]
+	** actionResult [to Reasoning]
+
+* *parameters*:  
+The action has some configuration parameters. These parameters are specific for this variant of get ball fetch, 
+see link:./interface/Params.proto[Params.proto] and 
+link:./interface/DefaultParams.json[DefaultParams.json].
+
+== Design
+
+Calculate setpoint to fetch the ball. Using the current ball position and extrapolate it by velocity * parameter "vision_delay".
+The calculated setpoint contains a X, Y and Rz. The Rz setpoint rotates the robot facing the ball with the beak.
+
+== History
+
+Original code from Robotsports. Slightly re-factored for MRA.
+ 
