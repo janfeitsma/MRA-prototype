@@ -35,6 +35,10 @@ private:
     int _numPixelsX;
     int _numPixelsY;
 
+    // blur helpers
+    void applyBlur(cv::Mat &image, int np) const;
+    cv::Mat blurFloor(cv::Mat &imageIn, float blurValue) const;
+
 }; // class Floor
 
 } // namespace MRA::FalconsLocalizationVision
