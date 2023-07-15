@@ -5,8 +5,7 @@
 
 int main(int argc, char **argv)
 {
-    MRA::FalconsLocalizationVision::Params p;
-    //MRA::FalconsLocalizationVision::Params p = MRA::FalconsLocalizationVision::defaultParams();
+    MRA::FalconsLocalizationVision::Params p = MRA::FalconsLocalizationVision::defaultParams();
     // TODO: option to call loadParams(filename)?
 
     // setup tuning tool

@@ -9,7 +9,7 @@
 
 #define IMAGE_WINDOW_NAME "Image"
 #define SLIDER_WINDOW_NAME "Tuning sliders"
-#define TRACKBAR_HEIGHT 20
+#define MAX_NUM_SLIDERS 10
 #define FREQUENCY 10.0
 
 
@@ -20,7 +20,8 @@ void TuningTool::run()
     cv::namedWindow(IMAGE_WINDOW_NAME, cv::WINDOW_NORMAL);
     cv::namedWindow(SLIDER_WINDOW_NAME, cv::WINDOW_NORMAL);
     cv::resizeWindow(SLIDER_WINDOW_NAME, 700, 200);
-    createSlidersForFields(protobufMessage);
+    int n = createSlidersForFields(protobufMessage);
+    std::cout << "Number of sliders: " << n << std::endl;
     while (true)
     {
         cv::Mat image = generateImage();
@@ -30,7 +31,6 @@ void TuningTool::run()
         if (key == 'q')
             break;
     }
-
     cv::destroyAllWindows();
 }
 
@@ -39,19 +39,19 @@ void TuningTool::onSliderChange(int value, void* userData)
     std::pair<TuningTool*, std::string>* data = static_cast<std::pair<TuningTool*, std::string>*>(userData);
     TuningTool* tuningTool = data->first;
     std::string sliderName = data->second;
-
     tuningTool->sliderValues[sliderName] = value;
 }
 
-void TuningTool::createSlidersForFields(const google::protobuf::Message& message, const std::string& prefix)
+int TuningTool::createSlidersForFields(const google::protobuf::Message& message, const std::string& prefix)
 {
+    int result = 0;
     const google::protobuf::Descriptor* descriptor = message.GetDescriptor();
     const google::protobuf::Reflection* reflection = message.GetReflection();
 
     if (descriptor->options().map_entry())
     {
         std::cerr << "Warning: Skipping map entry field \"" << descriptor->name() << "\"." << std::endl;
-        return;
+        return result;
     }
 
     for (int i = 0; i < descriptor->field_count(); i++)
@@ -70,18 +70,34 @@ void TuningTool::createSlidersForFields(const google::protobuf::Message& message
             field->type() == google::protobuf::FieldDescriptor::TYPE_INT32 ||
             field->type() == google::protobuf::FieldDescriptor::TYPE_INT64)
         {
-            int defaultValue = 0;
-            if (reflection->HasField(message, field))
-                defaultValue = reflection->GetInt32(message, field);
-
             cv::createTrackbar(fieldName, SLIDER_WINDOW_NAME, &sliderValues[fieldName], 100, onSliderChange, new std::pair<TuningTool*, std::string>(this, fieldName));
+            result++;
 
             // Set the minimum and maximum values for the slider (modify as per your protobuf options)
             // TODO, maybe range hints, would be cool if these could be generated from Params.proto?
             cv::setTrackbarMin(fieldName, SLIDER_WINDOW_NAME, 0);
             cv::setTrackbarMax(fieldName, SLIDER_WINDOW_NAME, 100);
 
-            cv::setTrackbarPos(fieldName, SLIDER_WINDOW_NAME, defaultValue);
+            // Set default value
+            if (reflection->HasField(message, field))
+            {
+                if (field->type() == google::protobuf::FieldDescriptor::TYPE_FLOAT)
+                {
+                    cv::setTrackbarPos(fieldName, SLIDER_WINDOW_NAME, reflection->GetFloat(message, field));
+                }
+                else if (field->type() == google::protobuf::FieldDescriptor::TYPE_DOUBLE)
+                {
+                    cv::setTrackbarPos(fieldName, SLIDER_WINDOW_NAME, reflection->GetDouble(message, field));
+                }
+                else if (field->type() == google::protobuf::FieldDescriptor::TYPE_INT32)
+                {
+                    cv::setTrackbarPos(fieldName, SLIDER_WINDOW_NAME, reflection->GetInt32(message, field));
+                }
+                else if (field->type() == google::protobuf::FieldDescriptor::TYPE_INT64)
+                {
+                    cv::setTrackbarPos(fieldName, SLIDER_WINDOW_NAME, reflection->GetInt64(message, field));
+                }
+            }
 
             // not supported in opencv4
             //cv::setTrackbarHeight(fieldName, SLIDER_WINDOW_NAME, TRACKBAR_HEIGHT);
@@ -94,6 +110,7 @@ void TuningTool::createSlidersForFields(const google::protobuf::Message& message
                 defaultValue = reflection->GetBool(message, field);
 
             cv::createTrackbar(fieldName, SLIDER_WINDOW_NAME, &sliderValues[fieldName], 1, onSliderChange, new std::pair<TuningTool*, std::string>(this, fieldName));
+            result++;
             cv::setTrackbarPos(fieldName, SLIDER_WINDOW_NAME, defaultValue ? 1 : 0);
 
             // not supported in opencv4
@@ -103,9 +120,10 @@ void TuningTool::createSlidersForFields(const google::protobuf::Message& message
         else if (field->type() == google::protobuf::FieldDescriptor::TYPE_MESSAGE)
         {
             const google::protobuf::Message& nestedMessage = reflection->GetMessage(message, field);
-            createSlidersForFields(nestedMessage, fieldName + ".");
+            result += createSlidersForFields(nestedMessage, fieldName + ".");
         }
     }
+    return result;
 }
 
 // below is temporary mock-up, to be moved outside and connected with algorithm

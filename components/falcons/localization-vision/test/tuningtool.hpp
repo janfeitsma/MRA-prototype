@@ -14,7 +14,7 @@ public:
 private:
     static void onSliderChange(int value, void* userData);
 
-    void createSlidersForFields(const google::protobuf::Message& message, const std::string& prefix = "");
+    int createSlidersForFields(const google::protobuf::Message& message, const std::string& prefix = "");
 
     cv::Mat generateImage();
 
