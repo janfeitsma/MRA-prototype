@@ -33,7 +33,7 @@ cc_library(
 )
 
 cc_test(
-    name = "test",
+    name = "testsuite",
     srcs = [
         "test.cpp",
     ],
