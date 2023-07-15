@@ -11,15 +11,14 @@ public:
 
     void run();
 
+    void setValue(const std::string& key, int value); // int because of opencv slider design
+
+    std::unordered_map<std::string, int> sliderValues; // TODO should be private?
+
 private:
-    static void onSliderChange(int value, void* userData);
-
-    int createSlidersForFields(const google::protobuf::Message& message, const std::string& prefix = "");
-
-    cv::Mat generateImage();
+    cv::Mat generateImage(); // TODO make externally configurable
 
     const google::protobuf::Message& protobufMessage;
-    std::unordered_map<std::string, int> sliderValues;
 };
 
 #endif  // TUNINGTOOL_HPP
