@@ -3,6 +3,7 @@
 
 // generated component header:
 #include "RobotsportsProofIsAlive.hpp"
+#include "logging.hpp" // TODO: automate, perhaps via generated hpp
 
 using namespace MRA;
 
@@ -48,6 +49,8 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 #endif // DEBUG
 
 	int error_value = 0;
+	MRA::Logging::LogTick scoped(timestamp, input, params, &state, &ouput, &local, &error_value);
+
     auto const ws = input.worldstate();
 	double rotation_angle_rad = deg2rad(params.angle_in_degrees());
 
