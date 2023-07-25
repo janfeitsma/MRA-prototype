@@ -2,11 +2,17 @@
 #define _MRA_LIBRARIES_LOGGING_HPP
 
 #include "abstract_interface.hpp"
+#include <string>
+#include <ostream>
+#include <fstream>
+#include <sstream>
+#include <google/protobuf/util/time_util.h>
 
 namespace MRA::Logging
 {
 
-typedef google::protobuf::Timestamp Tt;
+typedef google::protobuf::Timestamp Gt;
+typedef double Tt;
 
 // template for use in scoped tick logging
 // see also logger ideas and requirements in https://github.com/janfeitsma/MRA-prototype/issues/10
@@ -20,7 +26,7 @@ public:
     :
         // store data for inspection later
         _t(timestamp),
-        _t0(GetCurrentTime()),
+        _t0(google::protobuf::util::TimeUtil::GetCurrentTime()),
         _input(input),
         _params(params),
         _state(state),
@@ -63,7 +69,7 @@ public:
 
     void endStdout()
     {
-        double duration = 1e-6 * google::protobuf::util::TimeUtil::DurationToMicroseconds(GetCurrentTime() - _t0);
+        double duration = 1e-6 * google::protobuf::util::TimeUtil::DurationToMicroseconds(google::protobuf::util::TimeUtil::GetCurrentTime() - _t0);
         std::cout << "tick " << _counter << " END, error_value=" << *_err << std::endl;
         std::cout << "   duration: " << duration << std::endl;
         std::cout << "   output: " << convert_proto_to_json_str(*_output) << std::endl;
@@ -107,7 +113,7 @@ public:
 
 private:
     // store data for logging at destruction (when tick ends, the logged object goes out of scope)
-    Tt         _t0;
+    Gt         _t0;
     Tt         _t;
     Ti const  &_input;
     Tp const  &_params;

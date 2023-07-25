@@ -3,6 +3,7 @@
 
 // generated component header:
 #include "RobotsportsProofIsAlive.hpp"
+
 #include "logging.hpp" // TODO: automate, perhaps via generated hpp
 
 using namespace MRA;
@@ -49,7 +50,7 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 #endif // DEBUG
 
 	int error_value = 0;
-	MRA::Logging::LogTick scoped(timestamp, input, params, &state, &ouput, &local, &error_value);
+	MRA::Logging::LogTick scoped(timestamp, input, params, &state, &output, &local, &error_value);
 
     auto const ws = input.worldstate();
 	double rotation_angle_rad = deg2rad(params.angle_in_degrees());
@@ -126,12 +127,12 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 	    output.mutable_target()->mutable_position()->set_rz(state.requested_position().rz());
 	}
 
-#ifdef DEBUG
-    std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
-    std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
-    std::cout << "local: " << convert_proto_to_json_str(local) << std::endl;
-    std::cout << "error: " << error_value << std::endl;
-#endif // DEBUG
+//#ifdef DEBUG
+//    std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
+//    std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
+//    std::cout << "local: " << convert_proto_to_json_str(local) << std::endl;
+//    std::cout << "error: " << error_value << std::endl;
+//#endif // DEBUG
 
     return error_value;
 }
