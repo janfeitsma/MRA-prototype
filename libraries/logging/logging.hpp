@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <google/protobuf/util/time_util.h>
+#include "MRA_logger.hpp"
 
 namespace MRA::Logging
 {
@@ -47,11 +48,11 @@ public:
 
     void startStdout()
     {
-        std::cout << "tick " << _counter << " START" << std::endl;
-        std::cout << "   timestamp: " << _t << std::endl;
-        std::cout << "   input: " << convert_proto_to_json_str(_input) << std::endl;
-        std::cout << "   params: " << convert_proto_to_json_str(_params) << std::endl;
-        //std::cout << "   state: " << convert_proto_to_json_str(*_state) << std::endl;
+    	MraLogger::getInstance()->logStart(_t,
+    			_counter,
+				convert_proto_to_json_str(_input),
+				convert_proto_to_json_str(_params),
+				convert_proto_to_json_str(*_state));
     }
 
     ~LogTick()
@@ -70,10 +71,7 @@ public:
     void endStdout()
     {
         double duration = 1e-6 * google::protobuf::util::TimeUtil::DurationToMicroseconds(google::protobuf::util::TimeUtil::GetCurrentTime() - _t0);
-        std::cout << "tick " << _counter << " END, error_value=" << *_err << std::endl;
-        std::cout << "   duration: " << duration << std::endl;
-        std::cout << "   output: " << convert_proto_to_json_str(*_output) << std::endl;
-        //std::cout << "   state: " << convert_proto_to_json_str(*_state) << std::endl;
+    	MraLogger::getInstance()->logEnd(_counter, _err, duration, convert_proto_to_json_str(*_output), convert_proto_to_json_str(*_state));
         //std::cout << "   local: " << convert_proto_to_json_str(*_local) << std::endl;
     }
 
