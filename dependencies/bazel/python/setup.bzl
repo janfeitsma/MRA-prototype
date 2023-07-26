@@ -3,7 +3,7 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # TODO(blais): It would be real nice if this was available externally.
-load("//third_party/python:python_configure.bzl", "python_configure")
+load("//dependencies/bazel/python:python_configure.bzl", "python_configure")
 
 
 def setup_python():
@@ -110,6 +110,6 @@ def setup_python():
             name = "python_magic",
             url = "https://github.com/ahupp/python-magic/archive/0.4.18.zip",
             sha256 = "ed8b7ae88548bb1bfec5be448d4a515f7fe267bc50d184aa9f1da1734d70aee9",
-            build_file = "//third_party/python:python_magic.BUILD",
+            build_file = "//dependencies/bazel/python:python_magic.BUILD",
             strip_prefix = "python-magic-0.4.18",
         )
