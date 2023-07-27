@@ -15,6 +15,7 @@ cc_library(
     includes = ["."],
     deps = [
         "@pybind11",
+        "//components/falcons/localization-vision:implementation",
     ],        
 )
 
