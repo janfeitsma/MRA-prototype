@@ -8,6 +8,8 @@
 #include <sstream>
 #include <google/protobuf/util/time_util.h>
 #include "MRA_logger.hpp"
+#include <string>
+#include <stdarg.h>
 
 namespace MRA::Logging
 {
@@ -23,6 +25,15 @@ template <typename Ti, typename Tp, typename Ts, typename To, typename Tl>
 class LogTick
 {
 public:
+	enum LogLevel {
+		CRITICAL,
+		ERROR,
+		WARNING,
+		INFO,
+		DEBUG,
+		TRACE
+	};
+
     LogTick(Tt const &timestamp, Ti const &input, Tp const &params, Ts *state, To *output, Tl *local, int *error_value)
     :
         // store data for inspection later
@@ -53,6 +64,25 @@ public:
 				convert_proto_to_json_str(_input),
 				convert_proto_to_json_str(_params),
 				convert_proto_to_json_str(*_state));
+    }
+
+    void log(LogTick::LogLevel loglevel, const char *fmt,...)
+    // Log data as LogLevel
+    {
+    	va_list argptr;
+   		va_start(argptr, fmt);
+
+   	   	MraLogger::getInstance()->log(static_cast<MraLogger::LogLevel>(loglevel), fmt, argptr);
+   		va_end(argptr);
+    }
+
+    void log(const char *fmt,...)
+    // Log data as LogLevel::INFO
+    {
+    	va_list argptr;
+   		va_start(argptr, fmt);
+   	   	this->log(LogTick::INFO, fmt, argptr);
+   		va_end(argptr);
     }
 
     ~LogTick()

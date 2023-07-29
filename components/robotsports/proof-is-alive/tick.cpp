@@ -42,13 +42,6 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
     LocalType        &local        // local/diagnostics data, type generated from Local.proto
 )
 {
-#ifdef DEBUG
-    std::cout << "timestamp: " << timestamp << std::endl;
-    std::cout << "input: " << convert_proto_to_json_str(input) << std::endl;
-    std::cout << "params: " << convert_proto_to_json_str(params) << std::endl;
-    std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
-#endif // DEBUG
-
 	int error_value = 0;
 	MRA::Logging::LogTick scoped(timestamp, input, params, &state, &output, &local, &error_value);
 
@@ -63,10 +56,7 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 	double max_time_per_phase = params.max_time_per_phase();
 	if (timestamp - state.timestamp_start_phase() > max_time_per_phase)
 	{
-		// time out: to long before reaching new state
-#ifdef DEBUG
-	    std::cout << "TIMEOUT: FAILED due to too much time between phases (max: " << std::setprecision(2) << max_time_per_phase << " seconds)" << std::endl;
-#endif // DEBUG
+		scoped.log(0, "TIMEOUT: FAILED due to too much time between phases (max: %4.2f seconds)", max_time_per_phase);
         output.set_actionresult(MRA::Datatypes::FAILED);
 	}
 	else if (!ws.robot().active())
@@ -127,13 +117,6 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 	    output.mutable_target()->mutable_position()->set_rz(state.requested_position().rz());
 	}
 
-//#ifdef DEBUG
-//    std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
-//    std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
-//    std::cout << "local: " << convert_proto_to_json_str(local) << std::endl;
-//    std::cout << "error: " << error_value << std::endl;
-//#endif // DEBUG
-
-    return error_value;
+	return error_value;
 }
 
