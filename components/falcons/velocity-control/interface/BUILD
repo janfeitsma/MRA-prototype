@@ -28,3 +28,15 @@ cc_library(
         ":interface_cc_proto",
     ],
 )
+
+load("@com_google_protobuf//:protobuf.bzl", "py_proto_library")
+
+py_proto_library(
+    name = "interface_py_proto",
+    srcs = glob(["*.proto"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//datatypes:MRA_proto_py",
+    ],
+)
+

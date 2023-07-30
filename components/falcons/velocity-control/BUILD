@@ -52,5 +52,8 @@ py_test(
         "test/demo_protobuf.py",
     ],
     main = "test/demo_protobuf.py",
+    deps = [
+        "//components/falcons/velocity-control/interface:interface_py_proto",
+    ],
 )
 
