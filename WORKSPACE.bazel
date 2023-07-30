@@ -9,6 +9,9 @@ http_archive(
     strip_prefix = "protobuf-3.19.4",
     urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.19.4.zip"],
     # note: on Ubuntu20, opencv DNN libraries depend on an older conflicting protobuf version
+    # note: py_proto_library might spam warnings:
+    #    "com_google_protobuf/python: warning: directory does not exist"
+    #    -> require a fix from 22Q1 - https://github.com/protocolbuffers/protobuf/issues/6049
 )
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
