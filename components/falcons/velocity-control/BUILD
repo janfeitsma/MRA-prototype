@@ -45,3 +45,12 @@ cc_test(
     ],
 )
 
+py_test(
+    name = "python_protobuf",
+    size = "small",
+    srcs = [
+        "test/demo_protobuf.py",
+    ],
+    main = "test/demo_protobuf.py",
+)
+
