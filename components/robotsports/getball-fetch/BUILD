@@ -7,6 +7,7 @@ cc_library(
         "datatypes.hpp",
     ],
     visibility = ["//visibility:public"],
+    includes = ["."],
     deps = [
         "//components/robotsports/getball-fetch/interface:interface",
     ],
@@ -30,7 +31,7 @@ cc_library(
 )
 
 cc_test(
-    name = "test",
+    name = "testsuite",
     srcs = [
         "test.cpp",
     ],
