@@ -105,7 +105,7 @@ def resolve_scope(iscope : str) -> list:
     for s in iscope.split(','):
         candidates = [c for c in components if c.endswith(s)]
         if len(candidates) == 1:
-            result.add(candidates[0] + ':all')
+            result.add(candidates[0] + '/...')
         else:
             raise Exception(f'failed to resolve component for "{s}", candidates: ' + str(candidates))
     return list(result)
