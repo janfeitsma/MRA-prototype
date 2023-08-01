@@ -40,7 +40,7 @@ public:
     // make default configuration easily accessible
     ParamsType defaultParams() const
     {
-        return MRA::LoadDefaultParams<ParamsType>("components/falcons/velocity-control/interface/DefaultParams.json");
+        return MRA::LoadDefaultParams<ParamsType>("components/falcons/velocity_control/interface/DefaultParams.json");
     };
 
     // allow omitting arguments, useful for testing and code brevity

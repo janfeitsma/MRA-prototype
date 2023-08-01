@@ -8,11 +8,11 @@ typedef MRA::Geometry::Velocity Velocity2D;
 typedef MRA::Geometry::Pose pose;
 
 // VelocityControlData is now basically a collection of protobuf datatypes
-#include "components/falcons/velocity-control/interface/Input.pb.h"
-#include "components/falcons/velocity-control/interface/Params.pb.h"
-#include "components/falcons/velocity-control/interface/Output.pb.h"
-#include "components/falcons/velocity-control/interface/State.pb.h"
-#include "components/falcons/velocity-control/interface/Local.pb.h"
+#include "components/falcons/velocity_control/interface/Input.pb.h"
+#include "components/falcons/velocity_control/interface/Params.pb.h"
+#include "components/falcons/velocity_control/interface/Output.pb.h"
+#include "components/falcons/velocity_control/interface/State.pb.h"
+#include "components/falcons/velocity_control/interface/Local.pb.h"
 typedef double MRA_timestamp;
 typedef MRA::FalconsVelocityControl::Input  MRA_InputType;
 typedef MRA::FalconsVelocityControl::Params MRA_ParamsType;

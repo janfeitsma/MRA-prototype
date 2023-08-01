@@ -25,7 +25,7 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         ":datatypes",
-        "//components/falcons/velocity-control:implementation",
+        "//components/falcons/velocity_control:implementation",
     ],
 )
 

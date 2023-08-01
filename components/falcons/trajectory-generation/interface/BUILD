@@ -8,7 +8,7 @@ proto_library(
     deps = [
         "@com_google_protobuf//:timestamp_proto",
         "//datatypes:MRA_proto",
-        "//components/falcons/velocity-control/interface:interface_proto",
+        "//components/falcons/velocity_control/interface:interface_proto",
     ],
 )
 

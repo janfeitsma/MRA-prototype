@@ -8,7 +8,7 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//components/falcons/velocity-control/interface:interface",
+        "//components/falcons/velocity_control/interface:interface",
     ],
 )
 
@@ -25,7 +25,7 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         ":datatypes",
-        "//components/falcons/velocity-control/internal:VelocityControl",
+        "//components/falcons/velocity_control/internal:VelocityControl",
         "//libraries/geometry",
         "//libraries/reflexxes",
     ],
@@ -53,7 +53,7 @@ py_test(
     ],
     main = "test/demo_protobuf.py",
     deps = [
-        "//components/falcons/velocity-control/interface:interface_py_proto",
+        "//components/falcons/velocity_control/interface:interface_py_proto",
     ],
 )
 

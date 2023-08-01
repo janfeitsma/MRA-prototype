@@ -220,7 +220,7 @@ TEST(FalconsVelocityControlTest, noHotRestart)
 // The data is literally copied from the debug logs at one of the moments when the bug manifested.
 TEST(FalconsVelocityControlTest, bugNonconvergingRz)
 {
-    auto output = TestFactory::run_testvector<FalconsVelocityControl::FalconsVelocityControl>(std::string("components/falcons/velocity-control/testdata/bug_nonconverging_rz.json"));
+    auto output = TestFactory::run_testvector<FalconsVelocityControl::FalconsVelocityControl>(std::string("components/falcons/velocity_control/testdata/bug_nonconverging_rz.json"));
     // the problem was that output velocity was zero on given input+state
 }
 
@@ -231,7 +231,7 @@ TEST(FalconsVelocityControlTest, bugNonconvergingRz)
 // * which produces vrz==0 but also overrules small XY velocity setpoint with one large jump ...
 TEST(FalconsVelocityControlTest, bugLargeXYJump)
 {
-    auto output = TestFactory::run_testvector<FalconsVelocityControl::FalconsVelocityControl>(std::string("components/falcons/velocity-control/testdata/bug_large_xy_jump.json"));
+    auto output = TestFactory::run_testvector<FalconsVelocityControl::FalconsVelocityControl>(std::string("components/falcons/velocity_control/testdata/bug_large_xy_jump.json"));
     // the problem was: output: {"velocity":{"x":-100,"y":-40}}
 }
 
