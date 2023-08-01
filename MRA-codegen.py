@@ -43,7 +43,7 @@ def component_name_underscore(component: str) -> str:
     return component.replace('/', '_').replace('-', '_').upper()
 def component_name_camelcase(component: str) -> str:
     """Mangle (relative) component name. Example: falcons/getball-intercept -> FalconsGetballIntercept"""
-    return ''.join([s.capitalize() for s in re.split('/|-', component)])
+    return ''.join([s.capitalize() for s in re.split('/|-|_', component)])
 
 def grep(pat: str, fname: str) -> list:
     """Mimic grep utility. Return matching lines."""
@@ -75,6 +75,7 @@ class ComponentGenerator():
         # interface parts, max 5
         self.all_interface_parts = ['Input', 'Params', 'State', 'Output', 'Local']
         self.interface_parts = [p for p in self.all_interface_parts if os.path.isfile(os.path.join(self.component_folder, 'interface', p + '.proto'))]
+        # TODO: ensure component name is valid, for instance no dash character ... (causes problem with protoc --python_out)
         # TODO? a component needs at least an Input and an Output -- or default to protobuf.Empty??
         #for required_interface_part in ['Input', 'Output']:
         #    if not required_interface_part in self.interface_parts:
