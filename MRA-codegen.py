@@ -39,10 +39,10 @@ DEFAULT_VERBOSE_LEVEL = 1
 
 
 def component_name_underscore(component: str) -> str:
-    """Mangle (relative) component name. Example: falcons/getball-intercept -> FALCONS_GETBALL_INTERCEPT"""
+    """Mangle (relative) component name. Example: falcons/getball_intercept -> FALCONS_GETBALL_INTERCEPT"""
     return component.replace('/', '_').replace('-', '_').upper()
 def component_name_camelcase(component: str) -> str:
-    """Mangle (relative) component name. Example: falcons/getball-intercept -> FalconsGetballIntercept"""
+    """Mangle (relative) component name. Example: falcons/getball_intercept -> FalconsGetballIntercept"""
     return ''.join([s.capitalize() for s in re.split('/|-|_', component)])
 
 def grep(pat: str, fname: str) -> list:
@@ -60,7 +60,7 @@ class ComponentGenerator():
     Given component must be a string relative to component root (incl. folder nesting).
     """
     def __init__(self, component: str, verbosity: int = DEFAULT_VERBOSE_LEVEL):
-        self.component = component # example: falcons/getball-intercept
+        self.component = component # example: falcons/getball_intercept
         self.verbosity = verbosity
         self.cname_underscore = component_name_underscore(component) # example: FALCONS_GETBALL_INTERCEPT
         self.cname_camelcase = component_name_camelcase(component) # example: FalconsGetballIntercept
@@ -70,17 +70,25 @@ class ComponentGenerator():
         self.interface_folder = os.path.join(self.component_folder, 'interface')
         self.analyze()
 
+    def check_component_name_valid(self):
+        """Ensure component name is valid, for instance no dash character ... (causes problem with protoc --python_out)"""
+        if '-' in self.component:
+            raise Exception(f'illegal component name, no dash (-) allowed in {self.component}')
+
+    def check_component_interface_valid(self):
+        """Ensure component interface (.proto files) are valid."""
+        # TODO: warn in case other than all_interface_parts .proto files are detected?
+        for required_interface_part in ['Input', 'Output']:
+            if not required_interface_part in self.interface_parts:
+                raise Exception(f'incomplete component interface: missing file {required_interface_part}.proto')
+
     def analyze(self) -> None:
         """Analyze component."""
         # interface parts, max 5
         self.all_interface_parts = ['Input', 'Params', 'State', 'Output', 'Local']
         self.interface_parts = [p for p in self.all_interface_parts if os.path.isfile(os.path.join(self.component_folder, 'interface', p + '.proto'))]
-        # TODO: ensure component name is valid, for instance no dash character ... (causes problem with protoc --python_out)
-        # TODO? a component needs at least an Input and an Output -- or default to protobuf.Empty??
-        #for required_interface_part in ['Input', 'Output']:
-        #    if not required_interface_part in self.interface_parts:
-        #        raise Exception(f'incomplete component interface: missing file {required_interface_part}.proto')
-        # TODO: warn in case other than above 5 .proto files are detected?
+        self.check_component_name_valid()
+        self.check_component_interface_valid()
         # Params.proto also requires DefaultParams.json (workaround for protobuf v3 not supporting default values anymore ...)
         if 'Params' in self.interface_parts:
             f = os.path.join(self.component_folder, 'interface', 'DefaultParams.json')
