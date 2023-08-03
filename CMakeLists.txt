@@ -95,9 +95,9 @@ include_directories(base)
 ##########################################################
 
 set(MESSAGE_PROTOS_COMPONENTS
-    components/falcons/getball-fetch/interface/Input.proto
-    components/falcons/getball-fetch/interface/Params.proto
-    components/falcons/getball-fetch/interface/Output.proto
+    components/falcons/getball_fetch/interface/Input.proto
+    components/falcons/getball_fetch/interface/Params.proto
+    components/falcons/getball_fetch/interface/Output.proto
     components/falcons/velocity_control/interface/Input.proto
     components/falcons/velocity_control/interface/Local.proto
     components/falcons/velocity_control/interface/Params.proto
@@ -120,7 +120,7 @@ protobuf_generate(TARGET MRA-components-proto PROTOS ${MESSAGE_PROTOS_COMPONENTS
 ##########################################################
 
 add_library(MRA-components
-    components/falcons/getball-fetch/tick.cpp
+    components/falcons/getball_fetch/tick.cpp
     components/falcons/velocity_control/tick.cpp
     components/falcons/velocity_control/internal/src/VelocityControl.cpp
     components/falcons/velocity_control/internal/src/controllers/LinearVelocitySetpointController.cpp

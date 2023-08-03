@@ -1,8 +1,8 @@
 // this file was produced by MRA-codegen.py from template_instance.hpp
 // it should NOT be modified by user
 
-#ifndef _MRA_FALCONS_GETBALL_FETCH_HPP
-#define _MRA_FALCONS_GETBALL_FETCH_HPP
+#ifndef _MRA_ROBOTSPORTS_GETBALL_FETCH_HPP
+#define _MRA_ROBOTSPORTS_GETBALL_FETCH_HPP
 
 #include "abstract_interface.hpp"
 #include "params_loader.hpp"
@@ -11,21 +11,21 @@
 // generated protobuf types from interface of this component
 #include "datatypes.hpp"
 
-namespace MRA::FalconsGetballFetch
+namespace MRA::RobotsportsGetballFetch
 {
 
-typedef MRA::FalconsGetballFetch::Input InputType;
-typedef MRA::FalconsGetballFetch::Params ParamsType;
+typedef MRA::RobotsportsGetballFetch::Input InputType;
+typedef MRA::RobotsportsGetballFetch::Params ParamsType;
 typedef google::protobuf::Empty StateType; // no .proto -> unused
-typedef MRA::FalconsGetballFetch::Output OutputType;
+typedef MRA::RobotsportsGetballFetch::Output OutputType;
 typedef google::protobuf::Empty LocalType; // no .proto -> unused
 
 
-class FalconsGetballFetch: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>
+class RobotsportsGetballFetch: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>
 {
 public:
-    FalconsGetballFetch() {};
-    ~FalconsGetballFetch() {};
+    RobotsportsGetballFetch() {};
+    ~RobotsportsGetballFetch() {};
 
     // user implementation
     int tick(
@@ -40,7 +40,7 @@ public:
     // make default configuration easily accessible
     ParamsType defaultParams() const
     {
-        return MRA::LoadDefaultParams<ParamsType>("components/falcons/getball-fetch/interface/DefaultParams.json");
+        return MRA::LoadDefaultParams<ParamsType>("components/robotsports/getball_fetch/interface/DefaultParams.json");
     };
 
     // allow omitting arguments, useful for testing and code brevity
@@ -73,20 +73,20 @@ public:
         return tick(0.0, input, params, s, output, l);
     };
 
-}; // class FalconsGetballFetch
+}; // class RobotsportsGetballFetch
 
 
 // configuration handling
 inline ParamsType defaultParams()
 {
-    return FalconsGetballFetch().defaultParams();
+    return RobotsportsGetballFetch().defaultParams();
 }
 inline ParamsType loadParams(std::string configFile)
 {
     return MRA::LoadDefaultParams<ParamsType>(configFile);
 }
 
-} // namespace MRA::FalconsGetballFetch
+} // namespace MRA::RobotsportsGetballFetch
 
 #endif
 

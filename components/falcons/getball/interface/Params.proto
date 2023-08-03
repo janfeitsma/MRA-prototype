@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package MRA.FalconsGetball;
 
-import "components/falcons/getball-fetch/interface/Params.proto";
+import "components/falcons/getball_fetch/interface/Params.proto";
 import "components/falcons/getball-intercept/interface/Params.proto";
 
 message Params

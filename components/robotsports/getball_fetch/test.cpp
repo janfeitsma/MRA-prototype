@@ -9,16 +9,16 @@
 using namespace ::testing;
 
 // System under test:
-#include "FalconsGetballFetch.hpp"
+#include "RobotsportsGetballFetch.hpp"
 using namespace MRA;
 
 
 
 // Basic tick shall run OK and return error_value 0.
-TEST(FalconsGetballFetchTest, basicTick)
+TEST(RobotspotsGetballFetchTest, basicTick)
 {
     // Arrange
-    auto m = FalconsGetballFetch::FalconsGetballFetch();
+    auto m = RobotsportsGetballFetch::RobotsportsGetballFetch();
 
     // Act
     int error_value = m.tick();
@@ -28,12 +28,12 @@ TEST(FalconsGetballFetchTest, basicTick)
 }
 
 // When robot is inactive, the action shall fail.
-TEST(FalconsGetballFetchTest, robotInactive)
+TEST(RobotsportsGetballFetchTest, robotInactive)
 {
     // Arrange
-    auto m = FalconsGetballFetch::FalconsGetballFetch();
-    auto input = FalconsGetballFetch::Input();
-    auto output = FalconsGetballFetch::Output();
+    auto m = RobotsportsGetballFetch::RobotsportsGetballFetch();
+    auto input = RobotsportsGetballFetch::Input();
+    auto output = RobotsportsGetballFetch::Output();
     input.mutable_worldstate()->mutable_robot()->set_active(false);
 
     // Act
@@ -45,12 +45,12 @@ TEST(FalconsGetballFetchTest, robotInactive)
 }
 
 // Move towards stationary ball in positive x direction.
-TEST(FalconsGetballFetchTest, getStationaryBall)
+TEST(RobotsportsGetballFetchTest, getStationaryBall)
 {
     // Arrange
-    auto m = FalconsGetballFetch::FalconsGetballFetch();
-    auto input = FalconsGetballFetch::Input();
-    auto output = FalconsGetballFetch::Output();
+    auto m = RobotsportsGetballFetch::RobotsportsGetballFetch();
+    auto input = RobotsportsGetballFetch::Input();
+    auto output = RobotsportsGetballFetch::Output();
     input.mutable_worldstate()->mutable_robot()->set_active(true);
     input.mutable_worldstate()->mutable_robot()->mutable_position()->set_x(-2.0);
     input.mutable_worldstate()->mutable_ball()->mutable_position()->set_x(2.0);
@@ -64,13 +64,38 @@ TEST(FalconsGetballFetchTest, getStationaryBall)
     EXPECT_EQ(output.target().position().x(), 2.0);
 }
 
-// When robot has the ball, the action PASSED.
-TEST(FalconsGetballFetchTest, hasBallPassed)
+// Move towards stationary ball in positive x and y direction.
+TEST(RobotsportsGetballFetchTest, getStationaryBall_xy)
 {
     // Arrange
-    auto m = FalconsGetballFetch::FalconsGetballFetch();
-    auto input = FalconsGetballFetch::Input();
-    auto output = FalconsGetballFetch::Output();
+    auto m = RobotsportsGetballFetch::RobotsportsGetballFetch();
+    auto input = RobotsportsGetballFetch::Input();
+    auto output = RobotsportsGetballFetch::Output();
+    input.mutable_worldstate()->mutable_robot()->set_active(true);
+    input.mutable_worldstate()->mutable_robot()->mutable_position()->set_x(-2.0);
+    input.mutable_worldstate()->mutable_robot()->mutable_position()->set_y(-2.0);
+    input.mutable_worldstate()->mutable_ball()->mutable_position()->set_x(2.0);
+    input.mutable_worldstate()->mutable_ball()->mutable_position()->set_y(0.1);
+
+    // Act
+    int error_value = m.tick(input, output);
+
+    // Assert
+    EXPECT_EQ(error_value, 0);
+    EXPECT_EQ(output.actionresult(), MRA::Datatypes::RUNNING);
+    EXPECT_NEAR(output.target().position().x(), 2.0, 1e-4);
+    EXPECT_NEAR(output.target().position().y(), 0.1, 1e-4);
+    EXPECT_NEAR(output.target().position().rz(), -1.08734, 1e-4);
+}
+
+
+// When robot has the ball, the action PASSED.
+TEST(RobotsportsGetballFetchTest, hasBallPassed)
+{
+    // Arrange
+    auto m = RobotsportsGetballFetch::RobotsportsGetballFetch();
+    auto input = RobotsportsGetballFetch::Input();
+    auto output = RobotsportsGetballFetch::Output();
     input.mutable_worldstate()->mutable_robot()->set_active(true);
     input.mutable_worldstate()->mutable_robot()->set_hasball(true);
 
@@ -87,11 +112,11 @@ TEST(FalconsGetballFetchTest, hasBallPassed)
 }
 
 // Match setup, full/realistic data, kickoff-prepare.
-TEST(FalconsGetballFetchTest, matchKickoff)
+TEST(RobotsportsGetballFetchTest, matchKickoff)
 {
     // A test vector contains Input, Output, Params
     // The factory will run a tick with provided data and compare against expected output
-    auto output = TestFactory::run_testvector<FalconsGetballFetch::FalconsGetballFetch>(std::string("components/falcons/getball-fetch/testdata/kickoff_prepare.json"));
+    auto output = TestFactory::run_testvector<RobotsportsGetballFetch::RobotsportsGetballFetch>(std::string("components/robotsports/getball_fetch/testdata/kickoff_prepare.json"));
 
     EXPECT_EQ(output.actionresult(), MRA::Datatypes::RUNNING);
 }

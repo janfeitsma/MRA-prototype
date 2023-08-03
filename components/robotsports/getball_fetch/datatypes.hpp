@@ -4,9 +4,9 @@
 #ifndef _MRA_ROBOTSPORTS_GETBALL_FETCH_DATATYPES_HPP
 #define _MRA_ROBOTSPORTS_GETBALL_FETCH_DATATYPES_HPP
 
-#include "components/robotsports/getball-fetch/interface/Input.pb.h"
-#include "components/robotsports/getball-fetch/interface/Params.pb.h"
-#include "components/robotsports/getball-fetch/interface/Output.pb.h"
+#include "components/robotsports/getball_fetch/interface/Input.pb.h"
+#include "components/robotsports/getball_fetch/interface/Params.pb.h"
+#include "components/robotsports/getball_fetch/interface/Output.pb.h"
 
 
 #endif

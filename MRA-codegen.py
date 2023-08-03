@@ -7,18 +7,18 @@ This script is intended to help MRA developers to create a new component.
 Developers first need to define the name (folder) and interface (.proto files).
 
 Example output for a new component:
-    file components/falcons/getball-fetch/interface/BUILD has been copied (and modified) from base/codegen/template_interface.BUILD
-    file components/falcons/getball-fetch/BUILD has been copied (and modified) from base/codegen/template_implementation.BUILD
-    file components/falcons/getball-fetch/FalconsGetballFetch.hpp has been copied (and modified) from base/codegen/template_instance.hpp
-    file components/falcons/getball-fetch/tick.cpp has been copied (and modified) from base/codegen/template_tick.cpp
-    file components/falcons/getball-fetch/test.cpp has been copied (and modified) from base/codegen/template_test.cpp
+    file components/falcons/getball_fetch/interface/BUILD has been copied (and modified) from base/codegen/template_interface.BUILD
+    file components/falcons/getball_fetch/BUILD has been copied (and modified) from base/codegen/template_implementation.BUILD
+    file components/falcons/getball_fetch/FalconsGetballFetch.hpp has been copied (and modified) from base/codegen/template_instance.hpp
+    file components/falcons/getball_fetch/tick.cpp has been copied (and modified) from base/codegen/template_tick.cpp
+    file components/falcons/getball_fetch/test.cpp has been copied (and modified) from base/codegen/template_test.cpp
 
 Example output for a finished component:
-    file components/falcons/getball-fetch/interface/BUILD already exists, skipping (content unchanged)
-    file components/falcons/getball-fetch/BUILD already exists, skipping (content unchanged)
-    file components/falcons/getball-fetch/FalconsGetballFetch.hpp already exists, skipping (content unchanged)
-    file components/falcons/getball-fetch/tick.cpp already exists, skipping (overwrite disabled)
-    file components/falcons/getball-fetch/test.cpp already exists, skipping (overwrite disabled)
+    file components/falcons/getball_fetch/interface/BUILD already exists, skipping (content unchanged)
+    file components/falcons/getball_fetch/BUILD already exists, skipping (content unchanged)
+    file components/falcons/getball_fetch/FalconsGetballFetch.hpp already exists, skipping (content unchanged)
+    file components/falcons/getball_fetch/tick.cpp already exists, skipping (overwrite disabled)
+    file components/falcons/getball_fetch/test.cpp already exists, skipping (overwrite disabled)
 '''
 
 # python modules

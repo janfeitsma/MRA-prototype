@@ -6,8 +6,8 @@ GetBallFetch is an action that direct the robot to the ball till it is in the be
 
 == Scope and context
 
-This action implements the sub-action getball-fetch (get a stationary ball) of the getball action.
-This variant is RobotSport variant of getball-fetch.
+This action implements the sub-action getball_fetch (get a stationary ball) of the getball action.
+This variant is RobotSport variant of getball_fetch.
 
 == Interface details
 
