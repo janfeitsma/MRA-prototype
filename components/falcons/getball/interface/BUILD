@@ -12,7 +12,7 @@ proto_library(
         "@com_google_protobuf//:timestamp_proto",
         "//datatypes:MRA_proto",
         "//components/falcons/getball_fetch/interface:interface_proto",
-        "//components/falcons/getball-intercept/interface:interface_proto",
+        "//components/falcons/getball_intercept/interface:interface_proto",
     ],
 )
 

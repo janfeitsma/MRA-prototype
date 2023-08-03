@@ -6,8 +6,8 @@ GetBallIntercept is an action that to intercept the ball (catching in the beak o
 
 == Scope and context
 
-This action implements the sub-action getball-intercept (get a rolling ball) of the getball action.
-This variant is RobotSport variant of getball-intercept.
+This action implements the sub-action getball_intercept (get a rolling ball) of the getball action.
+This variant is RobotSport variant of getball_intercept.
 
 == Interface details
 

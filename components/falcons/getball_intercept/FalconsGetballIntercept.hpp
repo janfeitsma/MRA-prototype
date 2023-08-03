@@ -1,8 +1,8 @@
 // this file was produced by MRA-codegen.py from template_instance.hpp
 // it should NOT be modified by user
 
-#ifndef _MRA_ROBOTSPORTS_GETBALL_INTERCEPT_HPP
-#define _MRA_ROBOTSPORTS_GETBALL_INTERCEPT_HPP
+#ifndef _MRA_FALCONS_GETBALL_INTERCEPT_HPP
+#define _MRA_FALCONS_GETBALL_INTERCEPT_HPP
 
 #include "abstract_interface.hpp"
 #include "params_loader.hpp"
@@ -11,21 +11,21 @@
 // generated protobuf types from interface of this component
 #include "datatypes.hpp"
 
-namespace MRA::RobotsportsGetballIntercept
+namespace MRA::FalconsGetballIntercept
 {
 
-typedef MRA::RobotsportsGetballIntercept::Input InputType;
-typedef MRA::RobotsportsGetballIntercept::Params ParamsType;
+typedef MRA::FalconsGetballIntercept::Input InputType;
+typedef MRA::FalconsGetballIntercept::Params ParamsType;
 typedef google::protobuf::Empty StateType; // no .proto -> unused
-typedef MRA::RobotsportsGetballIntercept::Output OutputType;
+typedef MRA::FalconsGetballIntercept::Output OutputType;
 typedef google::protobuf::Empty LocalType; // no .proto -> unused
 
 
-class RobotsportsGetballIntercept: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>
+class FalconsGetballIntercept: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>
 {
 public:
-    RobotsportsGetballIntercept() {};
-    ~RobotsportsGetballIntercept() {};
+    FalconsGetballIntercept() {};
+    ~FalconsGetballIntercept() {};
 
     // user implementation
     int tick(
@@ -40,7 +40,7 @@ public:
     // make default configuration easily accessible
     ParamsType defaultParams() const
     {
-        return MRA::LoadDefaultParams<ParamsType>("components/robotsports/getball-intercept/interface/DefaultParams.json");
+        return MRA::LoadDefaultParams<ParamsType>("components/falcons/getball_intercept/interface/DefaultParams.json");
     };
 
     // allow omitting arguments, useful for testing and code brevity
@@ -73,20 +73,20 @@ public:
         return tick(0.0, input, params, s, output, l);
     };
 
-}; // class RobotsportsGetballIntercept
+}; // class FalconsGetballIntercept
 
 
 // configuration handling
 inline ParamsType defaultParams()
 {
-    return RobotsportsGetballIntercept().defaultParams();
+    return FalconsGetballIntercept().defaultParams();
 }
 inline ParamsType loadParams(std::string configFile)
 {
     return MRA::LoadDefaultParams<ParamsType>(configFile);
 }
 
-} // namespace MRA::RobotsportsGetballIntercept
+} // namespace MRA::FalconsGetballIntercept
 
 #endif
 

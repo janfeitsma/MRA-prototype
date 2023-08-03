@@ -26,7 +26,7 @@ cc_library(
         "//base:abstract_interface",
         ":datatypes",
         "//components/falcons/getball_fetch:implementation",
-        "//components/falcons/getball-intercept:implementation",
+        "//components/falcons/getball_intercept:implementation",
     ],
 )
 

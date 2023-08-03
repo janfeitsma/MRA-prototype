@@ -4,9 +4,9 @@
 #ifndef _MRA_FALCONS_GETBALL_INTERCEPT_DATATYPES_HPP
 #define _MRA_FALCONS_GETBALL_INTERCEPT_DATATYPES_HPP
 
-#include "components/falcons/getball-intercept/interface/Input.pb.h"
-#include "components/falcons/getball-intercept/interface/Params.pb.h"
-#include "components/falcons/getball-intercept/interface/Output.pb.h"
+#include "components/falcons/getball_intercept/interface/Input.pb.h"
+#include "components/falcons/getball_intercept/interface/Params.pb.h"
+#include "components/falcons/getball_intercept/interface/Output.pb.h"
 
 
 #endif
