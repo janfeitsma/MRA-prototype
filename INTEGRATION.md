@@ -27,11 +27,11 @@ Example common datatype (protobuf-generated headers):
 
 Example component definition:
 ```
-#include "components/falcons/getball-fetch/FalconsGetballFetch.hpp"
+#include "components/falcons/getball_fetch/FalconsGetballFetch.hpp"
 ```
 
 <span style="color:red">**TODO**</span>: maybe it is nicer to prefix with `MRA/`, similar to `boost` and `opencv` includes?
-<span style="color:red">**TODO**</span>: maybe it is nicer to allow omitting `components/falcons/getball-fetch/`?
+<span style="color:red">**TODO**</span>: maybe it is nicer to allow omitting `components/falcons/getball_fetch/`?
 
 ### Source code
 
