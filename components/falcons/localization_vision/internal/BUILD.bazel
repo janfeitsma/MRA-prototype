@@ -22,7 +22,7 @@ cc_library(
         "@opencv",
         "//libraries/opencv_utils",
         "//libraries/geometry",
-        "//components/falcons/localization-vision:datatypes",
+        "//components/falcons/localization_vision:datatypes",
     ],
     visibility = ["//visibility:public"],
 )

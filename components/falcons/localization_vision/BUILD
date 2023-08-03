@@ -9,7 +9,7 @@ cc_library(
     visibility = ["//visibility:public"],
     includes = ["."],
     deps = [
-        "//components/falcons/localization-vision/interface:interface",
+        "//components/falcons/localization_vision/interface:interface",
     ],
 )
 
@@ -26,7 +26,7 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         ":datatypes",
-        "//components/falcons/localization-vision/internal:solver",
+        "//components/falcons/localization_vision/internal:solver",
         "//libraries/logging",
         "//libraries/geometry",
     ],

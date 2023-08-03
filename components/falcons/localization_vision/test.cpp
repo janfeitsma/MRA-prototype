@@ -107,17 +107,17 @@ TEST(FalconsLocalizationVisionTest, perfectFit)
 // This is data driven -> json test case
 TEST(FalconsLocalizationVisionTest, jsonTest1PerfectFit)
 {
-    auto output = TestFactory::run_testvector<FalconsLocalizationVision::FalconsLocalizationVision>(std::string("components/falcons/localization-vision/testdata/test1_perfect_fit.json"));
+    auto output = TestFactory::run_testvector<FalconsLocalizationVision::FalconsLocalizationVision>(std::string("components/falcons/localization_vision/testdata/test1_perfect_fit.json"));
 }
 TEST(FalconsLocalizationVisionTest, jsonTest2ShiftXY)
 {
-    auto output = TestFactory::run_testvector<FalconsLocalizationVision::FalconsLocalizationVision>(std::string("components/falcons/localization-vision/testdata/test2_shift_xy.json"));
+    auto output = TestFactory::run_testvector<FalconsLocalizationVision::FalconsLocalizationVision>(std::string("components/falcons/localization_vision/testdata/test2_shift_xy.json"));
 }
 
 // Integration bugfixes
 TEST(FalconsLocalizationVisionTest, jsonTest3GrabsR5BadInit)
 {
-    auto output = TestFactory::run_testvector<FalconsLocalizationVision::FalconsLocalizationVision>(std::string("components/falcons/localization-vision/testdata/test3_grabs_r5_20191219_210335_bad_init.json"));
+    auto output = TestFactory::run_testvector<FalconsLocalizationVision::FalconsLocalizationVision>(std::string("components/falcons/localization_vision/testdata/test3_grabs_r5_20191219_210335_bad_init.json"));
 }
 
 int main(int argc, char **argv)

@@ -10,7 +10,7 @@ sys.path.append(f'{MRA_BASE_FOLDER}/bazel-bin')
 from datatypes import CvMat_pb2
 
 # HACK
-sys.path.append(f'{MRA_BASE_FOLDER}/bazel-bin/components/falcons/localization-vision/test')
+sys.path.append(f'{MRA_BASE_FOLDER}/bazel-bin/components/falcons/localization_vision/test')
 import pybind11_example_module
 
 

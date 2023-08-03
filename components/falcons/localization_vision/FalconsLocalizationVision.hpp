@@ -40,7 +40,7 @@ public:
     // make default configuration easily accessible
     ParamsType defaultParams() const
     {
-        return MRA::LoadDefaultParams<ParamsType>("components/falcons/localization-vision/interface/DefaultParams.json");
+        return MRA::LoadDefaultParams<ParamsType>("components/falcons/localization_vision/interface/DefaultParams.json");
     };
 
     // allow omitting arguments, useful for testing and code brevity
