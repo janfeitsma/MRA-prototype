@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BASE=components/falcons/trajectory-generation/tst
+BASE=components/falcons/trajectory_generation/tst
 
 EXE="$BASE/trajectory.py --exe $1"
 

@@ -8,7 +8,7 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//components/falcons/trajectory-generation/interface:interface",
+        "//components/falcons/trajectory_generation/interface:interface",
     ],
 )
 

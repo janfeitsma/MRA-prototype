@@ -5,7 +5,7 @@ cc_binary(
         "trajectory-main.cpp",
     ],
     deps = [
-        "//components/falcons/trajectory-generation:implementation",
+        "//components/falcons/trajectory_generation:implementation",
     ],
 )
 

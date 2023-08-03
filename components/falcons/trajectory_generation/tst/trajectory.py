@@ -57,8 +57,8 @@ import random
 
 
 
-#BINARY = 'bazel-bin/components/falcons/trajectory-generation/tst/trajectory-generator'
-BINARY = 'bazel run --ui_event_filters=-info,-stdout,-stderr --noshow_progress //components/falcons/trajectory-generation/tst:trajectory-generator'
+#BINARY = 'bazel-bin/components/falcons/trajectory_generation/tst/trajectory-generator'
+BINARY = 'bazel run --ui_event_filters=-info,-stdout,-stderr --noshow_progress //components/falcons/trajectory_generation/tst:trajectory-generator'
 DOFS = ('x', 'y', 'rz', 'vx', 'vy', 'vrz')
 INPUT_TYPES = (('t', 'target setpoint'), ('', 'robot initial'), )
 POSVEL = ['position', 'velocity']
