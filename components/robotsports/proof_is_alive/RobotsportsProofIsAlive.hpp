@@ -40,7 +40,7 @@ public:
     // make default configuration easily accessible
     ParamsType defaultParams() const
     {
-        return MRA::LoadDefaultParams<ParamsType>("components/robotsports/proof-is-alive/interface/DefaultParams.json");
+        return MRA::LoadDefaultParams<ParamsType>("components/robotsports/proof_is_alive/interface/DefaultParams.json");
     };
 
     // allow omitting arguments, useful for testing and code brevity

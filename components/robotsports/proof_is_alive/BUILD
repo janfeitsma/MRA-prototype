@@ -8,7 +8,7 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//components/robotsports/proof-is-alive/interface:interface",
+        "//components/robotsports/proof_is_alive/interface:interface",
     ],
 )
 

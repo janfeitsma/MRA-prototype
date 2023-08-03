@@ -14,7 +14,7 @@ Examples:
      bazel test //... --test_output all --nocache_test_results
 * commands to build only one component
   $ ./MRA-build.py -n -s alive
-     bazel build --color=yes //robotsports/proof-is-alive
+     bazel build --color=yes //robotsports/proof_is_alive
 '''
 
 # python modules
