@@ -5,9 +5,11 @@ from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout
 
 class OpenCVWindow(QWidget):
-    def __init__(self):
+    def __init__(self, parameters, callback=None):
         super(OpenCVWindow, self).__init__()
         self.setWindowTitle("OpenCV image")
+        self.parameters = parameters
+        self.callback = callback
 
         # Dummy OpenCV object (blue rectangle)
         self.image = np.zeros((300, 400, 3), dtype=np.uint8)
@@ -24,6 +26,11 @@ class OpenCVWindow(QWidget):
         self.timer.start(100)
 
     def update_image(self):
+        # retrieve via callback
+        if self.callback:
+            self.image = self.callback(self.parameters)
+        # TODO zoom and scale
+        # convert to QImage and QPixmap
         height, width, channel = self.image.shape
         self.setWindowTitle(f"OpenCV image ({height}x{width})")
         bytes_per_line = 3 * width
@@ -36,4 +43,5 @@ class OpenCVWindow(QWidget):
         )
         pixmap = QPixmap.fromImage(q_image)
         self.image_label.setPixmap(pixmap)
+
 
