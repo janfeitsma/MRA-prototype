@@ -22,7 +22,7 @@ int pywrap_tick_standalone(
     return FalconsLocalizationVision().tick(input, params, state, output, local);
 }
 
-PYBIND11_MODULE(pbe, m) {
+PYBIND11_MODULE(pybind_ext, m) {
     pybind11_protobuf::ImportNativeProtoCasters();
     // TODO: m.doc()?
     m.def("tick",

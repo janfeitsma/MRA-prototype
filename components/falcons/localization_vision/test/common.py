@@ -2,7 +2,7 @@
 import struct
 
 # our modules
-import protobuf2python
+from components.falcons.localization_vision.interface import Input_pb2, Params_pb2, State_pb2, Output_pb2, Local_pb2
 
 
 class TickData():
@@ -26,31 +26,31 @@ class TickData():
             # read next
             n = struct.unpack('i', f.read(4))[0]
             data = f.read(n)
-            self.input = protobuf2python.Input_pb2.Input()
+            self.input = Input_pb2.Input()
             self.input.ParseFromString(data)
             # read next
             n = struct.unpack('i', f.read(4))[0]
             data = f.read(n)
-            self.params = protobuf2python.Params_pb2.Params()
+            self.params = Params_pb2.Params()
             self.params.ParseFromString(data)
             # read next
             n = struct.unpack('i', f.read(4))[0]
             data = f.read(n)
-            self.state_before = protobuf2python.State_pb2.State()
+            self.state_before = State_pb2.State()
             self.state_before.ParseFromString(data)
             # read next
             n = struct.unpack('i', f.read(4))[0]
             data = f.read(n)
-            self.output = protobuf2python.Output_pb2.Output()
+            self.output = Output_pb2.Output()
             self.output.ParseFromString(data)
             # read next
             n = struct.unpack('i', f.read(4))[0]
             data = f.read(n)
-            self.local = protobuf2python.Local_pb2.Local()
+            self.local = Local_pb2.Local()
             self.local.ParseFromString(data)
             # read next
             n = struct.unpack('i', f.read(4))[0]
             data = f.read(n)
-            self.state_after = protobuf2python.State_pb2.State()
+            self.state_after = State_pb2.State()
             self.state_after.ParseFromString(data)
 

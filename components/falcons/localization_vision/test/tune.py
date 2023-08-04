@@ -4,7 +4,10 @@
 Tuning tool. Requires a binary tick data file.
 Calls the C++ implementation via python bindings.
 
-Example: see TODO example.png
+Example:
+    bazel run //components/falcons/localization_vision/test:tune tick_20230702_163900_008.bin
+
+see TODO example.png
 """
 
 
@@ -16,6 +19,7 @@ import google.protobuf.timestamp_pb2
 
 # own modules
 import common
+from components.falcons.localization_vision.test import pybind_ext
 
 
 class TuningTool():
@@ -23,20 +27,20 @@ class TuningTool():
         self.tickdata = common.TickData(filename)
 
     def run(self):
-        print(dir(common.protobuf2python.pybind11_example_module))
         state = copy.copy(self.tickdata.state_before)
-        output = common.protobuf2python.Output_pb2.Output()
-        local = common.protobuf2python.Local_pb2.Local()
+        output = common.Output_pb2.Output()
+        local = common.Local_pb2.Local()
         t = google.protobuf.timestamp_pb2.Timestamp()
-        print('before tick')
-        ans = common.protobuf2python.pybind11_example_module.cpp_function(
-            t, # timestamp
+        print('py before tick')
+        ans = pybind_ext.tick(
+         #   t, # timestamp
             self.tickdata.input,
             self.tickdata.params,
             state,
             output,
             local)
         print('after tick')
+        print(st)
         print(output)
 
 
