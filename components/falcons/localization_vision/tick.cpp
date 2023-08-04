@@ -22,25 +22,37 @@ int FalconsLocalizationVision::FalconsLocalizationVision::tick
     LocalType                  &local        // local/diagnostics data, type generated from Local.proto
 )
 {
-    int error_value = 0;
+    int error_value = -1;
     MRA::Logging::LogTick scoped(timestamp, input, params, &state, &output, &local, &error_value);
 
     // user implementation goes here
 
-    // setup
-    // TODO: how expensive is it to reconstruct everything each tick? we could use static data to improve performance at the cost of state observability/testability
-    Solver solver;
-    solver.configure(params);
-    solver.setState(state);
+    try
+    {
+        // setup
+        // TODO: how expensive is it to reconstruct everything each tick? we could use static data to improve performance at the cost of state observability/testability
+        Solver solver;
+        solver.configure(params);
+        solver.setState(state);
 
-    // run
-    solver.setInput(input);
-    error_value = solver.run();
+        // run
+        solver.setInput(input);
+        error_value = solver.run();
 
-    // store output
-    output.CopyFrom(solver.getOutput());
-    local.CopyFrom(solver.getDiagnostics());
-    state.CopyFrom(solver.getState());
+        // store output
+        output.CopyFrom(solver.getOutput());
+        local.CopyFrom(solver.getDiagnostics());
+        state.CopyFrom(solver.getState());
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "ERROR: Caught a standard exception: " << e.what() << std::endl;
+        throw;
+    }
+    catch (...)
+    {
+        std::cerr << "ERROR: Caught an unknown exception." << std::endl;
+    }
 
     return error_value;
 }
