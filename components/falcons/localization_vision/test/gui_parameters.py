@@ -10,9 +10,17 @@ class Param:
         self.value = self.default_value # current value is modifiable by sliders
 
     def set(self, value):
-        assert value >= self.min_value
-        assert value <= self.max_value
+        # typecast - allow strings on input, from gui input text fields for instance
+        value = self.value_type(value)
+        # clip
+        if value < self.min_value:
+            value = self.min_value
+        if value > self.max_value:
+            value = self.max_value
         self.value = value
+
+    def __repr__(self):
+        return f'{self.name:s}={self.value}'
 
 
 class Parameters:
