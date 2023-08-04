@@ -28,7 +28,7 @@ PYBIND11_MODULE(pybind_ext, m) {
     m.def("tick",
         [](InputType input, ParamsType params, StateType state, OutputType output, LocalType local)
         {
-            pywrap_tick_standalone(input, params, state, output, local);
+            return pywrap_tick_standalone(input, params, state, output, local);
         },
         pybind11::arg("input"),
         pybind11::arg("params"),
