@@ -18,6 +18,7 @@ class ConfigurationWindow(QWidget):
         super(ConfigurationWindow, self).__init__()
         self.setWindowTitle("Configuration")
         grid_layout = QGridLayout()
+        self.add_row_to_layout(grid_layout, self.create_header_row())
         for p in parameters:
             row = self.create_parameter_row(p)
             self.add_row_to_layout(grid_layout, row)
@@ -28,6 +29,21 @@ class ConfigurationWindow(QWidget):
         grid_layout.setColumnStretch(4, 0)  # Fix the fifth column width
         self.setLayout(grid_layout)
         self.setGeometry(100, 100, 500, 200)  # Set a wider window size
+
+    def create_header_row(self):
+        result = [
+            QLabel('parameter'),
+            QLabel('min value'),
+            QLabel('slider'),
+            QLabel('cur value'),
+            QLabel('max value'),
+        ]
+        # make bold
+        font = result[0].font()
+        font.setBold(True)
+        for e in result:
+            e.setFont(font)
+        return result
 
     def create_parameter_row(self, parameter):
         name_label = QLabel(parameter.name)
