@@ -15,7 +15,7 @@ see TODO example.png
 import sys
 import copy
 import argparse
-import google.protobuf.timestamp_pb2
+
 
 # own modules
 import common
@@ -24,24 +24,22 @@ from components.falcons.localization_vision.test import pybind_ext
 
 class TuningTool():
     def __init__(self, filename):
-        self.tickdata = common.TickData(filename)
+        self.data = common.Data(filename)
 
     def run(self):
-        state = copy.copy(self.tickdata.state_before)
-        output = common.Output_pb2.Output()
-        local = common.Local_pb2.Local()
-        t = google.protobuf.timestamp_pb2.Timestamp()
         print('py before tick')
+        #self.data.setDefaultParams()
+        self.data.params.solver.linePoints.fit.radiusConstant = 5e-2 # hack for old .bin
+        t = self.data.t
         ans = pybind_ext.tick(
-         #   t, # timestamp
-            self.tickdata.input,
-            self.tickdata.params,
-            state,
-            output,
-            local)
-        print('after tick')
-        print(st)
-        print(output)
+            #t,
+            self.data.input,
+            self.data.params,
+            self.data.state,
+            self.data.output,
+            self.data.local)
+        print('py after tick, ans=', ans)
+        print(self.data.output)
 
 
 def parse_args(args: list) -> argparse.Namespace:
