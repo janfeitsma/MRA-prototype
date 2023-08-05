@@ -47,12 +47,12 @@ class ConfigurationWindow(QWidget):
 
     def create_parameter_row(self, parameter):
         name_label = QLabel(parameter.name)
-        min_label = QLabel(str(parameter.min_value))
+        min_label = QLabel(f'{parameter.min_value:4g}')
         slider = QSlider(Qt.Horizontal)
         value_label = QLabel()
         value_label.setAlignment(Qt.AlignRight)
         value_label.setMinimumWidth(60)
-        max_label = QLabel(str(parameter.max_value))
+        max_label = QLabel(f'{parameter.max_value:4g}')
 
         slider.setMinimumWidth(200)
 

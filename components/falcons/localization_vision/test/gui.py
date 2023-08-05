@@ -7,8 +7,9 @@ from gui_config import ConfigurationWindow
 from gui_parameters import Parameters, Param
 
 
-def create_standard_gui_params():
-    params = Parameters()
+def create_standard_gui_params(params=None):
+    if params is None:
+        params = Parameters()
     # name, type, min, max, default
     params.add('frequency', float, 0.1, 50.0, 10.0)
     params.add('zoom', float, 0.5, 5.0, 1.0)
@@ -31,7 +32,7 @@ class WindowManager():
     """
     def __init__(self, params, callback=None, app=None):
         self.params = params
-        self.app = app if app is not None else QApplication()
+        self.app = app if app is not None else QApplication([])
         self.callback = callback
 
         # Create and show Sliders window
@@ -49,6 +50,12 @@ class WindowManager():
     def shutdown(self):
         # Add any cleanup code here
         self.app.quit()
+
+    def run(self):
+        # Set up a signal handler for SIGINT (Ctrl-C)
+        signal.signal(signal.SIGINT, lambda signal, frame: self.app.quit())
+        # Run
+        sys.exit(self.app.exec_())
 
 
 def main(qargs=[]):
@@ -70,15 +77,10 @@ def main(qargs=[]):
         img[:, 100:] = [0, params.get('g')*f*e, params.get('b')*f*e]
         return img
 
-    # Construct the application
+    # Construct and run the application
     app = QApplication(qargs)
     window_manager = WindowManager(params, example_callback, app)
-
-    # Set up a signal handler for SIGINT (Ctrl-C)
-    signal.signal(signal.SIGINT, lambda signal, frame: app.quit())
-
-    # Run
-    sys.exit(app.exec_())
+    window_manager.run()
 
 
 if __name__ == "__main__":
