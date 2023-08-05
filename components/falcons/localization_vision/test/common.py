@@ -50,6 +50,10 @@ class Data():
         json_format.ParseDict(json_data, msg)
 
     def loadTickFile(self, filename):
+        # setup parameters as follows:
+        # 1. use defaultParams, because those are consistent with current code
+        # 2. overrule with values from tick bin, which may be produced using older code
+        self.setDefaultParams()
         # data is serialized, see MRA libraries/logging/logging.hpp dumpToFile
         # each protobuf object is an int (#bytes) followed by serialized protobuf bytes
         bytedata = None
@@ -58,6 +62,6 @@ class Data():
                 # read next
                 n = struct.unpack('i', f.read(4))[0]
                 data = f.read(n)
-                getattr(self, key).ParseFromString(data)
+                getattr(self, key).MergeFromString(data)
 
 
