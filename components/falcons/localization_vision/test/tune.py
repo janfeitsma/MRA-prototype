@@ -19,6 +19,7 @@ import argparse
 import types
 import numpy as np
 import cv2
+import threading
 from google.protobuf.message import Message
 
 # own modules
@@ -86,7 +87,10 @@ class ParametersProxy(gui.Parameters):
         current_proto = self.params_proto.solver # only make solver configurable, not the field dimension model A,B,C etc
         for n in names[:-1]:
             current_proto = getattr(current_proto, n)
-        setattr(current_proto, names[-1], value)
+        try:
+            setattr(current_proto, names[-1], value)
+        except:
+            pass # TODO
 
     def __repr__(self):
         return '\n'.join([repr(p) for p in self.params.values()])
@@ -94,11 +98,22 @@ class ParametersProxy(gui.Parameters):
 
 class TuningTool():
     def __init__(self, filename):
+        self.image = None
         self.data = common.Data(filename)
         self.params = ParametersProxy(self.data.params)
-        self.gui = gui.WindowManager(self.params, callback=self.tick)
+        self.gui = gui.WindowManager(self.params, callback=self.get_image)
+        self.thread = threading.Thread(target=self.runner)
+        self.thread.start()
 
-    def tick(self, dummy):
+    def get_image(self, dummy):
+        return self.image
+
+    def runner(self):
+        while True:
+            self.tick()
+            time.sleep(1)
+
+    def tick(self):
         print('py before tick')
         t = self.data.t
         ans = pybind_ext.tick(
@@ -114,10 +129,7 @@ class TuningTool():
         # convert CvMatProto object to opencv object
         c = self.data.local.floor
         np_data = np.frombuffer(c.data, dtype=np.uint8)
-        image = cv2.cvtColor(np_data.reshape(c.height, c.width, -1), cv2.COLOR_BGR2RGB)
-
-        time.sleep(0.5) # TODO
-        return image
+        self.image = cv2.cvtColor(np_data.reshape(c.height, c.width, -1), cv2.COLOR_BGR2RGB)
 
 
 def parse_args(args: list) -> argparse.Namespace:

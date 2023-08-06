@@ -30,6 +30,9 @@ class OpenCVWindow(QWidget):
         if self.callback:
             self.image = self.callback(self.parameters)
         image = self.image
+        if image is None:
+            print('WARNING: no image yet?') # TODO: replace this with showing a black image with red text 'no data' at start and after reset
+            return
         # inspect image, set title
         zoom = self.parameters.get('zoom')
         height, width, channel = image.shape
