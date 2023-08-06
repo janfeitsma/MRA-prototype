@@ -55,7 +55,7 @@ class TuningTool():
     def __init__(self, filename):
         self.image = None
         self.data = common.Data(filename)
-        self.params = parameters.ParametersProxy(self.data.params, RANGE_HINTS)
+        self.params = parameters.ParametersProxy(self.data.params.solver, RANGE_HINTS)
         self.gui = gui.WindowManager(self.params, callback=self.get_image)
         self.thread = threading.Thread(target=self.runner)
         self.thread.start()
@@ -69,6 +69,8 @@ class TuningTool():
             time.sleep(1)
 
     def tick(self):
+        print(self.data.params.solver)
+        return
         print('py before tick')
         t = self.data.t
         ans = pybind_ext.tick(
