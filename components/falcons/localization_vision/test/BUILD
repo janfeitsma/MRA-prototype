@@ -13,7 +13,16 @@ pybind_extension(
 
 py_binary(
     name = "tune",
-    srcs = ["tune.py"],
+    srcs = [
+        "tune.py",
+        "common.py",
+        "gui.py",
+        "gui_opencv.py",
+        "gui_config.py",
+        "gui_parameters.py",
+        "parameters.py",
+        "tracing.py",
+    ],
     python_version = "PY3",
     visibility = ["//visibility:public"],
     deps = [
