@@ -98,6 +98,7 @@ def parse_args(args: list) -> argparse.Namespace:
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
         pass
     parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=CustomFormatter)
+    parser.add_argument('-d', '--debug', help='enable highly experimental tracing', action='store_true')
     parser.add_argument('datafile', help='data file to load')
     return parser.parse_args(args)
 
@@ -106,6 +107,10 @@ def main(args: argparse.Namespace) -> None:
     """
     Run the tuning tool.
     """
+    if args.debug:
+        # JFEI-private debugging (based on my repo https://github.com/janfeitsma/extendedlogging)
+        # slap some tracing decorators onto our code
+        import tracing
     t = TuningTool(args.datafile)
     t.gui.run()
 
