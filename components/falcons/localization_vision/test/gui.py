@@ -1,5 +1,4 @@
 import sys
-import signal
 import numpy as np
 from PyQt5.QtWidgets import QApplication
 from gui_opencv import OpenCVWindow
@@ -48,14 +47,10 @@ class WindowManager():
         self.opencv_window.closeEvent = lambda event: self.shutdown()
 
     def shutdown(self):
-        # Add any cleanup code here
         self.app.quit()
 
     def run(self):
-        # Set up a signal handler for SIGINT (Ctrl-C)
-        signal.signal(signal.SIGINT, lambda signal, frame: self.app.quit())
-        # Run
-        sys.exit(self.app.exec_())
+        self.app.exec()
 
 
 def main(qargs=[]):

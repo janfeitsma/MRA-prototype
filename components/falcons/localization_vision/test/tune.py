@@ -15,11 +15,13 @@ see TODO example.png
 import sys
 import copy
 import time
+import signal
 import argparse
 import types
 import numpy as np
 import cv2
 import threading
+threading.current_thread().name = "main-gui" # instead of default MainThread
 
 # own modules
 import common
@@ -57,19 +59,33 @@ class TuningTool():
         self.data = common.Data(filename)
         self.params = parameters.ParametersProxy(self.data.params.solver, RANGE_HINTS)
         self.gui = gui.WindowManager(self.params, callback=self.get_image)
-        self.thread = threading.Thread(target=self.runner)
-        self.thread.start()
+        self._stop = False
+        # Prepare worker thread (next to GUI thread)
+        self.thread = threading.Thread(target=self.loop_tick, name="worker-tick")
+        # Set up a signal handler for SIGINT (Ctrl-C)
+        signal.signal(signal.SIGINT, self.signal_handler)
 
     def get_image(self, dummy):
         return self.image
 
-    def runner(self):
-        while True:
+    def run(self):
+        self.thread.start()
+        self.gui.run()
+        self._stop = True
+
+    def stop(self):
+        self._stop = True
+        self.gui.app.quit()
+
+    def loop_tick(self):
+        it = 0
+        while not self._stop:
+            it += 1
             self.tick()
             time.sleep(1)
 
     def tick(self):
-        print(self.data.params.solver)
+        print(self.data.params.solver.blurFactor)
         return
         print('py before tick')
         t = self.data.t
@@ -88,6 +104,10 @@ class TuningTool():
         np_data = np.frombuffer(c.data, dtype=np.uint8)
         self.image = cv2.cvtColor(np_data.reshape(c.height, c.width, -1), cv2.COLOR_BGR2RGB)
 
+    def signal_handler(self, s, frame):
+        print() # so ^C appears on its own line
+        self.stop()
+
 
 def parse_args(args: list) -> argparse.Namespace:
     """
@@ -98,7 +118,7 @@ def parse_args(args: list) -> argparse.Namespace:
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
         pass
     parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=CustomFormatter)
-    parser.add_argument('-d', '--debug', help='enable highly experimental tracing', action='store_true')
+    parser.add_argument('-d', '--debug', help='enable highly experimental autologging/tracing', action='store_true')
     parser.add_argument('datafile', help='data file to load')
     return parser.parse_args(args)
 
@@ -111,8 +131,9 @@ def main(args: argparse.Namespace) -> None:
         # JFEI-private debugging (based on my repo https://github.com/janfeitsma/extendedlogging)
         # slap some tracing decorators onto our code
         import tracing
+    # setup and run the tuning tool
     t = TuningTool(args.datafile)
-    t.gui.run()
+    t.run()
 
 
 if __name__ == '__main__':
