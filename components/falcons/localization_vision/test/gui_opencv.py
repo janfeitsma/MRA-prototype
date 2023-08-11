@@ -11,9 +11,7 @@ class OpenCVWindow(QWidget):
         self.parameters = parameters
         self.callback = callback
 
-        # Dummy OpenCV object (blue rectangle)
-        self.image = np.zeros((300, 400, 3), dtype=np.uint8)
-        self.image[:] = (255, 0, 0)
+        self.image = self.initial_image() # NO DATA (yet)
         self.image_label = QLabel()
 
         layout = QVBoxLayout()
@@ -25,14 +23,35 @@ class OpenCVWindow(QWidget):
         self.timer.timeout.connect(self.update_image)
         self.timer.start(100)
 
+    def initial_image(self):
+        # Image dimensions
+        width = 400
+        height = 300
+        # Create a black background image
+        image = np.zeros((height, width, 3), dtype=np.uint8)
+        # Define the text and its properties
+        text = 'NO DATA'
+        font_scale = 2
+        font_thickness = 3
+        font_color = (255, 0, 0)  # Red color in BGR format
+        # Calculate text size
+        text_size = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_thickness)[0]
+        text_width, text_height = text_size
+        # Calculate text position for centering
+        x_position = (width - text_width) // 2
+        y_position = (height + text_height) // 2
+        # Put the text on the black background
+        cv2.putText(image, text, (x_position, y_position), cv2.FONT_HERSHEY_SIMPLEX, font_scale, font_color, font_thickness)
+        return image
+
     def update_image(self):
         # retrieve via callback
         if self.callback:
-            self.image = self.callback(self.parameters)
+            cb_image = self.callback(self.parameters)
+            if cb_image:
+                self.image = cb_image
+            # otherwise: no data yet, do not modify initial_image
         image = self.image
-        if image is None:
-            print('WARNING: no image yet?') # TODO: replace this with showing a black image with red text 'no data' at start and after reset
-            return
         # inspect image, set title
         zoom = self.parameters.get('zoom')
         height, width, channel = image.shape
