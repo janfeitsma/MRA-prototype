@@ -18,6 +18,7 @@ class ConfigurationWindow(QWidget):
         super(ConfigurationWindow, self).__init__()
         self.setWindowTitle("Configuration")
         grid_layout = QGridLayout()
+        self.parameters = parameters
         self.add_row_to_layout(grid_layout, self.create_header_row())
         for p in parameters:
             row = self.create_parameter_row(p)
@@ -85,7 +86,7 @@ class ConfigurationWindow(QWidget):
         return row
 
     def update_slider(self, parameter, value_edit, slider):
-        parameter.set(value_edit.text())
+        self.parameters.set(parameter.name, value_edit.text())
         if parameter.value_type == float:
             slider.setValue(parameter_value_float2slider(parameter))
         else:
@@ -98,9 +99,8 @@ class ConfigurationWindow(QWidget):
 
     def on_slider_value_changed(self, new_value, parameter, value_label, value_edit):
         if parameter.value_type == float:
-            parameter.set(parameter_value_slider2float(parameter, new_value))
-        else:
-            parameter.set(new_value)
+            new_value = parameter_value_slider2float(parameter, new_value)
+        self.parameters.set(parameter.name, new_value)
         self.set_label_text(parameter, value_label, value_edit)
 
     def set_label_text(self, parameter, value_label, value_edit):
