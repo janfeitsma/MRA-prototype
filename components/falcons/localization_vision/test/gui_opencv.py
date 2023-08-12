@@ -51,7 +51,7 @@ class OpenCVWindow(QWidget):
         # retrieve via callback
         if self.callback:
             cb_image = self.callback(self.parameters)
-            if cb_image:
+            if not cb_image is None:
                 self.image = cb_image
             # otherwise: no data yet, do not modify initial_image
         image = self.image
