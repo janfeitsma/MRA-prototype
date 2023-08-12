@@ -18,6 +18,9 @@ class OpenCVWindow(QWidget):
         layout.addWidget(self.image_label)
         self.setLayout(layout)
 
+        # Default config window appears top-left, let's try to put image next to it
+        self.move(750, 100)
+
         # Create a timer to update the image periodically (e.g., every 100ms)
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_image)

@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QSlider, QLineEdit
+from PyQt5.QtWidgets import *
+import logging
 
 SLIDER_RESOLUTION = 100
 
@@ -13,14 +14,58 @@ def parameter_value_slider2float(parameter, slider_int_value):
     return float(slider_int_value) / SLIDER_RESOLUTION * (parameter.max_value - parameter.min_value) + parameter.min_value
 
 
+class CustomToggleButton(QPushButton):
+    """
+    Specialized button. Can be pressed, unpressed, remembers state and changes text/color.
+
+    In state 'disabled', text1 is shown using style1.
+    In state 'enabled', text2 is shown using style2.
+    Default is disabled.
+    """
+    def __init__(self, text1, text2, style1=None, style2=None, enable=False):
+        QPushButton.__init__(self, text1)
+        self.texts = [text1, text2]
+        self.styles = [style1, style2]
+        self.setCheckable(True)
+        self.clicked.connect(self.update_text_style)
+        self.update_text_style(enable)
+    def update_text_style(self, active):
+        self.setText(self.texts[active])
+        self.setStyleSheet(self.styles[active])
+
+
 class ConfigurationWindow(QWidget):
     def __init__(self, parameters):
         super(ConfigurationWindow, self).__init__()
         self.setWindowTitle("Configuration")
-        grid_layout = QGridLayout()
         self.parameters = parameters
+        self.setLayout(self.create_layout())
+        self.setGeometry(100, 100, 500, 200)
+
+    def setup_buttons(self, layout):
+        # Create buttons
+        self.reset_button = QPushButton("Reset")
+        self.active_button = CustomToggleButton("Activate", "Stop", style1="background-color : green", style2="background-color : red")
+        self.overlay_button = CustomToggleButton("Show overlay", "Hide overlay")
+        # Connect signals/slots
+        self.reset_button.clicked.connect(self.reset_button_clicked)
+        self.active_button.clicked.connect(self.active_button_clicked)
+        self.overlay_button.clicked.connect(self.overlay_button_clicked)
+        # Add buttons to the layout
+        layout.addWidget(self.reset_button)
+        layout.addWidget(self.active_button)
+        layout.addWidget(self.overlay_button)
+
+    def create_layout(self):
+        # Create layouts
+        main_layout = QVBoxLayout()
+        button_layout = QHBoxLayout()
+        grid_layout = QGridLayout()
+        # Set up buttons
+        self.setup_buttons(button_layout)
+        # Fill grid layout, configure sliders
         self.add_row_to_layout(grid_layout, self.create_header_row())
-        for p in parameters:
+        for p in self.parameters:
             row = self.create_parameter_row(p)
             self.add_row_to_layout(grid_layout, row)
         grid_layout.setColumnStretch(0, 0)  # Fix the first column width
@@ -28,16 +73,18 @@ class ConfigurationWindow(QWidget):
         grid_layout.setColumnStretch(2, 1)  # Allow the slider column to stretch
         grid_layout.setColumnStretch(3, 0)  # Fix the fourth column width
         grid_layout.setColumnStretch(4, 0)  # Fix the fifth column width
-        self.setLayout(grid_layout)
-        self.setGeometry(100, 100, 500, 200)  # Set a wider window size
+        # Add button layout and grid layout to the main layout
+        main_layout.addLayout(button_layout)
+        main_layout.addLayout(grid_layout)
+        return main_layout
 
     def create_header_row(self):
         result = [
             QLabel('parameter'),
-            QLabel('min value'),
+            QLabel('minval'),
             QLabel('slider'),
-            QLabel('cur value'),
-            QLabel('max value'),
+            QLabel('curval'),
+            QLabel('maxval'),
         ]
         # make bold
         font = result[0].font()
@@ -110,4 +157,13 @@ class ConfigurationWindow(QWidget):
         else:
             value_label.setText(f'{parameter.value:d}')
             value_edit.setText(f'{parameter.value:d}')
+
+    def reset_button_clicked(self, e):
+        logging.info(e)
+
+    def active_button_clicked(self, e):
+        logging.info(e)
+
+    def overlay_button_clicked(self, e):
+        logging.info(e)
 
