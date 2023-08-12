@@ -28,11 +28,15 @@ class CustomToggleButton(QPushButton):
         self.styles = [style1, style2]
         self.setCheckable(True)
         self.clicked.connect(self.update_text_style)
-        self.update_text_style(enable)
+        self.set_state(enable)
     def update_text_style(self, active):
         self.setText(self.texts[active])
         self.setStyleSheet(self.styles[active])
-
+    def set_state(self, active):
+        self.setChecked(active)
+        self.update_text_style(active)
+    def reset(self):
+        self.set_state(False)
 
 class ConfigurationWindow(QWidget):
     def __init__(self, parameters):
@@ -46,7 +50,7 @@ class ConfigurationWindow(QWidget):
         # Create buttons
         self.reset_button = QPushButton("Reset")
         self.active_button = CustomToggleButton("Activate", "Stop", style1="background-color : green", style2="background-color : red")
-        self.overlay_button = CustomToggleButton("Show overlay", "Hide overlay")
+        self.overlay_button = CustomToggleButton("Show overlay", "Hide overlay", enable=self.parameters.get('overlay'))
         # Connect signals/slots
         self.reset_button.clicked.connect(self.reset_button_clicked)
         self.active_button.clicked.connect(self.active_button_clicked)
@@ -66,8 +70,9 @@ class ConfigurationWindow(QWidget):
         # Fill grid layout, configure sliders
         self.add_row_to_layout(grid_layout, self.create_header_row())
         for p in self.parameters:
-            row = self.create_parameter_row(p)
-            self.add_row_to_layout(grid_layout, row)
+            if p.slider:
+                row = self.create_parameter_row(p)
+                self.add_row_to_layout(grid_layout, row)
         grid_layout.setColumnStretch(0, 0)  # Fix the first column width
         grid_layout.setColumnStretch(1, 0)  # Fix the second column width
         grid_layout.setColumnStretch(2, 1)  # Allow the slider column to stretch
@@ -159,11 +164,19 @@ class ConfigurationWindow(QWidget):
             value_edit.setText(f'{parameter.value:d}')
 
     def reset_button_clicked(self, e):
-        logging.info(e)
+        # "signal trick": reset button is not supposed to hold state,
+        # the worker thread / upstream should set it back to False after completion
+        self.parameters.set('reset', True)
+        # disable active state and disable overlay
+        self.parameters.set('active', False)
+        self.parameters.set('overlay', False)
+        self.active_button.reset()
+        self.overlay_button.reset()
+        # worker thread shall restore parameters, restore initial image
 
     def active_button_clicked(self, e):
-        logging.info(e)
+        self.parameters.set('active', e)
 
     def overlay_button_clicked(self, e):
-        logging.info(e)
+        self.parameters.set('overlay', e)
 

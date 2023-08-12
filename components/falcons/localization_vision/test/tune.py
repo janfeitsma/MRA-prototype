@@ -16,10 +16,12 @@ import sys
 import copy
 import time
 import signal
+from collections import deque
 import argparse
 import types
 import numpy as np
 import cv2
+import logging
 import threading
 threading.current_thread().name = "main-gui" # instead of default MainThread
 
@@ -50,6 +52,11 @@ RANGE_HINTS = {
     'guessing.random.exclusionRadius': (0.0, 5.0),
     'guessing.random.maxTries': (0, 10),
 }
+INFO_LINES = [
+    'mean tick',
+    'return code',
+    'best candidate',
+]
 
 
 
@@ -60,10 +67,16 @@ class TuningTool():
         self.params = parameters.ParametersProxy(self.data.params.solver, RANGE_HINTS)
         self.gui = gui.WindowManager(self.params, callback=self.get_image)
         self._stop = False
+        # Prepare overlay information
+        self.elapsed_stats = deque(maxlen=20)
+        self.reset_info()
         # Prepare worker thread (next to GUI thread)
         self.thread = threading.Thread(target=self.loop_tick, name="worker-tick")
         # Set up a signal handler for SIGINT (Ctrl-C)
         signal.signal(signal.SIGINT, self.signal_handler)
+
+    def reset_info(self):
+        self.info = {k: '' for k in INFO_LINES}
 
     def get_image(self, dummy):
         return self.image
@@ -81,28 +94,83 @@ class TuningTool():
         it = 0
         while not self._stop:
             it += 1
+            frequency = self.params.gui_params.get('frequency')
+            nominal_dt = 1.0 / frequency
+            t0 = time.time()
             self.tick()
-            time.sleep(1)
+            elapsed = time.time() - t0
+            # sleep according to configured frequency (for which we have a slider)
+            tts = nominal_dt - elapsed
+            if tts > 0:
+                time.sleep(tts)
+            # statistics on effective frequency and duty-cycle
+            # (which may include some overhead from pybind data marshalling and overlay creation)
+            if self.params.gui_params.get('active'):
+                self.elapsed_stats.append(elapsed)
+            else:
+                self.elapsed_stats.clear()
 
     def tick(self):
-        print(self.data.params.solver.blurFactor)
-        return
-        print('py before tick')
+        # GUI sliders are connected directly to protobuf self.data.params
+        # GUI control params, buttons, frequency however need to be handled specially
+        # for instance when hitting the reset button, state needs to be wiped
+
+        # Handle reset
+        self.reset_info()
+        if self.params.gui_params.get('reset'):
+            # TODO whipe state
+            # TODO reload params (and update sliders accordingly)
+            # all done, reset the reset flag :)
+            self.params.gui_params.set('reset', False)
+
+        # If active, then call C++ tick
+        # while updating self.image and self.data
+        if self.params.gui_params.get('active'):
+            self.tick_call()
+
+        # Make info lines; these are important enough to also dump to stdout
+        info_lines = self.make_info_lines()
+        if self.params.gui_params.get('active'):
+            print('\n'.join(info_lines))
+
+        # Optional overlay
+        if self.params.gui_params.get('overlay'):
+            self.add_overlay(info_lines)
+
+    def tick_call(self):
         t = self.data.t
-        ans = pybind_ext.tick(
+        return_code = pybind_ext.tick(
             #t,
             self.data.input,
             self.data.params,
             self.data.state,
             self.data.output,
             self.data.local) # local is a synonym for diagnostics. If too confusing, then lets bulk-rename? (Naming came from FMI standard.)
-        print('py after tick, ans=', ans)
+        self.info['return code'] = 'return code: {:d}'.format(return_code)
         print(self.data.output)
-
         # convert CvMatProto object to opencv object
         c = self.data.local.floor
         np_data = np.frombuffer(c.data, dtype=np.uint8)
         self.image = cv2.cvtColor(np_data.reshape(c.height, c.width, -1), cv2.COLOR_BGR2RGB)
+
+    def make_info_lines(self):
+        # Determine text lines to show
+        if len(self.elapsed_stats):
+            self.info['mean tick'] = 'mean tick: {:.1f}ms'.format(1e3 * np.mean(self.elapsed_stats))
+        self.info['best candidate'] = 'N/A'
+        if len(self.data.output.candidates):
+            c = self.data.output.candidates[0]
+            self.info['best candidate'] = 'x={:7.3f} y={:7.3f} rz={:7.3f} conf={:5.3f}'.format(c.pose.x, c.pose.y, c.pose.rz, c.confidence)
+        # Make array of lines (using OrderedDict and layout specification preference from INFO_LINES)
+        # Replace missing data with empty strings, to keep consistent line layout/spacing
+        info_lines = self.info.values()
+        return info_lines
+
+    def add_overlay(self, info_lines):
+        # Add text overlay
+        for i, line in enumerate(info_lines):
+            #cv2.putText(self.image, line, (10, 30 + i*20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
+            cv2.putText(self.image, line, (10, 30 + i*20), 1, 1, (255, 0, 0), 1)
 
     def signal_handler(self, s, frame):
         print() # so ^C appears on its own line
@@ -128,8 +196,8 @@ def main(args: argparse.Namespace) -> None:
     Run the tuning tool.
     """
     if args.debug:
-        # JFEI-private debugging (based on my repo https://github.com/janfeitsma/extendedlogging)
-        # slap some tracing decorators onto our code
+        # JFEI-private debugging (based on autologging extensions in my repo https://github.com/janfeitsma/extendedlogging)
+        # slap some tracing decorators onto our code, automagically!
         import tracing
     # setup and run the tuning tool
     t = TuningTool(args.datafile)

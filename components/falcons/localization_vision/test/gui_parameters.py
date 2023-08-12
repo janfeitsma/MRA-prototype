@@ -1,13 +1,17 @@
 from collections import OrderedDict
 
 class Param:
-    def __init__(self, name, value_type, min_value, max_value, default_value=None):
+    def __init__(self, name, value_type, min_value=None, max_value=None, default_value=None, slider=True):
         self.name = name
         self.value_type = value_type
+        if value_type is bool:
+            min_value = False
+            max_value = True
         self.min_value = min_value
         self.max_value = max_value
         self.default_value = default_value if default_value is not None else min_value
         self.value = self.default_value # current value is modifiable by sliders
+        self.slider = slider
         self.notify = lambda n, v: None
 
     def set(self, value):
