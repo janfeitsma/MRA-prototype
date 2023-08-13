@@ -67,6 +67,7 @@ class TuningTool():
         self.params = parameters.ParametersProxy(self.data.params.solver, RANGE_HINTS)
         self.gui = gui.WindowManager(self.params, callback=self.get_image)
         self._stop = False
+        self.max_ticks = None
         # Prepare overlay information
         self.elapsed_stats = deque(maxlen=20)
         self.reset_info()
@@ -78,6 +79,9 @@ class TuningTool():
     def reset_info(self):
         self.info = {k: '' for k in INFO_LINES}
 
+    def reset_data(self):
+        self.data.state.Clear()
+
     def get_image(self, dummy):
         return self.image
 
@@ -88,10 +92,16 @@ class TuningTool():
 
     def stop(self):
         self._stop = True
+        #time.sleep(5) # HACK to let the gui show for a while after using -a -n 1 options
         self.gui.app.quit()
+
+    def wait_active(self):
+        while not self.params.gui_params.get('active'):
+            time.sleep(0.1)
 
     def loop_tick(self):
         it = 0
+        self.wait_active()
         while not self._stop:
             it += 1
             frequency = self.params.gui_params.get('frequency')
@@ -103,12 +113,9 @@ class TuningTool():
             tts = nominal_dt - elapsed
             if tts > 0:
                 time.sleep(tts)
-            # statistics on effective frequency and duty-cycle
-            # (which may include some overhead from pybind data marshalling and overlay creation)
-            if self.params.gui_params.get('active'):
-                self.elapsed_stats.append(elapsed)
-            else:
-                self.elapsed_stats.clear()
+            # early exit? for testing/debugging
+            if self.max_ticks and it >= self.max_ticks:
+                self.stop()
 
     def tick(self):
         # GUI sliders are connected directly to protobuf self.data.params
@@ -116,9 +123,10 @@ class TuningTool():
         # for instance when hitting the reset button, state needs to be wiped
 
         # Handle reset
-        self.reset_info()
+        self.reset_info() # refreshed each tick
         if self.params.gui_params.get('reset'):
-            # TODO whipe state
+            # clear state
+            self.reset_data()
             # TODO reload params (and update sliders accordingly)
             # all done, reset the reset flag :)
             self.params.gui_params.set('reset', False)
@@ -126,7 +134,14 @@ class TuningTool():
         # If active, then call C++ tick
         # while updating self.image and self.data
         if self.params.gui_params.get('active'):
+            t0 = time.time()
             self.tick_call()
+            elapsed = time.time() - t0
+            # Statistics on effective frequency and duty-cycle
+            # (which may include some overhead from pybind data marshalling and overlay creation)
+            self.elapsed_stats.append(elapsed)
+        else:
+            self.elapsed_stats.clear()
 
         # Make info lines; these are important enough to also dump to stdout
         info_lines = self.make_info_lines()
@@ -156,11 +171,11 @@ class TuningTool():
     def make_info_lines(self):
         # Determine text lines to show
         if len(self.elapsed_stats):
-            self.info['mean tick'] = 'mean tick: {:.1f}ms'.format(1e3 * np.mean(self.elapsed_stats))
+            self.info['mean tick'] = 'mean tick: {:.1f}ms (n={:d})'.format(1e3 * np.mean(self.elapsed_stats), len(self.elapsed_stats))
         self.info['best candidate'] = 'N/A'
         if len(self.data.output.candidates):
             c = self.data.output.candidates[0]
-            self.info['best candidate'] = 'x={:7.3f} y={:7.3f} rz={:7.3f} conf={:5.3f}'.format(c.pose.x, c.pose.y, c.pose.rz, c.confidence)
+            self.info['best candidate'] = 'best candidate: x={:7.3f} y={:7.3f} rz={:7.3f} conf={:5.3f}'.format(c.pose.x, c.pose.y, c.pose.rz, c.confidence)
         # Make array of lines (using OrderedDict and layout specification preference from INFO_LINES)
         # Replace missing data with empty strings, to keep consistent line layout/spacing
         info_lines = self.info.values()
@@ -186,6 +201,9 @@ def parse_args(args: list) -> argparse.Namespace:
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
         pass
     parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=CustomFormatter)
+    parser.add_argument('-a', '--activate', help='start ticking, do not wait for user to press the GUI button', action='store_true')
+    parser.add_argument('-r', '--reset', help='clear state data instead of using it', action='store_true')
+    parser.add_argument('-n', '--ticks', help='run for n ticks, default forever', type=int)
     parser.add_argument('-d', '--debug', help='enable highly experimental autologging/tracing', action='store_true')
     parser.add_argument('datafile', help='data file to load')
     return parser.parse_args(args)
@@ -201,6 +219,11 @@ def main(args: argparse.Namespace) -> None:
         import tracing
     # setup and run the tuning tool
     t = TuningTool(args.datafile)
+    t.max_ticks = args.ticks
+    if args.activate:
+        t.params.set('active', True)
+    if args.reset:
+        t.reset_data()
     t.run()
 
 
