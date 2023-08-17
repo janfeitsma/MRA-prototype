@@ -154,14 +154,16 @@ class TuningTool():
 
     def tick_call(self):
         t = self.data.t
-        return_code = pybind_ext.tick(
+        return_tuple = pybind_ext.tick(
             #t,
             self.data.input,
             self.data.params,
-            self.data.state,
-            self.data.output,
-            self.data.local) # local is a synonym for diagnostics. If too confusing, then lets bulk-rename? (Naming came from FMI standard.)
+            self.data.state)
+        return_code = return_tuple[0]
         self.info['return code'] = 'return code: {:d}'.format(return_code)
+        self.data.state = return_tuple[1]
+        self.data.output = return_tuple[2]
+        self.data.local = return_tuple[3] # local is a synonym for diagnostics. If too confusing, then lets bulk-rename? (Naming came from FMI standard.)
         print(self.data.output)
         # convert CvMatProto object to opencv object
         c = self.data.local.floor
