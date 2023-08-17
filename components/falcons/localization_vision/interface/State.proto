@@ -5,6 +5,7 @@ package MRA.FalconsLocalizationVision;
 import "google/protobuf/timestamp.proto";
 import "datatypes/Pose.proto";
 import "datatypes/CvMat.proto";
+import "components/falcons/localization_vision/interface/Params.proto";
 
 message TrackerState
 {
@@ -19,5 +20,6 @@ message State
     MRA.Datatypes.CvMatProto referenceFloor = 1;
     int32 tick = 2;
     repeated TrackerState trackers = 3;
+    Params params = 4; // to reinitialize upon parameter change
 }
 

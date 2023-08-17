@@ -211,7 +211,7 @@ void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, floa
         }
     }
     // apply blur
-    int blurKernelSize = (int)_ppm * blurFactor;
+    int blurKernelSize = (int)(_ppm * blurFactor);
     if (blurKernelSize)
     {
         applyBlur(m, blurKernelSize);

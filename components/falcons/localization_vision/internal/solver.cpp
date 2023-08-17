@@ -5,6 +5,7 @@
 #include "geometry.hpp"
 #include "opencv_utils.hpp"
 
+
 using namespace MRA::FalconsLocalizationVision;
 
 
@@ -24,6 +25,8 @@ void Solver::configure(Params const &p)
     // configure helper classes
     _floor.configure(_params);
     _fitAlgorithm.configure(_params.solver());
+    // trigger re-init
+    _reinit = true;
 }
 
 void Solver::checkParamsValid() const
@@ -79,13 +82,6 @@ cv::Mat Solver::createReferenceFloorMat(float blurFactor) const
 {
     cv::Mat result;
 
-    // check if (re)calculation is needed
-    if (_state.has_referencefloor())
-    {
-        MRA::OpenCVUtils::deserializeCvMat(_state.referencefloor(), result); // if not fast enough, then cache internally
-        return result;
-    }
-
     // given the configured field (letter model and optional custom shapes),
     // create a CV::mat representation, using a blur factor
     // serialize and store the mat in state, as this should not be recalculated each tick
@@ -105,13 +101,30 @@ cv::Mat Solver::createReferenceFloorMat(float blurFactor) const
     return result;
 }
 
-void Solver::updateReferenceFloorMat()
+void Solver::reinitialize()
 {
-    if (!_state.has_referencefloor())
+    // first check the flag
+    if (!_reinit) return;
+
+    // check if (re)calculation is needed based on state
+    // if not (cache_hit), then deserialize from state and done,
+    // if yes then calculate using params
+    std::string stateParamsStr, paramsStr;
+    _state.params().SerializeToString(&stateParamsStr);
+    _params.SerializeToString(&paramsStr);
+    bool cache_hit = (stateParamsStr == paramsStr) && _state.has_referencefloor();
+    if (cache_hit)
     {
-        // store result as protobuf CvMatProto object for next iteration (via state)
-        MRA::OpenCVUtils::serializeCvMat(_referenceFloorMat, *_state.mutable_referencefloor());
+        MRA::OpenCVUtils::deserializeCvMat(_state.referencefloor(), _referenceFloorMat);
+        return;
     }
+
+    // calculate reference floor and store in state as protobuf CvMatProto object for next iteration (via state)
+    _referenceFloorMat = createReferenceFloorMat(_params.solver().blurfactor());
+    MRA::OpenCVUtils::serializeCvMat(_referenceFloorMat, *_state.mutable_referencefloor());
+
+    // store params into state
+    _state.mutable_params()->CopyFrom(_params);
 }
 
 cv::Mat Solver::createLinePointsMat(float overruleRadius) const
@@ -255,8 +268,7 @@ int Solver::run()
     // fit given white pixels and initial guess to the reference field
 
     // create or get the cached reference floor
-    _referenceFloorMat = createReferenceFloorMat(_params.solver().blurfactor());
-    updateReferenceFloorMat();
+    reinitialize();
 
     // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
     // TODO: factor out LinePoints object with operations (the mat transform implementation seems too slow)

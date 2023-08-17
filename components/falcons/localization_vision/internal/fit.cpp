@@ -95,8 +95,7 @@ double FitFunction::calc(const double *x) const
     cv::Mat transformedLinePoints = transform3dof(_rcsLinePoints, x[0], x[1], x[2]);
     double overlapNormalized = calcOverlap(_referenceFloor, transformedLinePoints);
     double score = 1.0 - overlapNormalized;
-    printf("FitFunction::calc (%9.5f,%9.5f,%9.5f) -> score %7.5f\n", x[0], x[1], x[2], score);
-    fflush(stdout);
+    //printf("FitFunction::calc (%9.5f,%9.5f,%9.5f) -> score %7.5f\n", x[0], x[1], x[2], score); fflush(stdout);
     return score;
 }
 
