@@ -36,8 +36,9 @@ private:
     int _numPixelsY;
 
     // blur helpers
-    void applyBlur(cv::Mat &image, int np) const;
-    cv::Mat blurFloor(cv::Mat &imageIn, float blurValue) const;
+    cv::Mat applyBlur(const cv::Mat &image, float blurFactor) const;
+    void recursiveBlur(cv::Mat &image, int x, int y, float blurFactor, uchar newPixelValue, int depth) const;
+
 
 }; // class Floor
 

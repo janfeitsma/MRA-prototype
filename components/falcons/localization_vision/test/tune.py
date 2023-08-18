@@ -37,7 +37,7 @@ from components.falcons.localization_vision.test import pybind_ext
 RANGE_HINTS = {
     'pixelsPerMeter': (10, 200),
     'floorBorder': (0.1, 2.0),
-    'blurFactor': (0.0, 5.0),
+    'blurFactor': (0.0, 1.0),
     'actionRadius.x': (0.0, 2.0),
     'actionRadius.y': (0.0, 2.0),
     'actionRadius.rz': (0.0, 2.0),

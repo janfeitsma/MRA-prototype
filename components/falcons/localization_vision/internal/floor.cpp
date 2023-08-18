@@ -128,45 +128,51 @@ cv::Point Floor::pointFcsToPixel(MRA::Datatypes::Point const &p) const
     return cv::Point((p.y() - _originY) * _ppm, (p.x() - _originX) * _ppm);
 }
 
-// convert the floor into a blurred floor
-// this is done by calculating for each pixel the values of the surrounding pixels
-// because the surrounding also have surrounding, the calculation is run iterative
-// this calculation is not part of the main calculation loop, so optimization is not
-// that important for this function
-void Floor::applyBlur(cv::Mat &image, int np) const
+cv::Mat Floor::applyBlur(const cv::Mat &image, float blurFactor) const
 {
-    for (int ii = 0; ii < np; ii++)
+    int nx = image.cols;
+    int ny = image.rows;
+    cv::Mat imageOut = image.clone(); // Create a copy of the input image
+    for (int x = 0; x < nx; x++)
     {
-        float blurValue = cos( 2.0f*M_PI*ii/(4*np) ); // use only first 45 degrees of cos curve
-        image = blurFloor(image, blurValue);
-    }
-}
-
-// copy each pixel to a new floor and copy also the 8 Neighbours to the new floor
-// the 8 Neighbours should have a lower value then the center pixel
-cv::Mat Floor::blurFloor(cv::Mat &imageIn, float blurValue) const
-{
-    int nx = imageIn.cols;
-    int ny = imageIn.rows;
-    cv::Mat imageOut = cv::Mat::zeros(ny, nx, CV_8UC1);
-    for (int x = 1; x < nx-1; x++)
-    {
-        for (int y = 1; y < ny-1; y++)
+        for (int y = 0; y < ny; y++)
         {
-            int pixelVal = imageIn.at<uchar>(y,x);
-            if (imageOut.at<uchar>(y  ,x  ) < pixelVal) { imageOut.at<uchar>(y  ,x  ) = pixelVal; } // center pixel
-            pixelVal = (int)(blurValue * pixelVal + 0.5f);
-            if (imageOut.at<uchar>(y-1,x-1) < pixelVal) { imageOut.at<uchar>(y-1,x-1) = pixelVal; } // bottom left
-            if (imageOut.at<uchar>(y-1,x  ) < pixelVal) { imageOut.at<uchar>(y-1,x  ) = pixelVal; } // bottom
-            if (imageOut.at<uchar>(y-1,x+1) < pixelVal) { imageOut.at<uchar>(y-1,x+1) = pixelVal; } // bottom right
-            if (imageOut.at<uchar>(y  ,x+1) < pixelVal) { imageOut.at<uchar>(y  ,x+1) = pixelVal; } // right
-            if (imageOut.at<uchar>(y+1,x+1) < pixelVal) { imageOut.at<uchar>(y+1,x+1) = pixelVal; } // top right
-            if (imageOut.at<uchar>(y+1,x  ) < pixelVal) { imageOut.at<uchar>(y+1,x  ) = pixelVal; } // top
-            if (imageOut.at<uchar>(y+1,x-1) < pixelVal) { imageOut.at<uchar>(y+1,x-1) = pixelVal; } // top left
-            if (imageOut.at<uchar>(y  ,x-1) < pixelVal) { imageOut.at<uchar>(y  ,x-1) = pixelVal; } // left
+            if (image.at<uchar>(y, x) > 0) // Assuming white lines have pixel value greater than 0
+            {
+                recursiveBlur(imageOut, x, y, blurFactor, static_cast<uchar>(blurFactor * static_cast<float>(image.at<uchar>(y, x))), 0);
+            }
         }
     }
     return imageOut;
+}
+
+void Floor::recursiveBlur(cv::Mat &image, int x, int y, float blurFactor, uchar newPixelValue, int depth) const
+{
+    int nx = image.cols;
+    int ny = image.rows;
+
+    if (x < 0 || x >= nx || y < 0 || y >= ny)
+        return;
+
+    uchar currentPixel = image.at<uchar>(y, x);
+
+    if (depth && (newPixelValue <= currentPixel))
+        return;
+
+    image.at<uchar>(y, x) = std::max(image.at<uchar>(y, x), newPixelValue);
+
+    newPixelValue = static_cast<uchar>(blurFactor * static_cast<float>(image.at<uchar>(y, x)));
+    ++depth;
+
+    // Recursively apply the algorithm to neighbors
+    recursiveBlur(image, x - 1, y - 1, blurFactor, newPixelValue, depth);
+    recursiveBlur(image, x    , y - 1, blurFactor, newPixelValue, depth);
+    recursiveBlur(image, x + 1, y - 1, blurFactor, newPixelValue, depth);
+    recursiveBlur(image, x - 1, y    , blurFactor, newPixelValue, depth);
+    recursiveBlur(image, x + 1, y    , blurFactor, newPixelValue, depth);
+    recursiveBlur(image, x - 1, y + 1, blurFactor, newPixelValue, depth);
+    recursiveBlur(image, x    , y + 1, blurFactor, newPixelValue, depth);
+    recursiveBlur(image, x + 1, y + 1, blurFactor, newPixelValue, depth);
 }
 
 void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, float blurFactor, cv::Mat &m) const
@@ -214,7 +220,7 @@ void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, floa
     int blurKernelSize = (int)(_ppm * blurFactor);
     if (blurKernelSize)
     {
-        applyBlur(m, blurKernelSize);
+        m = applyBlur(m, blurFactor);
     }
 }
 

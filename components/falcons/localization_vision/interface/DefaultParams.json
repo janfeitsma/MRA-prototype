@@ -23,7 +23,7 @@
         "numExtraThreads": 0,
         "pixelsPerMeter": 80,
         "floorBorder": 0.5,
-        "blurFactor": 0.3,
+        "blurFactor": 0.86,
         "actionRadius": {"x": 0.1, "y": 0.1, "rz": 0.3},
         "maxCount": 400,
         "epsilon": 1e-4,
