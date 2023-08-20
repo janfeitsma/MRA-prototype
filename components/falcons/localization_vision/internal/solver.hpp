@@ -51,9 +51,9 @@ private:
     bool _reinit = false;
     void reinitialize();
 
-    // input linepoints mat: calculate each tick, based on input landmarks / linepoints
-    cv::Mat _linePointsMat;
-    cv::Mat createLinePointsMat(float overruleRadius = 0.0) const;
+    // input linepoints: calculate each tick, based on input landmarks / linepoints
+    std::vector<cv::Point2f> _linePoints;
+    std::vector<cv::Point2f> createLinePoints() const;
 
     // setup trackers: existing ones from state and new ones from guessing configuration
     std::vector<Tracker> _trackers;

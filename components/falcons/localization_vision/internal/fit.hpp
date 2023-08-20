@@ -23,7 +23,7 @@ struct FitResult
 class FitFunction: public cv::MinProblemSolver::Function
 {
 public:
-    FitFunction(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, float ppm);
+    FitFunction(cv::Mat const &referenceFloor, std::vector<cv::Point2f> const &rcsLinePoints, float ppm);
 	double calc(const double *x) const; // this is the main scoring function to be minimized, x is a tuple (x,y,rz)
     int getDims() const { return 3; }
 
@@ -33,7 +33,7 @@ public:
 
 private:
     cv::Mat _referenceFloor;
-    cv::Mat _rcsLinePoints;
+    std::vector<cv::Point2f> _rcsLinePoints;
     double _rcsLinePointsPixelCount = 1.0; // for score normalization
     float _ppm; // needed to optimize in FCS instead of pixels
 }; // class FitFunction
@@ -50,7 +50,7 @@ public:
 
     FitResult run(
         cv::Mat const &referenceFloor,      // params translated once (at first tick) to reference floor to fit against, white pixels, potentially blurred
-        cv::Mat const &rcsLinePoints,       // input pixels translated to a floor that can be compared / fitted
+        std::vector<cv::Point2f> const &rcsLinePoints,
         MRA::Geometry::Pose const &guess,   // initial guess for the algorithm, note that the simplex is constructed AROUND it, so somewhere a shift might be needed
         MRA::Geometry::Pose const &step);   // initial step: search region
 
@@ -68,7 +68,7 @@ public:
 
     void run(
         cv::Mat const &referenceFloor,      // params translated once (at first tick) to reference floor to fit against, white pixels, potentially blurred
-        cv::Mat const &rcsLinePoints,       // input pixels translated to a floor that can be compared / fitted
+        std::vector<cv::Point2f> const &rcsLinePoints,
         std::vector<Tracker> &trackers);    // list of trackers/attempts to run, multithreaded if so configured
 
 private:

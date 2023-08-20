@@ -6,7 +6,7 @@
 using namespace MRA::FalconsLocalizationVision;
 
 
-void FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, std::vector<Tracker> &trackers)
+void FitAlgorithm::run(cv::Mat const &referenceFloor, std::vector<cv::Point2f> const &rcsLinePoints, std::vector<Tracker> &trackers)
 {
     // TODO: multithreading
 
@@ -23,7 +23,7 @@ void FitAlgorithm::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoin
     std::sort(trackers.begin(), trackers.end());
 }
 
-FitResult FitCore::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, MRA::Geometry::Pose const &guess, MRA::Geometry::Pose const &step)
+FitResult FitCore::run(cv::Mat const &referenceFloor, std::vector<cv::Point2f> const &rcsLinePoints, MRA::Geometry::Pose const &guess, MRA::Geometry::Pose const &step)
 {
     FitResult result;
 
@@ -54,7 +54,7 @@ FitResult FitCore::run(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoin
     return result;
 }
 
-FitFunction::FitFunction(cv::Mat const &referenceFloor, cv::Mat const &rcsLinePoints, float ppm)
+FitFunction::FitFunction(cv::Mat const &referenceFloor, std::vector<cv::Point2f> const &rcsLinePoints, float ppm)
 {
     _ppm = ppm;
     _referenceFloor = referenceFloor;

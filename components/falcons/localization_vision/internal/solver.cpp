@@ -127,12 +127,16 @@ void Solver::reinitialize()
     _state.mutable_params()->CopyFrom(_params);
 }
 
-cv::Mat Solver::createLinePointsMat(float overruleRadius) const
+std::vector<cv::Point2f> Solver::createLinePoints() const
 {
-    // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
-    cv::Mat result = _floor.createMat();
-    std::vector<Landmark> linePoints(_input.landmarks().begin(), _input.landmarks().end());
-    _floor.linePointsToCvMat(linePoints, result, overruleRadius);
+    std::vector<cv::Point2f> result;
+    for (const Landmark& landmark : _input.landmarks())
+    {
+        float x = landmark.x();
+        float y = landmark.y();
+        cv::Point2f lp(x, y);
+        result.push_back(lp);
+    }
     return result;
 }
 
@@ -175,7 +179,7 @@ std::vector<Tracker> Solver::createTrackers() const
 void Solver::runFitUpdateTrackers()
 {
     // run the fit algorithm (multithreaded, one per tracker) and update trackers
-    _fitAlgorithm.run(_referenceFloorMat, _linePointsMat, _trackers);
+    _fitAlgorithm.run(_referenceFloorMat, _linePoints, _trackers);
 
     // set _fitResult
     _fitResult.valid = false;
@@ -224,8 +228,8 @@ cv::Mat Solver::createDiagnosticsMat() const
     cv::cvtColor(referenceFloorMat, result, cv::COLOR_GRAY2BGR);
 
     // add linepoints with blue/cyan color
-    // _linePointsMat has pixels for the fit, let's construct a new one for visualization using overruleRadius
-    cv::Mat linePointsMat = createLinePointsMat(_params.solver().linepoints().plot().radius());
+    cv::Mat linePointsMat;
+    _floor.linePointsToCvMat(_linePoints, linePointsMat, _params.solver().linepoints().plot().radius());
     float ppm = _params.solver().pixelspermeter();
     FitFunction ff(referenceFloorMat, linePointsMat, ppm);
     cv::Mat transformedLinePoints = ff.transform3dof(linePointsMat, _fitResult.pose.x, _fitResult.pose.y, _fitResult.pose.rz);
@@ -271,8 +275,7 @@ int Solver::run()
     reinitialize();
 
     // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
-    // TODO: factor out LinePoints object with operations (the mat transform implementation seems too slow)
-    _linePointsMat = createLinePointsMat();
+    _linePoints = createLinePoints();
 
     // setup trackers: existing from state and new from guessing configuration
     _trackers = createTrackers();
@@ -280,7 +283,7 @@ int Solver::run()
     // run the fit algorithm (multithreaded), update trackers, update _fitResult
     runFitUpdateTrackers();
 
-    // optional dump of diagnostics data for plotting
+    // create and optionally dump of diagnostics data for plotting
     dumpDiagnosticsMat();
 
     // prepare for next tick
