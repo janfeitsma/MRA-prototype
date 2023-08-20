@@ -1,4 +1,4 @@
-# CODEGEN_NOTE
+# this file was produced by MRA-codegen.py from template_interface.BUILD
 # it should NOT be modified by user
 
 load("@rules_proto//proto:defs.bzl", "proto_library")
@@ -11,7 +11,7 @@ proto_library(
     deps = [
         "@com_google_protobuf//:timestamp_proto",
         "//datatypes:MRA_proto",
-        BAZEL_INTERFACE_DEPENDENCIES
+        "//components/falcons/velocity_control/interface:interface_proto",
     ],
 )
 
