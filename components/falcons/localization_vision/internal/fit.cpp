@@ -60,7 +60,7 @@ FitFunction::FitFunction(cv::Mat const &referenceFloor, std::vector<cv::Point2f>
     _referenceFloor = referenceFloor;
     _rcsLinePoints = rcsLinePoints;
     // count pixels for normalization, prevent division by zero when no linepoints present (yet)
-    _rcsLinePointsPixelCount = std::max(double(cv::countNonZero(_rcsLinePoints)), 1.0);
+    _rcsLinePointsPixelCount = rcsLinePoints.size();
     printf("FitFunction _rcsLinePointsPixelCount %9.3f\n", _rcsLinePointsPixelCount);
 }
 
@@ -82,7 +82,7 @@ cv::Mat FitFunction::transform3dof(cv::Mat const &m, double x, double y, double 
     cv::Mat result;
     // create a transformation matrix
     float rad2deg = 180.0 / M_PI;
-    cv::Mat transformationMatrix = cv::getRotationMatrix2D(cv::Point2f(m.cols/2, m.rows/2), rz * rad2deg, 1.0);
+    cv::Mat transformationMatrix = cv::getRotationMatrix2D(cv::Point2f(0.5 * m.cols, 0.5 * m.rows), rz * rad2deg, 1.0);
     transformationMatrix.at<double>(0, 2) += y * _ppm; // flip xy, cv::Mat is landscape mode
     transformationMatrix.at<double>(1, 2) += x * _ppm; // flip xy, cv::Mat is landscape mode
     // apply the transformation
@@ -90,12 +90,38 @@ cv::Mat FitFunction::transform3dof(cv::Mat const &m, double x, double y, double 
     return result;
 }
 
+std::vector<cv::Point2f> FitFunction::transform3dof(const std::vector<cv::Point2f> &points, double x, double y, double rz) const
+{
+    std::vector<cv::Point2f> transformedPoints;
+    float rad2deg = 180.0 / M_PI;
+    // Construct the transformation matrix
+    cv::Mat transformationMatrix = cv::getRotationMatrix2D(cv::Point2f(_referenceFloor.cols / 2, _referenceFloor.rows / 2), rz * rad2deg, 1.0);
+    transformationMatrix.at<double>(0, 2) = x * _ppm;
+    transformationMatrix.at<double>(1, 2) = y * _ppm;
+    // Transform each point
+    cv::transform(points, transformedPoints, transformationMatrix);
+    return transformedPoints;
+}
+
 double FitFunction::calc(const double *x) const
 {
-    cv::Mat transformedLinePoints = transform3dof(_rcsLinePoints, x[0], x[1], x[2]);
-    double overlapNormalized = calcOverlap(_referenceFloor, transformedLinePoints);
-    double score = 1.0 - overlapNormalized;
-    //printf("FitFunction::calc (%9.5f,%9.5f,%9.5f) -> score %7.5f\n", x[0], x[1], x[2], score); fflush(stdout);
-    return score;
+    double score = 0.0;
+    std::vector<cv::Point2f> transformed = transform3dof(_rcsLinePoints, x[0], x[1], x[2]);
+    for (size_t i = 0; i < _rcsLinePoints.size(); ++i)
+    {
+        int pixelX = static_cast<int>(transformed[i].x * _ppm);
+        int pixelY = static_cast<int>(transformed[i].y * _ppm);
+        float s = 0.0;
+        // Check if the pixel is within the image bounds
+        if (pixelX >= 0 && pixelX < _referenceFloor.cols && pixelY >= 0 && pixelY < _referenceFloor.rows)
+        {
+            // Look up pixel intensity in _referenceFloor and accumulate the score
+            s = static_cast<float>(_referenceFloor.at<uchar>(pixelY, pixelX)) / 255.0;
+            score += s;
+        }
+        //printf("calc %3d   ix=%8.3f  iy=%8.3f  tx=%8.3f  ty=%8.3f  px=%4d py=%4d  s=%6.2f\n", (int)i, _rcsLinePoints[i].x, _rcsLinePoints[i].y, transformed[i].x, transformed[i].y, (int)(pixelX), (int)(pixelY), s);
+    }
+    // final normalization
+    return score / _rcsLinePointsPixelCount;
 }
 

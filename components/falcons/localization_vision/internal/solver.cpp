@@ -228,10 +228,10 @@ cv::Mat Solver::createDiagnosticsMat() const
     cv::cvtColor(referenceFloorMat, result, cv::COLOR_GRAY2BGR);
 
     // add linepoints with blue/cyan color
-    cv::Mat linePointsMat;
+    cv::Mat linePointsMat = _floor.createMat();
     _floor.linePointsToCvMat(_linePoints, linePointsMat, _params.solver().linepoints().plot().radius());
     float ppm = _params.solver().pixelspermeter();
-    FitFunction ff(referenceFloorMat, linePointsMat, ppm);
+    FitFunction ff(referenceFloorMat, _linePoints, ppm);
     cv::Mat transformedLinePoints = ff.transform3dof(linePointsMat, _fitResult.pose.x, _fitResult.pose.y, _fitResult.pose.rz);
     cv::Mat transformedLinePointsColor;
     cv::cvtColor(transformedLinePoints, transformedLinePointsColor, cv::COLOR_GRAY2BGR);

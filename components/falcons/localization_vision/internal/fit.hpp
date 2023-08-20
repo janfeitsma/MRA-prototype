@@ -30,6 +30,7 @@ public:
     // helpers, public for testing purposes and diagnostics
     double calcOverlap(cv::Mat const &m1, cv::Mat const &m2) const;
     cv::Mat transform3dof(cv::Mat const &m, double x, double y, double rz) const;
+    std::vector<cv::Point2f> transform3dof(const std::vector<cv::Point2f> &points, double x, double y, double rz) const;
 
 private:
     cv::Mat _referenceFloor;
