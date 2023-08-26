@@ -2,21 +2,14 @@
 #define _MRA_LIBRARIES_LOGGING_LOGTICK_HPP
 
 #include "abstract_interface.hpp"
-#include <string>
-#include <ostream>
+#include <iostream>
 #include <fstream>
-#include <sstream>
 #include <google/protobuf/util/time_util.h>
-#include "backend.hpp"
-#include <string>
-#include <stdarg.h>
-
 
 namespace MRA::Logging
 {
 
-typedef google::protobuf::Timestamp Gt;
-typedef double Tt;
+typedef google::protobuf::Timestamp Tt;
 
 // template for use in scoped tick logging
 // see also logger ideas and requirements in https://github.com/janfeitsma/MRA-prototype/issues/10
@@ -26,15 +19,6 @@ template <typename Ti, typename Tp, typename Ts, typename To, typename Tl>
 class LogTick
 {
 public:
-	enum LogLevel {
-		CRITICAL,
-		ERROR,
-		WARNING,
-		INFO,
-		DEBUG,
-		TRACE
-	};
-
     LogTick(Tt const &timestamp, Ti const &input, Tp const &params, Ts *state, To *output, Tl *local, int *error_value)
     :
         // store data for inspection later
@@ -60,30 +44,11 @@ public:
 
     void startStdout()
     {
-    	MraLogger::getInstance()->logStart(_t,
-    			_counter,
-				convert_proto_to_json_str(_input),
-				convert_proto_to_json_str(_params),
-				convert_proto_to_json_str(*_state));
-    }
-
-    void log(LogTick::LogLevel loglevel, const char *fmt,...)
-    // Log data as LogLevel
-    {
-    	va_list argptr;
-   		va_start(argptr, fmt);
-
-   	   	MraLogger::getInstance()->log(static_cast<MraLogger::LogLevel>(loglevel), fmt, argptr);
-   		va_end(argptr);
-    }
-
-    void log(const char *fmt,...)
-    // Log data as LogLevel::INFO
-    {
-    	va_list argptr;
-   		va_start(argptr, fmt);
-   	   	this->log(LogTick::INFO, fmt, argptr);
-   		va_end(argptr);
+        std::cout << "tick " << _counter << " START" << std::endl;
+        std::cout << "   timestamp: " << _t << std::endl;
+        std::cout << "   input: " << convert_proto_to_json_str(_input) << std::endl;
+        std::cout << "   params: " << convert_proto_to_json_str(_params) << std::endl;
+        //std::cout << "   state: " << convert_proto_to_json_str(*_state) << std::endl;
     }
 
     ~LogTick()
@@ -102,7 +67,10 @@ public:
     void endStdout()
     {
         double duration = 1e-6 * google::protobuf::util::TimeUtil::DurationToMicroseconds(google::protobuf::util::TimeUtil::GetCurrentTime() - _t0);
-    	MraLogger::getInstance()->logEnd(_counter, _err, duration, convert_proto_to_json_str(*_output), convert_proto_to_json_str(*_state));
+        std::cout << "tick " << _counter << " END, error_value=" << *_err << std::endl;
+        std::cout << "   duration: " << duration << std::endl;
+        std::cout << "   output: " << convert_proto_to_json_str(*_output) << std::endl;
+        //std::cout << "   state: " << convert_proto_to_json_str(*_state) << std::endl;
         //std::cout << "   local: " << convert_proto_to_json_str(*_local) << std::endl;
     }
 
@@ -142,7 +110,7 @@ public:
 
 private:
     // store data for logging at destruction (when tick ends, the logged object goes out of scope)
-    Gt         _t0;
+    Tt         _t0;
     Tt         _t;
     Ti const  &_input;
     Tp const  &_params;
@@ -164,4 +132,5 @@ int LogTick<Ti, Tp, Ts, To, Tl>::_counter = 0;
 } // namespace MRA::Logging
 
 #endif // #ifndef _MRA_LIBRARIES_LOGGING_LOGTICK_HPP
+
 
