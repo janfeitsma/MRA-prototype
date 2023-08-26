@@ -1,5 +1,5 @@
-#ifndef _MRA_LIBRARIES_MRA_LOGGER_HPP
-#define _MRA_LIBRARIES_MRA_LOGGER_HPP
+#ifndef _MRA_LIBRARIES_MRA_LOGGER_BACKEND_HPP
+#define _MRA_LIBRARIES_MRA_LOGGER_BACKEND_HPP
 
 #include <memory>
 #include <string>
@@ -49,5 +49,5 @@ private:
 
 } // namespace MRA::Logging
 
-#endif // #ifndef _MRA_LIBRARIES_LOGGING_HPP
+#endif // #ifndef _MRA_LIBRARIES_MRA_LOGGER_BACKEND_HPP
 

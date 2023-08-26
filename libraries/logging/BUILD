@@ -1,23 +1,15 @@
-cc_library(
-    name = "datatypes",
-    hdrs = [
-        "datatypes.hpp",
-    ],
-    visibility = ["//visibility:public"],
-    deps = [
-    ],
-)
-
 
 cc_library(
     name = "logging",
     hdrs = [
-        "logging.hpp",
-        "MRA_logger.hpp",
+        "logging.hpp", # main header, others are helpers/subcomponents
+        "frontend.hpp",
+        "backend.hpp",
+        "levels.hpp",
+        "control.hpp",
     ],
     srcs = [
-        "logging.cpp", 
-        "MRA_logger.cpp", 
+        "backend.cpp",
     ],
     visibility = ["//visibility:public"],
     includes = ["."],
