@@ -43,7 +43,7 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 )
 {
 	int error_value = 0;
-	MRA::Logging::LogTick scoped(timestamp, input, params, &state, &output, &local, &error_value);
+	MRA_LOG_TICK();
 
     auto const ws = input.worldstate();
 	double rotation_angle_rad = deg2rad(params.angle_in_degrees());
@@ -56,7 +56,7 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 	double max_time_per_phase = params.max_time_per_phase();
 	if (timestamp - state.timestamp_start_phase() > max_time_per_phase)
 	{
-		scoped.log(0, "TIMEOUT: FAILED due to too much time between phases (max: %4.2f seconds)", max_time_per_phase);
+		//TODO something like MRA_LOG_CRITICAL("TIMEOUT: FAILED due to too much time between phases (max: %4.2f seconds)", max_time_per_phase);
         output.set_actionresult(MRA::Datatypes::FAILED);
 	}
 	else if (!ws.robot().active())

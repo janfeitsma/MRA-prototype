@@ -20,6 +20,13 @@ MraLogger::MraLogger() {
 void MraLogger::setup()
 {
 	m_active = true;
+
+    // microsecond resolution: %f
+    // note that timestamps are absolute, in UTC
+    // so for postprocessing & readability, timezone offset needs to be applied
+    spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%f] [%n] [%^%l%$] %v");
+    spdlog::set_level(spdlog::level::info);
+
     m_spdlog_logger = spdlog::basic_logger_mt<spdlog::async_factory>("MRA", "/tmp/async_log.txt");
 }
 
