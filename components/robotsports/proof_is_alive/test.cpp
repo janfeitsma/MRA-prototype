@@ -30,9 +30,7 @@ TEST(RobotsportsProofIsAliveTest, basicTick)
 google::protobuf::Timestamp timeFromDouble(google::protobuf::Timestamp const &t0, double dt)
 {
     google::protobuf::Timestamp result = t0;
-    google::protobuf::Duration duration;
-    duration.set_seconds(0);
-    duration.set_nanos(static_cast<int32_t>(dt * 1e9));
+    google::protobuf::Duration duration = google::protobuf::util::TimeUtil::NanosecondsToDuration((int64_t)(1e9 * dt));
     return result + duration;
 }
 

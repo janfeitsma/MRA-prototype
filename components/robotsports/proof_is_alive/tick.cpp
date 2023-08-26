@@ -53,11 +53,12 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 
 	if (state.phase() == StateType::TO_BE_STARTED) 
 	{
-	    state.set_timestamp_start_phase(timestamp);		
+        *state.mutable_timestamp_start_phase() = timestamp;
 	}
 
 	double max_time_per_phase = params.max_time_per_phase();
-	if (timestamp - state.timestamp_start_phase() > max_time_per_phase)
+    google::protobuf::Duration duration_phase = google::protobuf::util::TimeUtil::NanosecondsToDuration((int64_t)(1e9 * max_time_per_phase));
+	if (timestamp - state.timestamp_start_phase() > duration_phase)
 	{
 		// time out: to long before reaching new state
 #ifdef DEBUG
@@ -77,7 +78,7 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 
 		if (state.phase() == StateType::TO_BE_STARTED)
 		{
-		    state.set_timestamp_start_phase(timestamp);		
+            *state.mutable_timestamp_start_phase() = timestamp;
 		    state.mutable_requested_position()->set_x(ws.robot().position().x());
 		    state.mutable_requested_position()->set_y(ws.robot().position().y());
 		    state.mutable_requested_position()->set_rz(ws.robot().position().rz() + rotation_angle_rad);
@@ -88,7 +89,7 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 			if (min_angle(state.requested_position().rz(), ws.robot().position().rz()) < deg2rad(params.angle_tolerance_deg()))
 			{
 				// Robot is turned to the left
-			    state.set_timestamp_start_phase(timestamp);
+                *state.mutable_timestamp_start_phase() = timestamp;
 		    	state.mutable_requested_position()->set_x(ws.robot().position().x());
 		    	state.mutable_requested_position()->set_y(ws.robot().position().y());
 		    	state.mutable_requested_position()->set_rz(ws.robot().position().rz() - 2 * rotation_angle_rad);
@@ -99,7 +100,7 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 		{
 			if (min_angle(state.requested_position().rz(), ws.robot().position().rz()) < deg2rad(params.angle_tolerance_deg()))
 			{
-			    state.set_timestamp_start_phase(timestamp);
+                *state.mutable_timestamp_start_phase() = timestamp;
 		    	state.mutable_requested_position()->set_x(ws.robot().position().x());
 		    	state.mutable_requested_position()->set_y(ws.robot().position().y());
 		    	state.mutable_requested_position()->set_rz(ws.robot().position().rz() + rotation_angle_rad);
@@ -110,7 +111,7 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 		{
 			if (min_angle(state.requested_position().rz(), ws.robot().position().rz()) < deg2rad(params.angle_tolerance_deg()))
 			{
-			    state.set_timestamp_start_phase(timestamp);
+                *state.mutable_timestamp_start_phase() = timestamp;
 		    	state.mutable_requested_position()->set_x(ws.robot().position().x());
 		    	state.mutable_requested_position()->set_y(ws.robot().position().y());
 		    	state.mutable_requested_position()->set_rz(ws.robot().position().rz() - rotation_angle_rad);
