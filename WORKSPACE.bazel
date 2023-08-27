@@ -23,16 +23,14 @@ http_archive(
     ],
 )
 
-# Make system installation of opencv available (because opencv is used a lot next to bazel build use case)
+# opencv (as system dependency!)
 new_local_repository(
     name = "opencv",
     path = "/usr/include/opencv4",
     build_file = "dependencies/bazel/BUILD.opencv",
 )
 
-###
-# Pybind11
-###
+# pybind11
 # See https://github.com/pybind/pybind11_bazel
 http_archive(
     name = "pybind11_bazel",
@@ -40,8 +38,6 @@ http_archive(
     sha256 = "516c1b3a10d87740d2b7de6f121f8e19dde2c372ecbfe59aef44cd1872c10395",
     urls = ["https://github.com/pybind/pybind11_bazel/archive/72cbbf1fbc830e487e3012862b7b720001b70672.tar.gz"],
 )
-
-# We still require the pybind library.
 http_archive(
     name = "pybind11",
     build_file = "@pybind11_bazel//:pybind11.BUILD",
@@ -49,34 +45,28 @@ http_archive(
     sha256 = "057fb68dafd972bc13afb855f3b0d8cf0fa1a78ef053e815d9af79be7ff567cb",
     urls = ["https://github.com/pybind/pybind11/archive/refs/tags/v2.9.0.tar.gz"],
 )
-
 load("@pybind11_bazel//:python_configure.bzl", "python_configure")
 python_configure(name = "local_config_python")
 
-###
-# Protobuf
-###
+# Google protobuf
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "25680843adf0c3302648d35f744e38cc3b6b05a6c77a927de5aea3e1c2e36106",
-    strip_prefix = "protobuf-3.19.4",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.19.4.zip"],
+    sha256 = "4e176116949be52b0408dfd24f8925d1eb674a781ae242a75296b17a1c721395",
+    strip_prefix = "protobuf-23.3",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v23.3.tar.gz"],
     # note: on Ubuntu20, opencv DNN libraries depend on an older conflicting protobuf version
-    # note: py_proto_library might spam warnings:
-    #    "com_google_protobuf/python: warning: directory does not exist"
-    #    -> require a fix from 22Q1 - https://github.com/protocolbuffers/protobuf/issues/6049
 )
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
 
-# GRPC v1.42, for proto rules.
+# GRPC, for proto rules.
 # For a related discussion of the pro/cons of various open-source py proto rule
 # repositories, see b/189457935.
 http_archive(
     name = "com_github_grpc_grpc",
-    sha256 = "9f387689b7fdf6c003fd90ef55853107f89a2121792146770df5486f0199f400",
-    strip_prefix = "grpc-1.42.0",
-    urls = ["https://github.com/grpc/grpc/archive/v1.42.0.zip"],
+    sha256 = "9a273c49ec22a0d29376a32c158deefce6d3569ac9773e5a5376608d62cdf8a0",
+    strip_prefix = "grpc-1.57.0",
+    urls = ["https://github.com/grpc/grpc/archive/v1.57.0.zip"],
 )
 
 load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
@@ -87,12 +77,9 @@ bind(
     actual = "@local_config_python//:python_headers",
 )
 
-###
-# Pybind11 + Protobuf
-###
+# Pybind11 + Protobuf integration
 git_repository(
     name = "pybind11_protobuf",
-    shallow_since = "1642616122 -0800",
-    commit = "f20537c3285636716ed86a7ef96baa19a788c944", # Latest (2022-01-19)
+    commit = "b2e7687baf5773cfafcea12d6928991605b14b0d", # 2023-08-11
     remote = "https://github.com/pybind/pybind11_protobuf.git",
 )

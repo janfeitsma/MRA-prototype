@@ -82,7 +82,7 @@ TEST(FalconsGetballFetchTest, hasBallPassed)
     EXPECT_EQ(output.actionresult(), MRA::Datatypes::PASSED);
     // TODO: what do we require on target? target==current or not? prevent move. Current: target shall be empty
     std::string json_output;
-    google::protobuf::util::MessageToJsonString(output, &json_output);
+    EXPECT_TRUE(google::protobuf::util::MessageToJsonString(output, &json_output).ok());
     EXPECT_EQ(json_output, "{\"actionresult\":\"PASSED\"}");
 }
 
