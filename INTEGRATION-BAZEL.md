@@ -54,7 +54,7 @@ deps = [
 Example dependency to a specific component:
 ```
 deps = [
-    "@MRA//components/falcons/getball-fetch:implementation",
+    "@MRA//components/falcons/getball_fetch:implementation",
 ],
 ```
 

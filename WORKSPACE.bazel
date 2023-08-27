@@ -3,17 +3,36 @@ workspace(name = "MRA")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Google protobuf
+# https://protobuf.dev/
 http_archive(
     name = "com_google_protobuf",
     sha256 = "25680843adf0c3302648d35f744e38cc3b6b05a6c77a927de5aea3e1c2e36106",
     strip_prefix = "protobuf-3.19.4",
     urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.19.4.zip"],
     # note: on Ubuntu20, opencv DNN libraries depend on an older conflicting protobuf version
+    # note: py_proto_library might spam warnings:
+    #    "com_google_protobuf/python: warning: directory does not exist"
+    #    -> require a fix from 22Q1 - https://github.com/protocolbuffers/protobuf/issues/6049
 )
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
 
+# GRPC v1.42, for proto rules.
+# https://grpc.io/
+# For a related discussion of the pro/cons of various open-source py proto rule
+# repositories, see b/189457935.
+http_archive(
+    name = "com_github_grpc_grpc",
+    sha256 = "9f387689b7fdf6c003fd90ef55853107f89a2121792146770df5486f0199f400",
+    strip_prefix = "grpc-1.42.0",
+    urls = ["https://github.com/grpc/grpc/archive/v1.42.0.zip"],
+)
+
+load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
+grpc_deps()
+
 # JSON
+# https://github.com/nlohmann/json
 http_archive(
     name = "nlohmann_json",
     build_file = "//dependencies/bazel:BUILD.nlohmann_json",
@@ -45,6 +64,7 @@ http_archive(
 )
 
 # gtest
+# https://github.com/google/googletest
 http_archive(
     name = "com_google_googletest",
     sha256 = "0fb00ff413f6b9b80ccee44a374ca7a18af7315aea72a43c62f2acd1ca74e9b5",

@@ -95,14 +95,14 @@ include_directories(base)
 ##########################################################
 
 set(MESSAGE_PROTOS_COMPONENTS
-    components/falcons/getball-fetch/interface/Input.proto
-    components/falcons/getball-fetch/interface/Params.proto
-    components/falcons/getball-fetch/interface/Output.proto
-    components/falcons/velocity-control/interface/Input.proto
-    components/falcons/velocity-control/interface/Local.proto
-    components/falcons/velocity-control/interface/Params.proto
-    components/falcons/velocity-control/interface/Output.proto
-    components/falcons/velocity-control/interface/State.proto
+    components/falcons/getball_fetch/interface/Input.proto
+    components/falcons/getball_fetch/interface/Params.proto
+    components/falcons/getball_fetch/interface/Output.proto
+    components/falcons/velocity_control/interface/Input.proto
+    components/falcons/velocity_control/interface/Local.proto
+    components/falcons/velocity_control/interface/Params.proto
+    components/falcons/velocity_control/interface/Output.proto
+    components/falcons/velocity_control/interface/State.proto
     components/robotsports/getball-intercept/interface/Input.proto
     components/robotsports/getball-intercept/interface/Params.proto
     components/robotsports/getball-intercept/interface/Output.proto
@@ -120,21 +120,21 @@ protobuf_generate(TARGET MRA-components-proto PROTOS ${MESSAGE_PROTOS_COMPONENTS
 ##########################################################
 
 add_library(MRA-components
-    components/falcons/getball-fetch/tick.cpp
-    components/falcons/velocity-control/tick.cpp
-    components/falcons/velocity-control/internal/src/VelocityControl.cpp
-    components/falcons/velocity-control/internal/src/controllers/LinearVelocitySetpointController.cpp
-    components/falcons/velocity-control/internal/src/controllers/SPGVelocitySetpointController.cpp
-    components/falcons/velocity-control/internal/src/algorithms/CheckPrepareInputs.cpp
-    components/falcons/velocity-control/internal/src/algorithms/CheckStop.cpp
-    components/falcons/velocity-control/internal/src/algorithms/ConfigureLimits.cpp
-    components/falcons/velocity-control/internal/src/algorithms/Deadzone.cpp
-    components/falcons/velocity-control/internal/src/algorithms/SelectVelocityController.cpp
-    components/falcons/velocity-control/internal/src/algorithms/ShiftBallOffset.cpp
-    components/falcons/velocity-control/internal/src/algorithms/CalculateVelocity.cpp
-    components/falcons/velocity-control/internal/src/algorithms/SetOutputsPrepareNext.cpp
+    components/falcons/getball_fetch/tick.cpp
+    components/falcons/velocity_control/tick.cpp
+    components/falcons/velocity_control/internal/src/VelocityControl.cpp
+    components/falcons/velocity_control/internal/src/controllers/LinearVelocitySetpointController.cpp
+    components/falcons/velocity_control/internal/src/controllers/SPGVelocitySetpointController.cpp
+    components/falcons/velocity_control/internal/src/algorithms/CheckPrepareInputs.cpp
+    components/falcons/velocity_control/internal/src/algorithms/CheckStop.cpp
+    components/falcons/velocity_control/internal/src/algorithms/ConfigureLimits.cpp
+    components/falcons/velocity_control/internal/src/algorithms/Deadzone.cpp
+    components/falcons/velocity_control/internal/src/algorithms/SelectVelocityController.cpp
+    components/falcons/velocity_control/internal/src/algorithms/ShiftBallOffset.cpp
+    components/falcons/velocity_control/internal/src/algorithms/CalculateVelocity.cpp
+    components/falcons/velocity_control/internal/src/algorithms/SetOutputsPrepareNext.cpp
 
     components/robotsports/getball-intercept/tick.cpp
 )
-target_include_directories(MRA-components PUBLIC components/falcons/velocity-control/internal/include )
+target_include_directories(MRA-components PUBLIC components/falcons/velocity_control/internal/include )
 target_link_libraries(MRA-components MRA-libraries MRA-components-proto MRA-base nlohmann_json::nlohmann_json)

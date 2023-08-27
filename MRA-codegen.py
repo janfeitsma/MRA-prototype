@@ -7,18 +7,18 @@ This script is intended to help MRA developers to create a new component.
 Developers first need to define the name (folder) and interface (.proto files).
 
 Example output for a new component:
-    file components/falcons/getball-fetch/interface/BUILD has been copied (and modified) from base/codegen/template_interface.BUILD
-    file components/falcons/getball-fetch/BUILD has been copied (and modified) from base/codegen/template_implementation.BUILD
-    file components/falcons/getball-fetch/FalconsGetballFetch.hpp has been copied (and modified) from base/codegen/template_instance.hpp
-    file components/falcons/getball-fetch/tick.cpp has been copied (and modified) from base/codegen/template_tick.cpp
-    file components/falcons/getball-fetch/test.cpp has been copied (and modified) from base/codegen/template_test.cpp
+    file components/falcons/getball_fetch/interface/BUILD has been copied (and modified) from base/codegen/template_interface.BUILD
+    file components/falcons/getball_fetch/BUILD has been copied (and modified) from base/codegen/template_implementation.BUILD
+    file components/falcons/getball_fetch/FalconsGetballFetch.hpp has been copied (and modified) from base/codegen/template_instance.hpp
+    file components/falcons/getball_fetch/tick.cpp has been copied (and modified) from base/codegen/template_tick.cpp
+    file components/falcons/getball_fetch/test.cpp has been copied (and modified) from base/codegen/template_test.cpp
 
 Example output for a finished component:
-    file components/falcons/getball-fetch/interface/BUILD already exists, skipping (content unchanged)
-    file components/falcons/getball-fetch/BUILD already exists, skipping (content unchanged)
-    file components/falcons/getball-fetch/FalconsGetballFetch.hpp already exists, skipping (content unchanged)
-    file components/falcons/getball-fetch/tick.cpp already exists, skipping (overwrite disabled)
-    file components/falcons/getball-fetch/test.cpp already exists, skipping (overwrite disabled)
+    file components/falcons/getball_fetch/interface/BUILD already exists, skipping (content unchanged)
+    file components/falcons/getball_fetch/BUILD already exists, skipping (content unchanged)
+    file components/falcons/getball_fetch/FalconsGetballFetch.hpp already exists, skipping (content unchanged)
+    file components/falcons/getball_fetch/tick.cpp already exists, skipping (overwrite disabled)
+    file components/falcons/getball_fetch/test.cpp already exists, skipping (overwrite disabled)
 '''
 
 # python modules
@@ -39,11 +39,11 @@ DEFAULT_VERBOSE_LEVEL = 1
 
 
 def component_name_underscore(component: str) -> str:
-    """Mangle (relative) component name. Example: falcons/getball-intercept -> FALCONS_GETBALL_INTERCEPT"""
+    """Mangle (relative) component name. Example: falcons/getball_intercept -> FALCONS_GETBALL_INTERCEPT"""
     return component.replace('/', '_').replace('-', '_').upper()
 def component_name_camelcase(component: str) -> str:
-    """Mangle (relative) component name. Example: falcons/getball-intercept -> FalconsGetballIntercept"""
-    return ''.join([s.capitalize() for s in re.split('/|-', component)])
+    """Mangle (relative) component name. Example: falcons/getball_intercept -> FalconsGetballIntercept"""
+    return ''.join([s.capitalize() for s in re.split('/|-|_', component)])
 
 def grep(pat: str, fname: str) -> list:
     """Mimic grep utility. Return matching lines."""
@@ -60,7 +60,7 @@ class ComponentGenerator():
     Given component must be a string relative to component root (incl. folder nesting).
     """
     def __init__(self, component: str, verbosity: int = DEFAULT_VERBOSE_LEVEL):
-        self.component = component # example: falcons/getball-intercept
+        self.component = component # example: falcons/getball_intercept
         self.verbosity = verbosity
         self.cname_underscore = component_name_underscore(component) # example: FALCONS_GETBALL_INTERCEPT
         self.cname_camelcase = component_name_camelcase(component) # example: FalconsGetballIntercept
@@ -70,16 +70,25 @@ class ComponentGenerator():
         self.interface_folder = os.path.join(self.component_folder, 'interface')
         self.analyze()
 
+    def check_component_name_valid(self):
+        """Ensure component name is valid, for instance no dash character ... (causes problem with protoc --python_out)"""
+        if '-' in self.component:
+            raise Exception(f'illegal component name, no dash (-) allowed in {self.component}')
+
+    def check_component_interface_valid(self):
+        """Ensure component interface (.proto files) are valid."""
+        # TODO: warn in case other than all_interface_parts .proto files are detected?
+        for required_interface_part in ['Input', 'Output']:
+            if not required_interface_part in self.interface_parts:
+                raise Exception(f'incomplete component interface: missing file {required_interface_part}.proto')
+
     def analyze(self) -> None:
         """Analyze component."""
         # interface parts, max 5
         self.all_interface_parts = ['Input', 'Params', 'State', 'Output', 'Local']
         self.interface_parts = [p for p in self.all_interface_parts if os.path.isfile(os.path.join(self.component_folder, 'interface', p + '.proto'))]
-        # TODO? a component needs at least an Input and an Output -- or default to protobuf.Empty??
-        #for required_interface_part in ['Input', 'Output']:
-        #    if not required_interface_part in self.interface_parts:
-        #        raise Exception(f'incomplete component interface: missing file {required_interface_part}.proto')
-        # TODO: warn in case other than above 5 .proto files are detected?
+        self.check_component_name_valid()
+        self.check_component_interface_valid()
         # Params.proto also requires DefaultParams.json (workaround for protobuf v3 not supporting default values anymore ...)
         if 'Params' in self.interface_parts:
             f = os.path.join(self.component_folder, 'interface', 'DefaultParams.json')
