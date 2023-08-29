@@ -12,12 +12,15 @@ cc_library(
     ],
     srcs = [
         "backend.cpp",
+        "control.cpp",
     ],
     visibility = ["//visibility:public"],
     includes = ["."],
+    linkopts = ["-lrt"],  # for shm_open etc
     deps = [
     	"@gabime_spdlog",
         "//base:abstract_interface",
+        "//datatypes:MRA_cc_proto",
     ],
 )
 

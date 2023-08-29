@@ -24,7 +24,7 @@ message LogSpec
 
 message LogControl
 {
-    string folder = 1; // folder to write to, default auto-create in /tmp, something like /tmp/mralog_20230826_090811
+    string folder = 1; // folder to write to, default auto-create in /tmp, something like /tmp/mra_logging
     LogSpec general = 2; // settings to use if no component overrule is specified
     repeated LogSpec overrules = 3; // component overrules, when not specified, use general settings
 }
