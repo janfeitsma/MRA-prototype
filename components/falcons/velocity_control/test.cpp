@@ -165,7 +165,7 @@ TEST(FalconsVelocityControlTest, stop)
     state.mutable_velocitysetpointfcs()->set_rz(1.0);
 
     // Act
-    int error_value = m.tick(0.0, input, params, state, output, local);
+    int error_value = m.tick(input, params, state, output, local);
 
     // Assert
     EXPECT_EQ(error_value, 0);
@@ -204,8 +204,8 @@ TEST(FalconsVelocityControlTest, noHotRestart)
     state.mutable_velocitysetpointfcs()->set_rz(1.0);
 
     // Act
-    int error_value1 = m.tick(0.0, input1, params, state, output, local);
-    int error_value2 = m.tick(0.0, input2, params, state, output, local);
+    int error_value1 = m.tick(input1, params, state, output, local);
+    int error_value2 = m.tick(input2, params, state, output, local);
 
     // Assert
     EXPECT_EQ(error_value1, 0);
