@@ -19,6 +19,8 @@ MRA::Datatypes::LogControl getConfiguration(); // get entire configuration
 MRA::Datatypes::LogSpec getConfiguration(std::string const &component); // get the configuration that applies to given component
 void setConfiguration(MRA::Datatypes::LogControl const &config);
 void setConfiguration(std::string const &component, MRA::Datatypes::LogSpec const &config);
+MRA::Datatypes::LogControl defaultConfiguration();
+void resetConfiguration();
 
 } // namespace MRA::Logging
 
