@@ -16,7 +16,7 @@ message LogSpec
 {
     string component = 1; // name of the component, for example "robotsports/proof_is_alive"
     LogLevel level = 2; // level to use, default INFO
-    bool toFile = 3; // write data to file, default true
+    bool enabled = 3; // write data to ASCII/JSON file (using level, spdlog), default true
     bool dumpTicks = 4; // write binary protobuf data to a file per tick, default false - can hurt performance but is valuable for debugging and unittesting
     int32 maxLineSize = 5; // number of characters to cut off lines, default something like 1000 - if this is too little, then consider using tickdump
     float maxFileSizeMB = 6; // a guard on file size growth, default something like: stop after file exceeds 10.0 MB

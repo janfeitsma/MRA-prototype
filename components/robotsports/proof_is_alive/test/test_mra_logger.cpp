@@ -60,7 +60,7 @@ bool check_log_folder_existing() {
 
 // Default tick shall produce logging
 TEST_F(TestFixture, defaultLogging) {
-    MRA::Logging::resetConfiguration();
+    MRA::Logging::control::resetConfiguration();
     // Act
     runtick();
 
@@ -72,9 +72,9 @@ TEST_F(TestFixture, defaultLogging) {
 // If so configured, then do not produce logging
 TEST_F(TestFixture, allowDisableLogging) {
     // Arrange
-    auto cfg = MRA::Logging::getConfiguration(); // return type: Logging.proto
-    cfg.mutable_general()->set_tofile(false);
-    MRA::Logging::setConfiguration(cfg);
+    auto cfg = MRA::Logging::control::getConfiguration(); // return type: Logging.proto
+    cfg.mutable_general()->set_enabled(false);
+    MRA::Logging::control::setConfiguration(cfg);
 
     // Act
     runtick();

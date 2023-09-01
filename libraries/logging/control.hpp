@@ -8,7 +8,7 @@
 #include "datatypes/Logging.pb.h"
 
 
-namespace MRA::Logging
+namespace MRA::Logging::control
 {
 
 // get the logging folder, may create if needed

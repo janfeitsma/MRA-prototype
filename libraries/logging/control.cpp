@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <cerrno>
 
-namespace MRA::Logging
+namespace MRA::Logging::control
 {
 
 namespace
@@ -31,7 +31,7 @@ MRA::Datatypes::LogControl defaultConfiguration()
     MRA::Datatypes::LogControl result;
     result.set_folder(DEFAULT_LOG_FOLDER);
     result.mutable_general()->set_level(MRA::Datatypes::LogLevel::INFO);
-    result.mutable_general()->set_tofile(true);
+    result.mutable_general()->set_enabled(true);
     result.mutable_general()->set_dumpticks(false);
     result.mutable_general()->set_maxlinesize(1000);
     result.mutable_general()->set_maxfilesizemb(10.0);
