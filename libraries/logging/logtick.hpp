@@ -2,9 +2,10 @@
 #define _MRA_LIBRARIES_LOGGING_LOGTICK_HPP
 
 #include "abstract_interface.hpp"
-#include <iostream>
+#include "backend.hpp"
+#include "control.hpp"
 #include <fstream>
-#include <google/protobuf/util/time_util.h>
+
 
 namespace MRA::Logging
 {
@@ -13,15 +14,17 @@ typedef google::protobuf::Timestamp Tt;
 
 // template for use in scoped tick logging
 // see also logger ideas and requirements in https://github.com/janfeitsma/MRA-prototype/issues/10
-// TODO: find a way to log component name, probably need macro
 // TODO: there can be large (binary) data present, which probably should be automatically filtered, at least when dumping to stdout
 template <typename Ti, typename Tp, typename Ts, typename To, typename Tl>
 class LogTick
 {
 public:
-    LogTick(Tt const &timestamp, Ti const &input, Tp const &params, Ts *state, To *output, Tl *local, int *error_value)
+    LogTick(std::string componentName, std::string fileName, int lineNumber, Tt const &timestamp, Ti const &input, Tp const &params, Ts *state, To *output, Tl *local, int *error_value)
     :
         // store data for inspection later
+        _componentName(componentName),
+        _fileName(fileName),
+        _lineNumber(lineNumber),
         _t(timestamp),
         _t0(google::protobuf::util::TimeUtil::GetCurrentTime()),
         _input(input),
@@ -29,26 +32,9 @@ public:
         _state(state),
         _output(output),
         _local(local),
-        _err(error_value),
-        _filename(std::string("/tmp/tick") + std::to_string(_counter) + ".bin") // TODO include component name
+        _err(error_value)
     {
         start();
-    }
-
-    void start()
-    {
-        // logging at START of the tick
-        startStdout();
-        if (_dump) startDumpToFile();
-    }
-
-    void startStdout()
-    {
-        std::cout << "tick " << _counter << " START" << std::endl;
-        std::cout << "   timestamp: " << _t << std::endl;
-        std::cout << "   input: " << convert_proto_to_json_str(_input) << std::endl;
-        std::cout << "   params: " << convert_proto_to_json_str(_params) << std::endl;
-        //std::cout << "   state: " << convert_proto_to_json_str(*_state) << std::endl;
     }
 
     ~LogTick()
@@ -56,72 +42,51 @@ public:
         end();
     }
 
+    void start()
+    {
+        // get configuration to use for this tick (do not allow logging only start or only end of tick)
+        _cfg = control::getConfiguration(_componentName);
+        // dispatch to backend
+        if (_cfg.enabled())
+        {
+            // if so configured, open binary file, otherwise NULL pointer
+            _binfile = backend::logTickBinFile(_cfg, _componentName, _counter);
+            // call backend
+            backend::logTickStart(_cfg, _binfile, _counter, _t, _input, _params, *_state);
+        }
+    }
+
     void end()
     {
-        // logging at END of the tick
-        endStdout();
-        if (_dump) endDumpToFile();
+        // dispatch to backend
+        if (_cfg.enabled())
+        {
+            // calculate tick duration
+            auto elapsed = google::protobuf::util::TimeUtil::GetCurrentTime() - _t0;
+            double duration_sec = 1e-9 * google::protobuf::util::TimeUtil::DurationToNanoseconds(elapsed);
+            // call backend
+            backend::logTickEnd(_cfg, _binfile, _counter, duration_sec, *_err, *_state, *_output, *_local);
+        }
+        // update counter for next tick
         _counter++;
-    }
-
-    void endStdout()
-    {
-        double duration = 1e-6 * google::protobuf::util::TimeUtil::DurationToMicroseconds(google::protobuf::util::TimeUtil::GetCurrentTime() - _t0);
-        std::cout << "tick " << _counter << " END, error_value=" << *_err << std::endl;
-        std::cout << "   duration: " << duration << std::endl;
-        std::cout << "   output: " << convert_proto_to_json_str(*_output) << std::endl;
-        //std::cout << "   state: " << convert_proto_to_json_str(*_state) << std::endl;
-        //std::cout << "   local: " << convert_proto_to_json_str(*_local) << std::endl;
-    }
-
-    template <typename T>
-    void dumpToFile(T const &pbObject, std::ofstream *fp)
-    {
-        if (!fp || !fp->is_open()) return;
-
-        // serialize the protobuf object to a string
-        std::ostringstream oss;
-        pbObject.SerializeToOstream(&oss);
-        std::string serializedData = oss.str();
-
-        // write the byte count followed by the serialized object
-        int byteCount = static_cast<int>(serializedData.size());
-        fp->write(reinterpret_cast<const char*>(&byteCount), sizeof(int));
-        fp->write(serializedData.c_str(), byteCount);
-    }
-
-    void startDumpToFile()
-    {
-        _filepointer = new std::ofstream();
-        _filepointer->open(_filename);
-        dumpToFile(_input, _filepointer);
-        dumpToFile(_params, _filepointer);
-        dumpToFile(*_state, _filepointer);
-    }
-
-    void endDumpToFile()
-    {
-        dumpToFile(*_output, _filepointer);
-        dumpToFile(*_local, _filepointer);
-        dumpToFile(*_state, _filepointer);
-        _filepointer->close();
-        delete _filepointer;
     }
 
 private:
     // store data for logging at destruction (when tick ends, the logged object goes out of scope)
-    Tt         _t0;
-    Tt         _t;
-    Ti const  &_input;
-    Tp const  &_params;
-    Ts        *_state;
-    To        *_output;
-    Tl        *_local;
-    int       *_err;
-    static int _counter;
-    bool       _dump = false; // TODO improve configurability
-    std::string _filename;
-    std::ofstream *_filepointer = NULL;
+    Tt          _t0;
+    Tt          _t;
+    Ti const   &_input;
+    Tp const   &_params;
+    Ts         *_state;
+    To         *_output;
+    Tl         *_local;
+    int        *_err;
+    static int  _counter;
+    std::string _componentName;
+    std::string _fileName;
+    int         _lineNumber;
+    MRA::Datatypes::LogSpec _cfg;
+    std::ofstream *_binfile = NULL;
 
 }; // template class LogTick
 

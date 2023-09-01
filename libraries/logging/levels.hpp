@@ -1,6 +1,9 @@
 #ifndef _MRA_LIBRARIES_LOGGING_LEVELS_HPP
 #define _MRA_LIBRARIES_LOGGING_LEVELS_HPP
 
+namespace MRA::Logging
+{
+
 enum LogLevel
 {
     CRITICAL,
@@ -10,6 +13,8 @@ enum LogLevel
     DEBUG,
     TRACE
 };
+
+}
 
 #endif // #ifndef _MRA_LIBRARIES_LOGGING_LEVELS_HPP
 
