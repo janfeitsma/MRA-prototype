@@ -120,7 +120,7 @@ MRA::Datatypes::LogSpec getConfiguration(std::string const &component)
 {
     MRA::Datatypes::LogControl control = getConfiguration(); // Get current configuration
 
-    MRA::Datatypes::LogSpec result; // Default configuration
+    MRA::Datatypes::LogSpec result = defaultConfiguration().general(); // Default configuration
 
     // Search for the component and retrieve its configuration
     for (int i = 0; i < control.overrules_size(); ++i) {
