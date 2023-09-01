@@ -52,7 +52,7 @@ public:
             // if so configured, open binary file, otherwise NULL pointer
             _binfile = backend::logTickBinFile(_cfg, _componentName, _counter);
             // call backend
-            backend::logTickStart(_cfg, _binfile, _counter, _t, _input, _params, *_state);
+            backend::logTickStart(_componentName, _fileName, _lineNumber, _cfg, _binfile, _counter, _t, _input, _params, *_state);
         }
     }
 
@@ -65,7 +65,7 @@ public:
             auto elapsed = google::protobuf::util::TimeUtil::GetCurrentTime() - _t0;
             double duration_sec = 1e-9 * google::protobuf::util::TimeUtil::DurationToNanoseconds(elapsed);
             // call backend
-            backend::logTickEnd(_cfg, _binfile, _counter, duration_sec, *_err, *_state, *_output, *_local);
+            backend::logTickEnd(_componentName, _fileName, _lineNumber, _cfg, _binfile, _counter, duration_sec, *_err, *_state, *_output, *_local);
         }
         // update counter for next tick
         _counter++;

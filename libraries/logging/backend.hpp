@@ -20,16 +20,22 @@ std::ofstream *logTickBinFile(
 
 // tick logging: write logging/data at start of tick
 void logTickStart(
+    std::string const &componentName,
+    std::string const &fileName,
+    int lineNumber,
     MRA::Datatypes::LogSpec const &cfg,
     std::ofstream *binfile,
     int counter,
-    google::protobuf::Timestamp const &t,
+    google::protobuf::Timestamp const &timestamp,
     google::protobuf::Message const &input,
     google::protobuf::Message const &params,
     google::protobuf::Message const &state);
 
 // tick logging: write logging/data at end of tick
 void logTickEnd(
+    std::string const &componentName,
+    std::string const &fileName,
+    int lineNumber,
     MRA::Datatypes::LogSpec const &cfg,
     std::ofstream *binfile,
     int counter,
@@ -46,13 +52,6 @@ class MraLogger
 public:
 
     static std::shared_ptr<MraLogger> getInstance();
-
-    void logStart(double timestamp, int counter,
-        const std::string& r_input_str,
-        const std::string& r_params_str,
-        const std::string& r_state_str);
-
-    void logEnd(int counter, int *p_err, double duration, const std::string& r_output_str, const std::string& r_state_str);
 
     void log(MRA::Logging::LogLevel loglevel, const char *fmt,...);
 

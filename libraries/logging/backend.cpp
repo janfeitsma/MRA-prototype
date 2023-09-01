@@ -1,4 +1,5 @@
 #include "backend.hpp"
+#include "json_convert.hpp"
 #include <memory>
 #include "spdlog/spdlog.h"  // spdlog API: https://github.com/gabime/spdlog
 #include "spdlog/async.h"
@@ -18,18 +19,39 @@ std::ofstream *MRA::Logging::backend::logTickBinFile(
 
 // tick logging: write logging/data at start of tick
 void MRA::Logging::backend::logTickStart(
+    std::string const &componentName,
+    std::string const &fileName,
+    int lineNumber,
     MRA::Datatypes::LogSpec const &cfg,
     std::ofstream *binfile,
     int counter,
-    google::protobuf::Timestamp const &t,
+    google::protobuf::Timestamp const &timestamp,
     google::protobuf::Message const &input,
     google::protobuf::Message const &params,
     google::protobuf::Message const &state)
 {
+    if (cfg.enabled())
+    {
+        auto logger = MraLogger::getInstance();
+        // convert protobuf objects to string
+        std::string inputStr = convert_proto_to_json_str(input);
+        std::string paramsStr = convert_proto_to_json_str(params);
+        std::string stateStr = convert_proto_to_json_str(state);
+        // TODO pass sourceloc, make it the first arg of log, redirect to inner spdlog handlers
+        logger->log(MRA::Logging::INFO, "tick %d START", counter);
+        logger->log(MRA::Logging::INFO, "timestamp: %s", google::protobuf::util::TimeUtil::ToString(timestamp).c_str());
+        logger->log(MRA::Logging::INFO, "input: %s", inputStr.c_str());
+        logger->log(MRA::Logging::INFO, "params: %s", paramsStr.c_str());
+        logger->log(MRA::Logging::INFO, "state: %s", stateStr.c_str());
+        // TODO tick bindump, if configured
+    }
 }
 
 // tick logging: write logging/data at end of tick
 void MRA::Logging::backend::logTickEnd(
+    std::string const &componentName,
+    std::string const &fileName,
+    int lineNumber,
     MRA::Datatypes::LogSpec const &cfg,
     std::ofstream *binfile,
     int counter,
@@ -39,6 +61,18 @@ void MRA::Logging::backend::logTickEnd(
     google::protobuf::Message const &output,
     google::protobuf::Message const &diag)
 {
+    if (cfg.enabled())
+    {
+        auto logger = MraLogger::getInstance();
+        // convert protobuf objects to string
+        std::string stateStr = convert_proto_to_json_str(state);
+        std::string outputStr = convert_proto_to_json_str(output);
+        logger->log(MRA::Logging::INFO, "tick %d END error_value=%d", counter, error_value);
+        logger->log(MRA::Logging::INFO, "duration: %9.6f", duration);
+        logger->log(MRA::Logging::INFO, "output: %s", outputStr.c_str());
+        logger->log(MRA::Logging::INFO, "state: %s", stateStr.c_str());
+        // TODO tick bindump, if configured
+    }
 }
 
 
@@ -68,25 +102,6 @@ void MraLogger::setup()
 
 void MraLogger::setPreLogText(const std::string& r_pretext) {
     m_pretext = r_pretext;
-}
-
-
-void MraLogger::logStart(double timestamp, int counter,
-        const std::string& r_input_str, const std::string& r_params_str, const std::string& r_state_str)
-{
-    this->log(MRA::Logging::INFO, "tick %d START", counter);
-    this->log(MRA::Logging::INFO, "timestamp: %6.3f", timestamp);
-    this->log(MRA::Logging::INFO, "input: %s", r_input_str.c_str());
-    this->log(MRA::Logging::INFO, "params: %s", r_params_str.c_str());
-    this->log(MRA::Logging::INFO, "state: %s", r_state_str.c_str());
-}
-
-void MraLogger::logEnd(int counter, int *p_err, double duration, const std::string& r_output_str, const std::string& r_state_str)
-{
-    this->log(MRA::Logging::INFO, "tick %d END error_value=%d", counter, *p_err);
-    this->log(MRA::Logging::INFO, "duration: %6.3f", duration);
-    this->log(MRA::Logging::INFO, "output: %s", r_output_str.c_str());
-    this->log(MRA::Logging::INFO, "state: %s", r_state_str.c_str());
 }
 
 void MraLogger::log(MRA::Logging::LogLevel loglevel, const char *fmt,...)
