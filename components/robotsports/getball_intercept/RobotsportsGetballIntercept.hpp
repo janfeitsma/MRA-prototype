@@ -87,6 +87,13 @@ public:
 }; // class RobotsportsGetballIntercept
 
 
+// component name
+inline std::string componentName()
+{
+    return "RobotsportsGetballIntercept";
+}
+
+
 // configuration handling
 inline ParamsType defaultParams()
 {
