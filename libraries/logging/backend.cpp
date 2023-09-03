@@ -133,6 +133,7 @@ void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
     if (!spdlog::get(log_name)) {
         // Logger with the given name doesn't exist, create a new one
         m_spdlog_logger = spdlog::basic_logger_mt<spdlog::async_factory>(log_name, log_file);
+        // TODO: why async_factory? might explain __FILE__ __LINE__ garbage, see also https://github.com/gabime/spdlog/issues/2867
     }
 
     // Configure logger
@@ -149,8 +150,9 @@ void MraLogger::setPreLogText(const std::string& r_pretext)
     m_pretext = r_pretext;
 }
 
-void MraLogger::log(source_loc const &loc, MRA::Logging::LogLevel loglevel, const char *fmt,...)
+void MraLogger::log(source_loc loc, MRA::Logging::LogLevel loglevel, const char *fmt,...)
 {
+    spdlog::source_loc loc_spd{loc.filename, loc.line, loc.funcname};
     if (m_active) {
         const int MAXTEXT = 4096; // TODO use configuration
         char buffer[MAXTEXT];
@@ -159,7 +161,6 @@ void MraLogger::log(source_loc const &loc, MRA::Logging::LogLevel loglevel, cons
         va_start(argptr, fmt);
         vsprintf(buffer, fmt, argptr);
         va_end(argptr);
-        spdlog::source_loc loc_spd{loc.filename, loc.line, loc.funcname};
         if (buffer[MAXTEXT-1])
         {
             buffer[MAXTEXT-1] = '\0';

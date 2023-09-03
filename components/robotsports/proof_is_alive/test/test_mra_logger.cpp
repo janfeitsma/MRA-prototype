@@ -46,6 +46,7 @@ TEST_F(TestFixture, allowDisableLogging) {
 }
 
 int main(int argc, char **argv) {
+    sleep(5); // FIXME: hack to get clean-ish test behavior: production tests should not run with test_mra configuration
     testing::InitGoogleTest(&argc, argv);
     int r = RUN_ALL_TESTS();
     return r;

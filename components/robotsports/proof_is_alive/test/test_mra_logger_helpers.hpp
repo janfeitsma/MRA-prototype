@@ -17,12 +17,15 @@ MRA::Datatypes::LogControl testConfiguration();
 class TestFixture : public ::testing::Test {
 protected:
     void SetUp() override {
+        // switch to test config&folder
         MRA::Logging::control::setConfiguration(testConfiguration());
         cleanupLogFolder();
     }
 
     void TearDown() override {
+        // switch back to standard config&folder
         cleanupLogFolder();
+        MRA::Logging::control::resetConfiguration();
     }
 
     void cleanupLogFolder() {

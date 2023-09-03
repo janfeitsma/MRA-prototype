@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <google/protobuf/util/time_util.h>
+#define SPDLOG_ACTIVE_LEVEL TRACE
 #include "spdlog/spdlog.h"  // spdlog API: https://github.com/gabime/spdlog
 
 
@@ -53,12 +54,22 @@ void reconfigure(MRA::Datatypes::LogSpec const &cfg);
 // copy from spdlog
 struct source_loc
 {
-    source_loc() = default;
-    source_loc(const char *filename_in, int line_in, const char *funcname_in)
+    constexpr source_loc() = default;
+    constexpr source_loc(const char *filename_in, int line_in, const char *funcname_in)
         : filename{filename_in}
         , line{line_in}
         , funcname{funcname_in}
     {}
+    constexpr source_loc(const source_loc &other)
+        : filename{other.filename}
+        , line{other.line}
+        , funcname{other.funcname}
+    {}
+
+    constexpr bool empty() const noexcept
+    {
+        return line == 0;
+    }
 
     const char *filename{nullptr};
     int line{0};
@@ -71,7 +82,7 @@ public:
 
     static std::shared_ptr<MraLogger> getInstance();
 
-    void log(source_loc const &loc, MRA::Logging::LogLevel loglevel, const char *fmt,...);
+    void log(source_loc loc, MRA::Logging::LogLevel loglevel, const char *fmt,...);
 
     void setPreLogText(const std::string& r_pretext);
 
