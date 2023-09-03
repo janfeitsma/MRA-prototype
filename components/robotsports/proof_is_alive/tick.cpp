@@ -57,7 +57,7 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
     google::protobuf::Duration duration_phase = google::protobuf::util::TimeUtil::NanosecondsToDuration((int64_t)(1e9 * max_time_per_phase));
 	if (timestamp - state.timestamp_start_phase() > duration_phase)
 	{
-		//TODO something like MRA_LOG_CRITICAL("TIMEOUT: FAILED due to too much time between phases (max: %4.2f seconds)", max_time_per_phase);
+		MRA_LOG_CRITICAL("TIMEOUT: FAILED due to too much time between phases (max: %4.2f seconds)", max_time_per_phase);
         output.set_actionresult(MRA::Datatypes::FAILED);
 	}
 	else if (!ws.robot().active())

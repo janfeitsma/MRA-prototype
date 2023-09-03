@@ -50,13 +50,28 @@ spdlog::level::level_enum convert_log_level(MRA::Logging::LogLevel log_level);
 void reconfigure(MRA::Datatypes::LogSpec const &cfg);
 
 
+// copy from spdlog
+struct source_loc
+{
+    source_loc() = default;
+    source_loc(const char *filename_in, int line_in, const char *funcname_in)
+        : filename{filename_in}
+        , line{line_in}
+        , funcname{funcname_in}
+    {}
+
+    const char *filename{nullptr};
+    int line{0};
+    const char *funcname{nullptr};
+};
+
 class MraLogger
 {
 public:
 
     static std::shared_ptr<MraLogger> getInstance();
 
-    void log(MRA::Logging::LogLevel loglevel, const char *fmt,...);
+    void log(source_loc const &loc, MRA::Logging::LogLevel loglevel, const char *fmt,...);
 
     void setPreLogText(const std::string& r_pretext);
 

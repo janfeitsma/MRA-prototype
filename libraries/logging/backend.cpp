@@ -39,12 +39,12 @@ void logTickStart(
         std::string inputStr = MRA::convert_proto_to_json_str(input);
         std::string paramsStr = MRA::convert_proto_to_json_str(params);
         std::string stateStr = MRA::convert_proto_to_json_str(state);
-        // TODO pass sourceloc, make it the first arg of log, redirect to inner spdlog handlers
-        logger->log(MRA::Logging::INFO, "tick %d START", counter);
-        logger->log(MRA::Logging::INFO, "timestamp: %s", google::protobuf::util::TimeUtil::ToString(timestamp).c_str());
-        logger->log(MRA::Logging::INFO, "input: %s", inputStr.c_str());
-        logger->log(MRA::Logging::INFO, "params: %s", paramsStr.c_str());
-        logger->log(MRA::Logging::INFO, "state: %s", stateStr.c_str());
+        MRA::Logging::backend::source_loc loc{fileName.c_str(), lineNumber, "tick"};
+        logger->log(loc, MRA::Logging::INFO, "tick %d START", counter);
+        logger->log(loc, MRA::Logging::INFO, "timestamp: %s", google::protobuf::util::TimeUtil::ToString(timestamp).c_str());
+        logger->log(loc, MRA::Logging::INFO, "input: %s", inputStr.c_str());
+        logger->log(loc, MRA::Logging::INFO, "params: %s", paramsStr.c_str());
+        logger->log(loc, MRA::Logging::INFO, "state(in): %s", stateStr.c_str());
         // TODO tick bindump, if configured
     }
 }
@@ -69,10 +69,11 @@ void logTickEnd(
         // convert protobuf objects to string
         std::string stateStr = MRA::convert_proto_to_json_str(state);
         std::string outputStr = MRA::convert_proto_to_json_str(output);
-        logger->log(MRA::Logging::INFO, "tick %d END error_value=%d", counter, error_value);
-        logger->log(MRA::Logging::INFO, "duration: %9.6f", duration);
-        logger->log(MRA::Logging::INFO, "output: %s", outputStr.c_str());
-        logger->log(MRA::Logging::INFO, "state: %s", stateStr.c_str());
+        MRA::Logging::backend::source_loc loc{fileName.c_str(), lineNumber, "tick"};
+        logger->log(loc, MRA::Logging::INFO, "tick %d END error_value=%d", counter, error_value);
+        logger->log(loc, MRA::Logging::INFO, "duration: %9.6f", duration);
+        logger->log(loc, MRA::Logging::INFO, "output: %s", outputStr.c_str());
+        logger->log(loc, MRA::Logging::INFO, "state: %s", stateStr.c_str());
         // TODO tick bindump, if configured
     }
 }
@@ -148,16 +149,17 @@ void MraLogger::setPreLogText(const std::string& r_pretext)
     m_pretext = r_pretext;
 }
 
-void MraLogger::log(MRA::Logging::LogLevel loglevel, const char *fmt,...)
+void MraLogger::log(source_loc const &loc, MRA::Logging::LogLevel loglevel, const char *fmt,...)
 {
     if (m_active) {
-        const int MAXTEXT = 4096;
+        const int MAXTEXT = 4096; // TODO use configuration
         char buffer[MAXTEXT];
         buffer[MAXTEXT-1] = '\0';
         va_list argptr;
         va_start(argptr, fmt);
         vsprintf(buffer, fmt, argptr);
         va_end(argptr);
+        spdlog::source_loc loc_spd{loc.filename, loc.line, loc.funcname};
         if (buffer[MAXTEXT-1])
         {
             buffer[MAXTEXT-1] = '\0';
@@ -168,22 +170,22 @@ void MraLogger::log(MRA::Logging::LogLevel loglevel, const char *fmt,...)
         else {
             switch (loglevel) {
             case MRA::Logging::CRITICAL:
-                m_spdlog_logger->critical(m_pretext + buffer);
+                m_spdlog_logger->log(loc_spd, spdlog::level::critical, m_pretext + buffer);
                 break;
             case MRA::Logging::ERROR:
-                m_spdlog_logger->error(m_pretext + buffer);
+                m_spdlog_logger->log(loc_spd, spdlog::level::err, m_pretext + buffer);
                 break;
             case MRA::Logging::WARNING:
-                m_spdlog_logger->warn(m_pretext + buffer);
+                m_spdlog_logger->log(loc_spd, spdlog::level::warn, m_pretext + buffer);
                 break;
             case MRA::Logging::INFO:
-                m_spdlog_logger->info(m_pretext + buffer);
+                m_spdlog_logger->log(loc_spd, spdlog::level::info, m_pretext + buffer);
                 break;
             case MRA::Logging::DEBUG:
-                m_spdlog_logger->debug(m_pretext + buffer);
+                m_spdlog_logger->log(loc_spd, spdlog::level::debug, m_pretext + buffer);
                 break;
             case MRA::Logging::TRACE:
-                m_spdlog_logger->trace(m_pretext + buffer);
+                m_spdlog_logger->log(loc_spd, spdlog::level::trace, m_pretext + buffer);
                 break;
             }
         }
