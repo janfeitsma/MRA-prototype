@@ -49,6 +49,7 @@ public:
         // dispatch to backend
         if (_cfg.enabled())
         {
+            backend::reconfigure(_cfg);
             // if so configured, open binary file, otherwise NULL pointer
             _binfile = backend::logTickBinFile(_cfg, _componentName, _counter);
             // call backend

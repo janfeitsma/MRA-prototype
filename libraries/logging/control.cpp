@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <filesystem>
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -23,18 +24,27 @@ namespace
 std::string logFolder()
 {
     MRA::Datatypes::LogControl config = getConfiguration();
-    return config.folder();
+    std::string result = config.folder();
+    if (std::filesystem::exists(result) && !std::filesystem::is_directory(result)) {
+        throw std::runtime_error(std::string("Error determining log folder: '") + result + "' exists but is not a folder");
+    }
+    if (!std::filesystem::exists(result)) {
+        std::filesystem::create_directory(result);
+    }
+    return result;
 }
 
 MRA::Datatypes::LogControl defaultConfiguration()
 {
     MRA::Datatypes::LogControl result;
     result.set_folder(DEFAULT_LOG_FOLDER);
+    result.mutable_general()->set_component("MRA");
     result.mutable_general()->set_level(MRA::Datatypes::LogLevel::INFO);
     result.mutable_general()->set_enabled(true);
     result.mutable_general()->set_dumpticks(false);
     result.mutable_general()->set_maxlinesize(1000);
     result.mutable_general()->set_maxfilesizemb(10.0);
+    result.mutable_general()->set_pattern("[%Y-%m-%d %H:%M:%S.%f] [%n] [%^%l%$] %v");
     return result;
 }
 
@@ -129,6 +139,9 @@ MRA::Datatypes::LogSpec getConfiguration(std::string const &component)
             break;
         }
     }
+
+    // Fill in component name
+    result.set_component(component);
 
     return result;
 }

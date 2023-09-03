@@ -1,4 +1,5 @@
 #include "backend.hpp"
+#include "control.hpp"
 #include "json_convert.hpp"
 #include <memory>
 #include "spdlog/spdlog.h"  // spdlog API: https://github.com/gabime/spdlog
@@ -6,10 +7,11 @@
 #include "spdlog/sinks/basic_file_sink.h"
 #include <stdarg.h>
 
-
+namespace MRA::Logging::backend
+{
 
 // tick logging: get binary file if configured, or NULL pointer
-std::ofstream *MRA::Logging::backend::logTickBinFile(
+std::ofstream *logTickBinFile(
     MRA::Datatypes::LogSpec const &cfg,
     std::string const &componentName,
     int counter)
@@ -18,7 +20,7 @@ std::ofstream *MRA::Logging::backend::logTickBinFile(
 }
 
 // tick logging: write logging/data at start of tick
-void MRA::Logging::backend::logTickStart(
+void logTickStart(
     std::string const &componentName,
     std::string const &fileName,
     int lineNumber,
@@ -34,9 +36,9 @@ void MRA::Logging::backend::logTickStart(
     {
         auto logger = MraLogger::getInstance();
         // convert protobuf objects to string
-        std::string inputStr = convert_proto_to_json_str(input);
-        std::string paramsStr = convert_proto_to_json_str(params);
-        std::string stateStr = convert_proto_to_json_str(state);
+        std::string inputStr = MRA::convert_proto_to_json_str(input);
+        std::string paramsStr = MRA::convert_proto_to_json_str(params);
+        std::string stateStr = MRA::convert_proto_to_json_str(state);
         // TODO pass sourceloc, make it the first arg of log, redirect to inner spdlog handlers
         logger->log(MRA::Logging::INFO, "tick %d START", counter);
         logger->log(MRA::Logging::INFO, "timestamp: %s", google::protobuf::util::TimeUtil::ToString(timestamp).c_str());
@@ -48,7 +50,7 @@ void MRA::Logging::backend::logTickStart(
 }
 
 // tick logging: write logging/data at end of tick
-void MRA::Logging::backend::logTickEnd(
+void logTickEnd(
     std::string const &componentName,
     std::string const &fileName,
     int lineNumber,
@@ -65,8 +67,8 @@ void MRA::Logging::backend::logTickEnd(
     {
         auto logger = MraLogger::getInstance();
         // convert protobuf objects to string
-        std::string stateStr = convert_proto_to_json_str(state);
-        std::string outputStr = convert_proto_to_json_str(output);
+        std::string stateStr = MRA::convert_proto_to_json_str(state);
+        std::string outputStr = MRA::convert_proto_to_json_str(output);
         logger->log(MRA::Logging::INFO, "tick %d END error_value=%d", counter, error_value);
         logger->log(MRA::Logging::INFO, "duration: %9.6f", duration);
         logger->log(MRA::Logging::INFO, "output: %s", outputStr.c_str());
@@ -75,32 +77,73 @@ void MRA::Logging::backend::logTickEnd(
     }
 }
 
+// configuration management
+void reconfigure(MRA::Datatypes::LogSpec const &cfg)
+{
+    // TODO: this might not yet support multiple components in the same process
+    // keep current configuration in memory
+    static MRA::Datatypes::LogSpec currentCfg;
+    // only reconfigure upon change
+    // protobuf c++ API does not provide (in-)equality operators - use json conversion (or create a Configuration class?)
+    if (MRA::convert_proto_to_json_str(currentCfg) != MRA::convert_proto_to_json_str(cfg))
+    {
+        if (cfg.component().size() == 0) {
+            throw std::runtime_error("Missing component name");
+        }
+        std::string name = "MRA:" + cfg.component();
+        std::string log_file = MRA::Logging::control::logFolder() + "/" + cfg.component();
+        MraLogger::getInstance()->setup(cfg.enabled(), cfg.pattern(), (MRA::Logging::LogLevel)(int)cfg.level(), name, log_file);
+        currentCfg = cfg;
+    }
+}
 
-using namespace MRA::Logging::backend;
+// log level mapping
+spdlog::level::level_enum convert_log_level(MRA::Logging::LogLevel log_level)
+{
+    switch (log_level)
+    {
+    case MRA::Logging::CRITICAL: return spdlog::level::level_enum::critical;
+    case MRA::Logging::ERROR:    return spdlog::level::level_enum::err;
+    case MRA::Logging::WARNING:  return spdlog::level::level_enum::warn;
+    case MRA::Logging::INFO:     return spdlog::level::level_enum::info;
+    case MRA::Logging::DEBUG:    return spdlog::level::level_enum::debug;
+    default: ;
+    }
+    throw std::runtime_error(std::string("Unrecognized log_level, int value " + std::to_string(int(log_level))));
+}
 
-std::shared_ptr<MraLogger> MraLogger::getInstance() {
+std::shared_ptr<MraLogger> MraLogger::getInstance()
+{
     static std::shared_ptr<MraLogger> sp_logger(new MraLogger);
     return sp_logger;
 }
 
-MraLogger::MraLogger() {
-    setup();
-}
-
-void MraLogger::setup()
+MraLogger::MraLogger()
 {
-    m_active = true;
-
-    // microsecond resolution: %f
-    // note that timestamps are absolute, in UTC
-    // so for postprocessing & readability, timezone offset needs to be applied
-    spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%f] [%n] [%^%l%$] %v");
-    spdlog::set_level(spdlog::level::info);
-
-    m_spdlog_logger = spdlog::basic_logger_mt<spdlog::async_factory>("MRA", "/tmp/async_log.txt");
+    // lazy setup: at first logger call
 }
 
-void MraLogger::setPreLogText(const std::string& r_pretext) {
+void MraLogger::setup(bool active, std::string const& log_pattern, MRA::Logging::LogLevel log_level, std::string const &log_name, std::string const &log_file)
+{
+    m_active = active;
+    spdlog::set_pattern(log_pattern.c_str());
+    spdlog::set_level(convert_log_level(log_level));
+
+    // Check if the logger already exists
+    auto existing_logger = spdlog::get(log_name);
+    if (existing_logger) {
+        // Logger with the same name already exists, update its properties
+        existing_logger->set_pattern(log_pattern);
+        existing_logger->set_level(convert_log_level(log_level));
+        //existing_logger->set_filename(log_file); // TODO: how to runtime reconfigure?
+    } else {
+        // Logger with the given name doesn't exist, create a new one
+        m_spdlog_logger = spdlog::basic_logger_mt<spdlog::async_factory>(log_name, log_file);
+    }
+}
+
+void MraLogger::setPreLogText(const std::string& r_pretext)
+{
     m_pretext = r_pretext;
 }
 
@@ -146,4 +189,6 @@ void MraLogger::log(MRA::Logging::LogLevel loglevel, const char *fmt,...)
         va_end(argptr);
     }
 }
+
+} // namespace MRA::Logging::backend
 

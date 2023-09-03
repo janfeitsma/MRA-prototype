@@ -45,6 +45,9 @@ void logTickEnd(
     google::protobuf::Message const &output,
     google::protobuf::Message const &diag);
 
+// configuration management
+spdlog::level::level_enum convert_log_level(MRA::Logging::LogLevel log_level);
+void reconfigure(MRA::Datatypes::LogSpec const &cfg);
 
 
 class MraLogger
@@ -59,7 +62,7 @@ public:
 
     MraLogger(const MraLogger& obj) = delete;
 
-    void setup();
+    void setup(bool active, std::string const& log_pattern, MRA::Logging::LogLevel log_level, std::string const &log_name, std::string const &log_file);
 
 private:
     MraLogger();
