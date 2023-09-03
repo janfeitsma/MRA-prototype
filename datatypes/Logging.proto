@@ -21,6 +21,7 @@ message LogSpec
     int32 maxLineSize = 5; // number of characters to cut off lines, default something like 1000 - if this is too little, then consider using tickdump
     float maxFileSizeMB = 6; // a guard on file size growth, default something like: stop after file exceeds 10.0 MB
     string pattern = 7; // spdlog pattern, default something like: "[%Y-%m-%d %H:%M:%S.%f] [%n] [%^%l%$] %v"
+    bool hotFlush = 8; // enable flush option
 }
 
 message LogControl

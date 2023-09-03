@@ -87,12 +87,7 @@ void reconfigure(MRA::Datatypes::LogSpec const &cfg)
     // protobuf c++ API does not provide (in-)equality operators - use json conversion (or create a Configuration class?)
     if (MRA::convert_proto_to_json_str(currentCfg) != MRA::convert_proto_to_json_str(cfg))
     {
-        if (cfg.component().size() == 0) {
-            throw std::runtime_error("Missing component name");
-        }
-        std::string name = "MRA:" + cfg.component();
-        std::string log_file = MRA::Logging::control::logFolder() + "/" + cfg.component();
-        MraLogger::getInstance()->setup(cfg.enabled(), cfg.pattern(), (MRA::Logging::LogLevel)(int)cfg.level(), name, log_file);
+        MraLogger::getInstance()->setup(cfg);
         currentCfg = cfg;
     }
 }
@@ -123,22 +118,28 @@ MraLogger::MraLogger()
     // lazy setup: at first logger call
 }
 
-void MraLogger::setup(bool active, std::string const& log_pattern, MRA::Logging::LogLevel log_level, std::string const &log_name, std::string const &log_file)
+void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
 {
-    m_active = active;
-    spdlog::set_pattern(log_pattern.c_str());
-    spdlog::set_level(convert_log_level(log_level));
+    m_active = cfg.enabled();
+    auto log_level_mra = (MRA::Logging::LogLevel)(int)cfg.level();
+    auto log_level_spd = convert_log_level(log_level_mra);
+    spdlog::set_pattern(cfg.pattern().c_str());
+    spdlog::set_level(log_level_spd);
+    std::string log_name = "MRA:" + cfg.component();
+    std::string log_file = MRA::Logging::control::getLogFolder() + "/" + cfg.component() + ".log";
 
     // Check if the logger already exists
-    auto existing_logger = spdlog::get(log_name);
-    if (existing_logger) {
-        // Logger with the same name already exists, update its properties
-        existing_logger->set_pattern(log_pattern);
-        existing_logger->set_level(convert_log_level(log_level));
-        //existing_logger->set_filename(log_file); // TODO: how to runtime reconfigure?
-    } else {
+    if (!spdlog::get(log_name)) {
         // Logger with the given name doesn't exist, create a new one
         m_spdlog_logger = spdlog::basic_logger_mt<spdlog::async_factory>(log_name, log_file);
+    }
+
+    // Configure logger
+    m_spdlog_logger->set_pattern(cfg.pattern());
+    m_spdlog_logger->set_level(log_level_spd);
+    //m_spdlog_logger->set_filename(log_file); // TODO: how to runtime reconfigure? access and manipulate sink(s)
+    if (cfg.hotflush()) {
+        m_spdlog_logger->flush_on(log_level_spd);
     }
 }
 
@@ -187,6 +188,8 @@ void MraLogger::log(MRA::Logging::LogLevel loglevel, const char *fmt,...)
             }
         }
         va_end(argptr);
+        // TODO: why is flush needed here, why doesn't flush_on at setup() seem to work?
+        m_spdlog_logger->flush();
     }
 }
 

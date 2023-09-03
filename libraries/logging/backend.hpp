@@ -62,7 +62,7 @@ public:
 
     MraLogger(const MraLogger& obj) = delete;
 
-    void setup(bool active, std::string const& log_pattern, MRA::Logging::LogLevel log_level, std::string const &log_name, std::string const &log_file);
+    void setup(MRA::Datatypes::LogSpec const &cfg);
 
 private:
     MraLogger();

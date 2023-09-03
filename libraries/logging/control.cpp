@@ -16,12 +16,13 @@ namespace MRA::Logging::control
 
 namespace
 {
-    const char* SHARED_MEMORY_FILE = "/mra_logging_shared_memory";
-    const char* DEFAULT_LOG_FOLDER = "/tmp/mra_logging";
+    std::string SHARED_MEMORY_FILE = "/mra_logging_shared_memory";
+    std::string DEFAULT_LOG_FOLDER = "/tmp/mra_logging";
     const size_t SHARED_MEMORY_SIZE = 4096;
+    std::string LOG_FOLDER = DEFAULT_LOG_FOLDER;
 }
 
-std::string logFolder()
+std::string getLogFolder()
 {
     MRA::Datatypes::LogControl config = getConfiguration();
     std::string result = config.folder();
@@ -37,7 +38,7 @@ std::string logFolder()
 MRA::Datatypes::LogControl defaultConfiguration()
 {
     MRA::Datatypes::LogControl result;
-    result.set_folder(DEFAULT_LOG_FOLDER);
+    result.set_folder(LOG_FOLDER);
     result.mutable_general()->set_component("MRA");
     result.mutable_general()->set_level(MRA::Datatypes::LogLevel::INFO);
     result.mutable_general()->set_enabled(true);
@@ -57,7 +58,7 @@ void resetConfiguration()
 MRA::Datatypes::LogControl getConfiguration()
 {
     // Open shared memory, initialize if not existing
-    int shm_fd = shm_open(SHARED_MEMORY_FILE, O_RDONLY, 0666);
+    int shm_fd = shm_open(SHARED_MEMORY_FILE.c_str(), O_RDONLY, 0666);
     if (shm_fd == -1) {
         auto cfg = defaultConfiguration();
         setConfiguration(cfg);
@@ -90,7 +91,7 @@ MRA::Datatypes::LogControl getConfiguration()
 void setConfiguration(MRA::Datatypes::LogControl const &config)
 {
     // Open shared memory
-    int shm_fd = shm_open(SHARED_MEMORY_FILE, O_CREAT | O_RDWR, 0666);
+    int shm_fd = shm_open(SHARED_MEMORY_FILE.c_str(), O_CREAT | O_RDWR, 0666);
     if (shm_fd == -1) {
         throw std::runtime_error(std::string("Error opening shared memory: ") + strerror(errno));
     }

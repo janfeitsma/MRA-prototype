@@ -12,7 +12,7 @@ namespace MRA::Logging::control
 {
 
 // get the logging folder, may create if needed
-std::string logFolder();
+std::string getLogFolder();
 
 // configure
 MRA::Datatypes::LogControl getConfiguration(); // get entire configuration
