@@ -1,7 +1,8 @@
 // Test suite for MRA logger.
 
-// Include testframework
+// Include testframework and system includes
 #include "gtest/gtest.h"
+#include <filesystem>
 
 // System under test
 #include "logging.hpp"
@@ -53,9 +54,40 @@ void runtick() {
 }
 
 // Helper function: check if log folder exists
-bool check_log_folder_existing() {
-    // TODO: Check if log folder exists
-    return true;
+bool check_log_folder_existing(std::string log_folder = LOG_FOLDER) {
+    if (!std::filesystem::exists(log_folder)) return false;
+    return std::filesystem::is_directory(log_folder);
+}
+
+// Helper function: count number of produced log files
+int count_log_files(std::string log_folder = LOG_FOLDER) {
+    try {
+        int count = 0;
+        // Use std::filesystem to iterate through files in the log folder
+        for (const auto &entry : std::filesystem::directory_iterator(log_folder)) {
+            if (entry.is_regular_file()) {
+                count++;
+            }
+        }
+        return count;
+    } catch (const std::filesystem::filesystem_error &e) {
+        // Handle any errors that might occur during folder iteration
+        return -1; // Return -1 in case of any error
+    }
+}
+
+// Helper function: count number of produced log lines
+int count_log_lines(std::string filename) {
+    std::ifstream fh(filename);
+    int count = 0;
+    if (fh.is_open()) {
+        std::string line;
+        while (std::getline(fh, line)) {
+            count++;
+        }
+        fh.close();
+    }
+    return count;
 }
 
 // Default tick shall produce logging
@@ -66,7 +98,10 @@ TEST_F(TestFixture, defaultLogging) {
 
     // Assert
     std::string expected_log_file = LOG_FOLDER "/robotsports/proof_is_alive.log";
-    // TODO: Check if log file exists, is fresh, and not empty
+    EXPECT_TRUE(check_log_folder_existing());
+    EXPECT_EQ(count_log_files(), 1);
+    EXPECT_TRUE(std::filesystem::exists(expected_log_file));
+    EXPECT_GT(count_log_lines(expected_log_file), 0);
 }
 
 // If so configured, then do not produce logging
@@ -80,7 +115,7 @@ TEST_F(TestFixture, allowDisableLogging) {
     runtick();
 
     // Assert
-    // TODO: Check if log folder was not created at all
+    EXPECT_FALSE(check_log_folder_existing());
 }
 
 int main(int argc, char **argv) {
