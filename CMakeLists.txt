@@ -34,11 +34,13 @@ set(MESSAGE_PROTOS_COMMON
     datatypes/WorldState.proto
 )
 
+include_directories(datatypes)
 add_library(MRA-datatypes)
 target_include_directories(MRA-datatypes PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(MRA-datatypes protobuf)
 
 protobuf_generate(TARGET MRA-datatypes PROTOS ${MESSAGE_PROTOS_COMMON} LANGUAGE cpp IMPORT_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
+
 
 
 ##########################################################
@@ -89,6 +91,10 @@ target_link_libraries(MRA-libraries MRA-datatypes)
 
 include_directories(base)
 
+add_library(MRA-base
+    base/json_convert.cpp
+)
+target_link_libraries(MRA-base nlohmann_json::nlohmann_json)
 
 ##########################################################
 # component interfaces
@@ -103,9 +109,9 @@ set(MESSAGE_PROTOS_COMPONENTS
     components/falcons/velocity_control/interface/Params.proto
     components/falcons/velocity_control/interface/Output.proto
     components/falcons/velocity_control/interface/State.proto
-    components/robotsports/getball-intercept/interface/Input.proto
-    components/robotsports/getball-intercept/interface/Params.proto
-    components/robotsports/getball-intercept/interface/Output.proto
+    components/robotsports/getball_intercept/interface/Input.proto
+    components/robotsports/getball_intercept/interface/Params.proto
+    components/robotsports/getball_intercept/interface/Output.proto
 )
 
 add_library(MRA-components-proto)
@@ -134,7 +140,7 @@ add_library(MRA-components
     components/falcons/velocity_control/internal/src/algorithms/CalculateVelocity.cpp
     components/falcons/velocity_control/internal/src/algorithms/SetOutputsPrepareNext.cpp
 
-    components/robotsports/getball-intercept/tick.cpp
+    components/robotsports/getball_intercept/tick.cpp
 )
 target_include_directories(MRA-components PUBLIC components/falcons/velocity_control/internal/include )
 target_link_libraries(MRA-components MRA-libraries MRA-components-proto MRA-base nlohmann_json::nlohmann_json)
