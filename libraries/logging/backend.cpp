@@ -132,8 +132,10 @@ void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
     // Check if the logger already exists
     if (!spdlog::get(log_name)) {
         // Logger with the given name doesn't exist, create a new one
-        m_spdlog_logger = spdlog::basic_logger_mt<spdlog::async_factory>(log_name, log_file);
-        // TODO: why async_factory? might explain __FILE__ __LINE__ garbage, see also https://github.com/gabime/spdlog/issues/2867
+        m_spdlog_logger = spdlog::basic_logger_mt(log_name, log_file);
+        // TODO: consider using <spdlog::async_factory> for performance?
+        // but then check that __FILE__ logging does not become garbage
+        // see also https://github.com/gabime/spdlog/issues/2867
     }
 
     // Configure logger
