@@ -7,7 +7,7 @@
 
 
 // Mock/manipulate MRA::Logging::logFolder, leave default intact
-#define LOG_FOLDER_TEST "/tmp/test_mra_logging"
+#define LOG_FOLDER_TEST "/tmp/unittest_mra_logging"
 
 // Helper function: test-specific configuration
 // (to not affect standard log folder, to enable hotflush)

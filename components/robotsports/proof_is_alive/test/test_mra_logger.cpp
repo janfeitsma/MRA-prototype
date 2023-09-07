@@ -3,6 +3,7 @@
 // Include testframework and system includes
 #include "test_mra_logger_helpers.hpp"
 #include <filesystem>
+#include <stdlib.h>
 
 // System under test
 #include "logging.hpp"
@@ -10,6 +11,11 @@
 // Auxiliary component (rather than defining a dummy component)
 #include "RobotsportsProofIsAlive.hpp"
 
+
+// Helper function: manipulate logger to run independent of everything else, via environment
+void configure_logger() {
+    setenv("MRA_LOGGER_CONTEXT", "unittest", 1);
+}
 
 // Helper function: run a single tick
 void runtick() {
@@ -46,7 +52,7 @@ TEST_F(TestFixture, allowDisableLogging) {
 }
 
 int main(int argc, char **argv) {
-    sleep(5); // FIXME: hack to get clean-ish test behavior: production tests should not run with test_mra configuration
+    configure_logger();
     testing::InitGoogleTest(&argc, argv);
     int r = RUN_ALL_TESTS();
     return r;
