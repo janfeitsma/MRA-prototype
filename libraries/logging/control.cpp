@@ -45,7 +45,7 @@ MRA::Datatypes::LogControl defaultConfiguration()
     result.mutable_general()->set_dumpticks(false);
     result.mutable_general()->set_maxlinesize(1000);
     result.mutable_general()->set_maxfilesizemb(10.0);
-    result.mutable_general()->set_pattern("[%Y-%m-%d %H:%M:%S.%f] [%^%l%$] [%s:%i,%!] %v");
+    result.mutable_general()->set_pattern("[%Y-%m-%d %H:%M:%S.%f] [%^%l%$] [%s:%#,%!] %v");
     return result;
 }
 
