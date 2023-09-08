@@ -26,6 +26,7 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         ":datatypes",
+        "//libraries/logging",
         "//components/falcons/velocity_control/internal:VelocityControl",
         "//libraries/geometry",
         "//libraries/reflexxes",

@@ -7,6 +7,7 @@
 #include "abstract_interface.hpp"
 #include "params_loader.hpp"
 #include <google/protobuf/empty.pb.h>
+#include "logging.hpp"
 
 // generated protobuf types from interface of this component
 #include "datatypes.hpp"

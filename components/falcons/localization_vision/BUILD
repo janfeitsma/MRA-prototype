@@ -26,8 +26,8 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         ":datatypes",
-        "//components/falcons/localization_vision/internal:solver",
         "//libraries/logging",
+        "//components/falcons/localization_vision/internal:solver",
         "//libraries/geometry",
     ],
 )
