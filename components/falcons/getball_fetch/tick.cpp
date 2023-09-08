@@ -13,6 +13,7 @@ using namespace MRA;
 #include <cmath>
 
 
+
 int FalconsGetballFetch::FalconsGetballFetch::tick
 (
     google::protobuf::Timestamp timestamp,   // absolute timestamp
@@ -24,6 +25,7 @@ int FalconsGetballFetch::FalconsGetballFetch::tick
 )
 {
     int error_value = 0;
+    MRA_LOG_TICK();
 
     // user implementation goes here
 
