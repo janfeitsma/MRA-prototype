@@ -3,18 +3,6 @@
 
 #include <google/protobuf/util/time_util.h>
 
-// provide a better implementation of google::protobuf::util::TimeUtil::GetCurrentTime()
-// because it lacks sub-second resolution (until it was reluctantly fixed in newer versions)
-// https://github.com/protocolbuffers/protobuf/issues/8930
-inline google::protobuf::Timestamp GetCurrentTime()
-{
-    google::protobuf::Timestamp result;
-    auto now = std::chrono::high_resolution_clock::now().time_since_epoch();
-    auto secs = std::chrono::duration_cast<std::chrono::seconds>(now);
-    result.set_seconds(secs.count());
-    result.set_nanos(std::chrono::duration_cast<std::chrono::nanoseconds>(now - secs).count());
-    return result;
-}
 
 namespace MRA
 {

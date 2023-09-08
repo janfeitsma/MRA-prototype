@@ -53,12 +53,12 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 
 	if (state.phase() == StateType::TO_BE_STARTED) 
 	{
-	    *state.mutable_timestamp_start_phase() = timestamp;
+        *state.mutable_timestamp_start_phase() = timestamp;
 	}
 
 	double max_time_per_phase = params.max_time_per_phase();
-	double elapsed = google::protobuf::util::TimeUtil::DurationToSeconds(timestamp - state.timestamp_start_phase());
-	if (elapsed > max_time_per_phase)
+    google::protobuf::Duration duration_phase = google::protobuf::util::TimeUtil::NanosecondsToDuration((int64_t)(1e9 * max_time_per_phase));
+	if (timestamp - state.timestamp_start_phase() > duration_phase)
 	{
 		// time out: to long before reaching new state
 #ifdef DEBUG

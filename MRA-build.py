@@ -30,7 +30,8 @@ import argparse
 MRA_ROOT = pathlib.Path(__file__).parent.resolve()
 DEBUG_OPTIONS = '--subcommands --verbose_failures --sandbox_debug'
 TEST_OPTIONS = '--test_output all --nocache_test_results'
-DEFAULT_SCOPE = '...'
+BAZEL_ALL = '...' # see bazel syntax / cheatsheet
+DEFAULT_SCOPE = BAZEL_ALL
 DEFAULT_NUM_PARALLEL_JOBS = 4 # TODO guess? building is nowadays quite memory-intensive ... easy to lock/swap
 
 
@@ -98,14 +99,14 @@ def resolve_scope(iscope : str) -> list:
     Resolve build- and optional test scope as a list of strings to pass to bazel, one at a time.
     Make a guess on user input, which may be a comma separated list of strings. See general examples.
     """
-    if iscope == '...':
-        return ['...'] # full scope, default
+    if iscope == BAZEL_ALL:
+        return [BAZEL_ALL] # full scope, default
     components = find_components()
     result = set()
     for s in iscope.split(','):
         candidates = [c for c in components if c.endswith(s)]
         if len(candidates) == 1:
-            result.add(candidates[0] + '/...')
+            result.add(candidates[0] + '/' + BAZEL_ALL)
         else:
             raise Exception(f'failed to resolve component for "{s}", candidates: ' + str(candidates))
     return list(result)
