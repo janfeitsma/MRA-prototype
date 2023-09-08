@@ -4,6 +4,8 @@
 // generated component header:
 #include "RobotsportsProofIsAlive.hpp"
 
+#include "logging.hpp" // TODO: automate, perhaps via generated hpp
+
 using namespace MRA;
 
 // custom includes, if any
@@ -40,14 +42,9 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
     LocalType                  &local        // local/diagnostics data, type generated from Local.proto
 )
 {
-#ifdef DEBUG
-    std::cout << "timestamp: " << timestamp << std::endl;
-    std::cout << "input: " << convert_proto_to_json_str(input) << std::endl;
-    std::cout << "params: " << convert_proto_to_json_str(params) << std::endl;
-    std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
-#endif // DEBUG
-
 	int error_value = 0;
+	MRA_LOG_TICK();
+
     auto const ws = input.worldstate();
 	double rotation_angle_rad = deg2rad(params.angle_in_degrees());
 
@@ -60,10 +57,7 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
     google::protobuf::Duration duration_phase = google::protobuf::util::TimeUtil::NanosecondsToDuration((int64_t)(1e9 * max_time_per_phase));
 	if (timestamp - state.timestamp_start_phase() > duration_phase)
 	{
-		// time out: to long before reaching new state
-#ifdef DEBUG
-	    std::cout << "TIMEOUT: FAILED due to too much time between phases (max: " << std::setprecision(2) << max_time_per_phase << " seconds)" << std::endl;
-#endif // DEBUG
+		MRA_LOG_CRITICAL("TIMEOUT: FAILED due to too much time between phases (max: %4.2f seconds)", max_time_per_phase);
         output.set_actionresult(MRA::Datatypes::FAILED);
 	}
 	else if (!ws.robot().active())
@@ -124,13 +118,6 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
 	    output.mutable_target()->mutable_position()->set_rz(state.requested_position().rz());
 	}
 
-#ifdef DEBUG
-    std::cout << "output: " << convert_proto_to_json_str(output) << std::endl;
-    std::cout << "state: " << convert_proto_to_json_str(state) << std::endl;
-    std::cout << "local: " << convert_proto_to_json_str(local) << std::endl;
-    std::cout << "error: " << error_value << std::endl;
-#endif // DEBUG
-
-    return error_value;
+	return error_value;
 }
 

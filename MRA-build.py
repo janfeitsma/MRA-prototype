@@ -29,7 +29,8 @@ import argparse
 
 MRA_ROOT = pathlib.Path(__file__).parent.resolve()
 DEBUG_OPTIONS = '--subcommands --verbose_failures --sandbox_debug'
-TEST_OPTIONS = '--test_output all --nocache_test_results'
+ENV_OPTIONS = '--action_env=MRA_LOGGER_CONTEXT=testsuite'
+TEST_OPTIONS = '--test_output all --nocache_test_results ' + ENV_OPTIONS
 BAZEL_ALL = '...' # see bazel syntax / cheatsheet
 DEFAULT_SCOPE = BAZEL_ALL
 DEFAULT_NUM_PARALLEL_JOBS = 4 # TODO guess? building is nowadays quite memory-intensive ... easy to lock/swap
@@ -55,13 +56,17 @@ class BazelBuilder():
     def run_clean(self) -> None:
         self.run_cmd('bazel clean --color=yes')
     def run_build(self, scope: list, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
-        cmd_parts = ['bazel', 'build', '--jobs', str(jobs)]
+        cmd_parts = ['bazel', 'build', '--jobs', str(jobs), ENV_OPTIONS]
         if self.debug:
             cmd_parts.append(DEBUG_OPTIONS)
         for s in scope:
             self.run_cmd(' '.join(cmd_parts + ['--color=yes', f'//{s}']))
     def run_test(self, scope: list) -> None:
         for s in scope:
+            # wipe /tmp/testsuite_mra_logging, used via MRA_LOGGER_CONTEXT action_env, for post-testsuite inspection
+            # (note how unittest test_mra_logger uses a different environment)
+            cmd = 'rm -rf /tmp/testsuite_mra_logging'
+            self.run_cmd(cmd)
             cmd = f'bazel test //{s} ' + TEST_OPTIONS
             self.run_cmd(cmd)
     def run_cmd(self, cmd: str) -> None:

@@ -15,6 +15,27 @@ http_archive(
     workspace_file_content = 'workspace(name = "nlohmann_json")',
 )
 
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+git_repository(
+    name = "fmt",
+    branch = "master",
+    remote = "https://github.com/fmtlib/fmt",
+    patch_cmds = [
+        "mv support/bazel/.bazelversion .bazelversion",
+        "mv support/bazel/BUILD.bazel BUILD.bazel",
+        "mv support/bazel/WORKSPACE.bazel WORKSPACE.bazel",
+    ],
+)
+
+# spdlog
+http_archive(
+    name = "gabime_spdlog",
+    url = "https://github.com/gabime/spdlog/archive/v1.11.0.tar.gz",
+    strip_prefix = "spdlog-1.11.0",
+    build_file = "//dependencies/bazel:BUILD.gabime_spdlog",
+    sha256 = "ca5cae8d6cac15dae0ec63b21d6ad3530070650f68076f3a4a862ca293a858bb",
+)
+
 # gtest
 # https://github.com/google/googletest
 http_archive(

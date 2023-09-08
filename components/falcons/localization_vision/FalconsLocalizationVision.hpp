@@ -87,6 +87,13 @@ public:
 }; // class FalconsLocalizationVision
 
 
+// component name
+inline std::string componentName()
+{
+    return "FalconsLocalizationVision";
+}
+
+
 // configuration handling
 inline ParamsType defaultParams()
 {

@@ -87,6 +87,13 @@ public:
 }; // class FalconsTrajectoryGeneration
 
 
+// component name
+inline std::string componentName()
+{
+    return "FalconsTrajectoryGeneration";
+}
+
+
 // configuration handling
 inline ParamsType defaultParams()
 {

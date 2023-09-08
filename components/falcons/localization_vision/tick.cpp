@@ -23,7 +23,7 @@ int FalconsLocalizationVision::FalconsLocalizationVision::tick
 )
 {
     int error_value = -1;
-    MRA::Logging::LogTick scoped(timestamp, input, params, &state, &output, &local, &error_value);
+    //MRA::Logging::LogTick scoped(timestamp, input, params, &state, &output, &local, &error_value);
 
     // user implementation goes here
 
