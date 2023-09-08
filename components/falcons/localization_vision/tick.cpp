@@ -22,8 +22,8 @@ int FalconsLocalizationVision::FalconsLocalizationVision::tick
     LocalType                  &local        // local/diagnostics data, type generated from Local.proto
 )
 {
-    int error_value = -1;
-    //MRA::Logging::LogTick scoped(timestamp, input, params, &state, &output, &local, &error_value);
+    int error_value = 0;
+    MRA_LOG_TICK();
 
     // user implementation goes here
 
@@ -46,12 +46,13 @@ int FalconsLocalizationVision::FalconsLocalizationVision::tick
     }
     catch (const std::exception& e)
     {
-        std::cerr << "ERROR: Caught a standard exception: " << e.what() << std::endl;
-        throw;
+        MRA_LOG_ERROR("ERROR: Caught a standard exception: %s", e.what());
+        error_value = -1;
     }
     catch (...)
     {
-        std::cerr << "ERROR: Caught an unknown exception." << std::endl;
+        MRA_LOG_ERROR("ERROR: Caught an unknown exception.");
+        error_value = -1;
     }
 
     return error_value;
