@@ -25,6 +25,7 @@ int FalconsGetball::FalconsGetball::tick
 )
 {
     int error_value = 0;
+    MRA_LOG_TICK();
 
     // user implementation goes here
 
