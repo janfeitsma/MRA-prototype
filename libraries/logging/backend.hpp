@@ -51,17 +51,19 @@ spdlog::level::level_enum convert_log_level(MRA::Logging::LogLevel log_level);
 void reconfigure(MRA::Datatypes::LogSpec const &cfg);
 
 
-// copy from spdlog
+// inspired by spdlog
 struct source_loc
 {
     constexpr source_loc() = default;
-    constexpr source_loc(const char *filename_in, int line_in, const char *funcname_in)
+    constexpr source_loc(const char *filename_in, const char *componentname_in, int line_in, const char *funcname_in)
         : filename{filename_in}
+        , componentname{componentname_in}
         , line{line_in}
         , funcname{funcname_in}
     {}
     constexpr source_loc(const source_loc &other)
         : filename{other.filename}
+        , componentname{other.componentname}
         , line{other.line}
         , funcname{other.funcname}
     {}
@@ -72,6 +74,7 @@ struct source_loc
     }
 
     const char *filename{nullptr};
+    const char *componentname{nullptr};
     int line{0};
     const char *funcname{nullptr};
 };
