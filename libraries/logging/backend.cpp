@@ -39,7 +39,7 @@ void logTickStart(
         std::string inputStr = MRA::convert_proto_to_json_str(input);
         std::string paramsStr = MRA::convert_proto_to_json_str(params);
         std::string stateStr = MRA::convert_proto_to_json_str(state);
-        MRA::Logging::backend::source_loc loc{fileName.c_str(), lineNumber, "tick"};
+        MRA::Logging::backend::source_loc loc{fileName.c_str(), componentName.c_str(), lineNumber, "tick"};
         logger->log(loc, MRA::Logging::INFO, "tick %d START", counter);
         logger->log(loc, MRA::Logging::INFO, "timestamp: %s", google::protobuf::util::TimeUtil::ToString(timestamp).c_str());
         logger->log(loc, MRA::Logging::INFO, "input: %s", inputStr.c_str());
@@ -69,7 +69,7 @@ void logTickEnd(
         // convert protobuf objects to string
         std::string stateStr = MRA::convert_proto_to_json_str(state);
         std::string outputStr = MRA::convert_proto_to_json_str(output);
-        MRA::Logging::backend::source_loc loc{fileName.c_str(), lineNumber, "tick"};
+        MRA::Logging::backend::source_loc loc{fileName.c_str(), componentName.c_str(), lineNumber, "tick"};
         logger->log(loc, MRA::Logging::INFO, "tick %d END error_value=%d", counter, error_value);
         logger->log(loc, MRA::Logging::INFO, "duration: %9.6f", duration);
         logger->log(loc, MRA::Logging::INFO, "output: %s", outputStr.c_str());
@@ -121,17 +121,23 @@ MraLogger::MraLogger()
 
 void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
 {
+    //std::cerr << "SETUP " << cfg.component() << std::endl;
     m_active = cfg.enabled();
     auto log_level_mra = (MRA::Logging::LogLevel)(int)cfg.level();
     auto log_level_spd = convert_log_level(log_level_mra);
     spdlog::set_pattern(cfg.pattern().c_str());
     spdlog::set_level(log_level_spd);
-    std::string log_name = "MRA:" + cfg.component();
-    std::string log_file = MRA::Logging::control::getLogFolder() + "/" + cfg.component() + ".log";
 
-    // Check if the logger already exists
-    if (!spdlog::get(log_name)) {
-        // Logger with the given name doesn't exist, create a new one
+    // Check if the logger is not yet configured
+    if (m_spdlog_logger == NULL) {
+        // Determine log file
+        // When components are nested (A uses B), then logging of B goes into A.
+        // We rely on the filename getting determined based on A first (logtick).
+        // Log file cannot be runtime reconfigured.
+        std::string log_name = "MRA:" + cfg.component();
+        std::string log_file = MRA::Logging::control::getLogFolder() + "/" + cfg.component() + ".log";
+
+        // Create the logger
         m_spdlog_logger = spdlog::basic_logger_mt(log_name, log_file);
         // TODO: consider using <spdlog::async_factory> for performance?
         // but then check that __FILE__ logging does not become garbage
@@ -141,7 +147,6 @@ void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
     // Configure logger
     m_spdlog_logger->set_pattern(cfg.pattern());
     m_spdlog_logger->set_level(log_level_spd);
-    //m_spdlog_logger->set_filename(log_file); // TODO: how to runtime reconfigure? access and manipulate sink(s)
     if (cfg.hotflush()) {
         m_spdlog_logger->flush_on(log_level_spd);
     }
