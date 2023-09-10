@@ -52,6 +52,25 @@ class TestCheckLogFolder(unittest.TestCase):
         column_values = self._get_column(2, uniq=True, strip='[]')
         self.assertEqual(column_values, expected_log_levels)
 
+    def test_line_truncation(self):
+        # lines should be truncated if too long
+        # example log line:
+        # [2023-09-10T09:01:52.568021] [12/12/MRA:FalconsGetballIntercept] [info] [tick.cpp:24,tick] timestamp: 2023-09-10T09:01:52.548215475Z
+        # the first 4 columns are not counted, can vary in size a bit
+        # the remainder is formatted using vsnprintf, using 4096 buffer
+        # so the total should be well below 4300
+        expected_max_line_length = 4300
+        max_line_length = 0
+        longest_line = None
+        for obj in self._folder_contents.values():
+            for line in obj[1]:
+                if len(line) > max_line_length:
+                    longest_line = line
+                    max_line_length = len(line)
+        self.assertLess(len(longest_line), expected_max_line_length)
+        # assuming there is a longest line that has been truncated
+        self.assertTrue(longest_line.endswith('...\n'))
+
     def _get_column(self, idx, sort=False, uniq=False, strip=[]):
         result = []
         for obj in self._folder_contents.values():
