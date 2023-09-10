@@ -9,6 +9,7 @@
 MRA::Datatypes::LogControl testConfiguration() {
     MRA::Datatypes::LogControl result = MRA::Logging::control::defaultConfiguration();
     result.set_folder(LOG_FOLDER_TEST);
+    result.set_filename("<maincomponent>.log");
     result.mutable_general()->set_component("MRA-test");
     result.mutable_general()->set_level(MRA::Datatypes::LogLevel::INFO);
     result.mutable_general()->set_enabled(true);

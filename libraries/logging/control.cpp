@@ -66,10 +66,17 @@ std::string getLogFolder()
     return result;
 }
 
+std::string getFileNamePattern()
+{
+    MRA::Datatypes::LogControl config = getConfiguration();
+    return config.filename();
+}
+
 MRA::Datatypes::LogControl defaultConfiguration()
 {
     MRA::Datatypes::LogControl result;
     result.set_folder(_mkLogFolder());
+    result.set_filename("<maincomponent>_<pid>.log");
     result.mutable_general()->set_component("MRA");
     result.mutable_general()->set_level(MRA::Datatypes::LogLevel::INFO);
     result.mutable_general()->set_enabled(true);

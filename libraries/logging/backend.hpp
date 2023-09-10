@@ -88,6 +88,7 @@ public:
     void log(source_loc loc, MRA::Logging::LogLevel loglevel, const char *fmt,...);
 
     void setPreLogText(const std::string& r_pretext);
+    void setFileName(const std::string& filename);
 
     MraLogger(const MraLogger& obj) = delete;
 
@@ -95,10 +96,12 @@ public:
 
 private:
     MraLogger();
+    std::string determineFileName(std::string const &cname);
 
     bool m_active = false;
     std::string m_pretext = "";
     std::shared_ptr<spdlog::logger> m_spdlog_logger;
+    std::string m_filename_pattern = "";
 
 }; // class MraLogger
 

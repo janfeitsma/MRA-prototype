@@ -6,6 +6,8 @@
 #include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include <stdarg.h>
+#include <errno.h> // for program_invocation_name
+
 
 namespace MRA::Logging::backend
 {
@@ -116,26 +118,73 @@ std::shared_ptr<MraLogger> MraLogger::getInstance()
 
 MraLogger::MraLogger()
 {
-    // lazy setup: at first logger call
+    m_filename_pattern = MRA::Logging::control::getFileNamePattern();
+    // for the remainder: lazy setup: at first logger call
+}
+
+void MraLogger::setFileName(std::string const &f)
+{
+    m_filename_pattern = f;
+}
+
+void replaceAll(std::string &s, const std::string &search, const std::string &replace) {
+    size_t pos = 0;
+    while ((pos = s.find(search, pos)) != std::string::npos) {
+        s.replace(pos, search.length(), replace);
+        pos += replace.length();
+    }
+}
+
+std::string MraLogger::determineFileName(std::string const &cname)
+{
+    // Default file name configuration is something like "<maincomponent>_<pid>.log".
+    // The <placeholders> need to be filled in.
+    // Get the pattern. It may be customized at start of main execution using logger setFileName.
+    std::string result = m_filename_pattern;
+    // replace <maincomponent> - rely on being called first
+    replaceAll(result, "<maincomponent>", cname);
+    // replace <pid> number
+    int pid = (int)getpid();
+    replaceAll(result, "<pid>", std::to_string(pid));
+    // replace <pidstr>
+    replaceAll(result, "<pidstr>", program_invocation_short_name); // from <errno.h>, perhaps not very portable, but there are no windows users on current radar
+    // do not use raw program_invocation_name as it is way too long,
+    // example from bazel testsuite: /home/jan/.cache/bazel/_bazel_jan/de3e7735840c0362d277fa685ddbcd35/sandbox/linux-sandbox/29/execroot/MRA/bazel-out/k8-fastbuild/bin/components/falcons/localization_vision/testsuite.runfiles/MRA/components/falcons/localization_vision/testsuite
+    // replace <date> and <time>
+    std::time_t currentTime = std::time(nullptr);
+    struct std::tm *timeinfo = std::localtime(&currentTime);
+    char dateBuffer[9];
+    std::strftime(dateBuffer, sizeof(dateBuffer), "%Y%m%d", timeinfo);
+    char timeBuffer[7];
+    std::strftime(timeBuffer, sizeof(timeBuffer), "%H%M%S", timeinfo);
+    replaceAll(result, "<date>", dateBuffer);
+    replaceAll(result, "<time>", timeBuffer);
+    // Sanity check on result
+    replaceAll(result, "<", "");
+    replaceAll(result, ">", "");
+    if (result.size() == 0)
+    {
+        throw std::runtime_error(std::string("Empty log filename"));
+    }
+    return result;
 }
 
 void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
 {
-    //std::cerr << "SETUP " << cfg.component() << std::endl;
     m_active = cfg.enabled();
+    if (!m_active) return;
+
     auto log_level_mra = (MRA::Logging::LogLevel)(int)cfg.level();
     auto log_level_spd = convert_log_level(log_level_mra);
     spdlog::set_pattern(cfg.pattern().c_str());
     spdlog::set_level(log_level_spd);
 
-    // Check if the logger is not yet configured
+    // Logger construction only happens once per process.
+    // No runtime reconfiguration for this part.
     if (m_spdlog_logger == NULL) {
-        // Determine log file
-        // When components are nested (A uses B), then logging of B goes into A.
-        // We rely on the filename getting determined based on A first (logtick).
-        // Log file cannot be runtime reconfigured.
+        // Determine log name and file.
         std::string log_name = "MRA:" + cfg.component();
-        std::string log_file = MRA::Logging::control::getLogFolder() + "/" + cfg.component() + ".log";
+        std::string log_file = MRA::Logging::control::getLogFolder() + "/" + determineFileName(cfg.component());
 
         // Create the logger
         m_spdlog_logger = spdlog::basic_logger_mt(log_name, log_file);
