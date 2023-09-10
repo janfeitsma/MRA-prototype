@@ -215,36 +215,36 @@ void MraLogger::log(source_loc loc, MRA::Logging::LogLevel loglevel, const char 
         buffer[MAXTEXT-1] = '\0';
         va_list argptr;
         va_start(argptr, fmt);
-        vsprintf(buffer, fmt, argptr);
+        int count = vsnprintf(buffer, MAXTEXT, fmt, argptr);
         va_end(argptr);
-        if (buffer[MAXTEXT-1])
+        // prevent overflow
+        if (count > MAXTEXT)
         {
-            buffer[MAXTEXT-1] = '\0';
-            m_spdlog_logger->critical("fatal error, string overflow in %s\n", __FUNCTION__);
-            m_spdlog_logger->critical("tried to process:\n%s...\n", buffer);
-            exit(-1);
+            // Truncate the string and add "..."
+            buffer[MAXTEXT - 4] = '.';
+            buffer[MAXTEXT - 3] = '.';
+            buffer[MAXTEXT - 2] = '.';
+            buffer[MAXTEXT - 1] = '\0';
         }
-        else {
-            switch (loglevel) {
-            case MRA::Logging::CRITICAL:
-                m_spdlog_logger->log(loc_spd, spdlog::level::critical, m_pretext + buffer);
-                break;
-            case MRA::Logging::ERROR:
-                m_spdlog_logger->log(loc_spd, spdlog::level::err, m_pretext + buffer);
-                break;
-            case MRA::Logging::WARNING:
-                m_spdlog_logger->log(loc_spd, spdlog::level::warn, m_pretext + buffer);
-                break;
-            case MRA::Logging::INFO:
-                m_spdlog_logger->log(loc_spd, spdlog::level::info, m_pretext + buffer);
-                break;
-            case MRA::Logging::DEBUG:
-                m_spdlog_logger->log(loc_spd, spdlog::level::debug, m_pretext + buffer);
-                break;
-            case MRA::Logging::TRACE:
-                m_spdlog_logger->log(loc_spd, spdlog::level::trace, m_pretext + buffer);
-                break;
-            }
+        switch (loglevel) {
+        case MRA::Logging::CRITICAL:
+            m_spdlog_logger->log(loc_spd, spdlog::level::critical, m_pretext + buffer);
+            break;
+        case MRA::Logging::ERROR:
+            m_spdlog_logger->log(loc_spd, spdlog::level::err, m_pretext + buffer);
+            break;
+        case MRA::Logging::WARNING:
+            m_spdlog_logger->log(loc_spd, spdlog::level::warn, m_pretext + buffer);
+            break;
+        case MRA::Logging::INFO:
+            m_spdlog_logger->log(loc_spd, spdlog::level::info, m_pretext + buffer);
+            break;
+        case MRA::Logging::DEBUG:
+            m_spdlog_logger->log(loc_spd, spdlog::level::debug, m_pretext + buffer);
+            break;
+        case MRA::Logging::TRACE:
+            m_spdlog_logger->log(loc_spd, spdlog::level::trace, m_pretext + buffer);
+            break;
         }
         va_end(argptr);
         // TODO: why is flush needed here, why doesn't flush_on at setup() seem to work?
