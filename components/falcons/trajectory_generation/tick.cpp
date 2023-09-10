@@ -25,7 +25,7 @@ int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
 )
 {
     int error_value = 0;
-    //MRA_LOG_TICK(); // this causes segfault at the moment, maybe due to logging nested components to same file which is written to by other testsuite? need to reconsider process/component logging strategy.
+    MRA_LOG_TICK();
 
     // user implementation goes here
 
