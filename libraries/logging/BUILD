@@ -24,3 +24,8 @@ cc_library(
     ],
 )
 
+py_test(
+    name = "check_logfolder",
+    srcs = ["check_logfolder.py"],
+)
+
