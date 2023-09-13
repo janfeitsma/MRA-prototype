@@ -9,6 +9,7 @@ cc_library(
         "json_convert.cpp",
     ],
     deps = [
+        "@com_google_protobuf//:protobuf",
         "@nlohmann_json",
     ],
     visibility = ["//visibility:public"],

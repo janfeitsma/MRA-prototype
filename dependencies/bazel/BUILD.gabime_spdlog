@@ -1,0 +1,10 @@
+cc_library(
+    name = "gabime_spdlog",
+    hdrs = glob([
+        "include/**/*.h",
+    ]),
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+    alwayslink = 1,
+)
+

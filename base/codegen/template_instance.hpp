@@ -82,6 +82,13 @@ public:
 }; // class COMPONENT_CPP_NAME_CAMELCASE
 
 
+// component name
+inline std::string componentName()
+{
+    return "COMPONENT_CPP_NAME_CAMELCASE";
+}
+
+
 // configuration handling
 inline ParamsType defaultParams()
 {
