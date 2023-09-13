@@ -90,7 +90,7 @@ add_library(MRA-libraries
     libraries/reflexxes/RMLTypeII/src/TypeIIRML/TypeIIRMLStep2IntermediateProfiles.cpp
 )
 target_include_directories(MRA-datatypes PUBLIC libraries/geometry libraries/reflexxes/RMLTypeII/include .)
-target_link_libraries(MRA-libraries MRA-datatypes nlohmann_json::nlohmann_json)
+target_link_libraries(MRA-libraries MRA-datatypes nlohmann_json::nlohmann_json rt)
 
 
 ##########################################################
