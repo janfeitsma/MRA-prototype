@@ -87,6 +87,13 @@ public:
 }; // class RobotsportsProofIsAlive
 
 
+// component name
+inline std::string componentName()
+{
+    return "RobotsportsProofIsAlive";
+}
+
+
 // configuration handling
 inline ParamsType defaultParams()
 {

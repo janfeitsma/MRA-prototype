@@ -87,6 +87,13 @@ public:
 }; // class FalconsVelocityControl
 
 
+// component name
+inline std::string componentName()
+{
+    return "FalconsVelocityControl";
+}
+
+
 // configuration handling
 inline ParamsType defaultParams()
 {

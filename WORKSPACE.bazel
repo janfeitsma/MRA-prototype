@@ -6,26 +6,23 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # https://protobuf.dev/
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "25680843adf0c3302648d35f744e38cc3b6b05a6c77a927de5aea3e1c2e36106",
-    strip_prefix = "protobuf-3.19.4",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v3.19.4.zip"],
+    sha256 = "4e176116949be52b0408dfd24f8925d1eb674a781ae242a75296b17a1c721395",
+    strip_prefix = "protobuf-23.3",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/refs/tags/v23.3.tar.gz"],
     # note: on Ubuntu20, opencv DNN libraries depend on an older conflicting protobuf version
-    # note: py_proto_library might spam warnings:
-    #    "com_google_protobuf/python: warning: directory does not exist"
-    #    -> require a fix from 22Q1 - https://github.com/protocolbuffers/protobuf/issues/6049
 )
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
 
-# GRPC v1.42, for proto rules.
+# GRPC, for proto rules.
 # https://grpc.io/
 # For a related discussion of the pro/cons of various open-source py proto rule
 # repositories, see b/189457935.
 http_archive(
     name = "com_github_grpc_grpc",
-    sha256 = "9f387689b7fdf6c003fd90ef55853107f89a2121792146770df5486f0199f400",
-    strip_prefix = "grpc-1.42.0",
-    urls = ["https://github.com/grpc/grpc/archive/v1.42.0.zip"],
+    sha256 = "9a273c49ec22a0d29376a32c158deefce6d3569ac9773e5a5376608d62cdf8a0",
+    strip_prefix = "grpc-1.57.0",
+    urls = ["https://github.com/grpc/grpc/archive/v1.57.0.zip"],
 )
 
 load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
@@ -40,6 +37,27 @@ http_archive(
     strip_prefix = "json-a6ee8bf9d94ef783f21f955d4125d5f3924d2c8e",
     urls = ["https://github.com/nlohmann/json/archive/a6ee8bf9d94ef783f21f955d4125d5f3924d2c8e.tar.gz"],
     workspace_file_content = 'workspace(name = "nlohmann_json")',
+)
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+git_repository(
+    name = "fmt",
+    branch = "master",
+    remote = "https://github.com/fmtlib/fmt",
+    patch_cmds = [
+        "mv support/bazel/.bazelversion .bazelversion",
+        "mv support/bazel/BUILD.bazel BUILD.bazel",
+        "mv support/bazel/WORKSPACE.bazel WORKSPACE.bazel",
+    ],
+)
+
+# spdlog
+http_archive(
+    name = "gabime_spdlog",
+    url = "https://github.com/gabime/spdlog/archive/v1.11.0.tar.gz",
+    strip_prefix = "spdlog-1.11.0",
+    build_file = "//dependencies/bazel:BUILD.gabime_spdlog",
+    sha256 = "ca5cae8d6cac15dae0ec63b21d6ad3530070650f68076f3a4a862ca293a858bb",
 )
 
 # gtest
