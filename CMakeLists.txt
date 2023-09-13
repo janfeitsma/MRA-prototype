@@ -14,6 +14,11 @@ set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror -Wno-address -Wno-reorder")
 find_package(Protobuf REQUIRED)
 find_library(PROTOBUF_LIBRARY protobuf)
 
+# check if spdlog is installed
+# install on Ubuntu: sudo apt-get install libspdlog-dev
+find_package(spdlog REQUIRED)
+
+
 # dependency: json
 include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
@@ -27,6 +32,7 @@ FetchContent_MakeAvailable(json)
 set(MESSAGE_PROTOS_COMMON
     datatypes/ActionResult.proto
     datatypes/Ball.proto
+    datatypes/Logging.proto
     datatypes/Obstacle.proto
     datatypes/Player.proto
     datatypes/Pose.proto
