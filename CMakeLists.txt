@@ -148,5 +148,6 @@ add_library(MRA-components
     components/robotsports/getball_intercept/tick.cpp
     components/robotsports/proof_is_alive/tick.cpp
 )
-target_include_directories(MRA-components PUBLIC components/falcons/velocity_control/internal/include )
+target_include_directories(MRA-components PUBLIC components/falcons/velocity_control/internal/include 
+                                                 libraries/logging)
 target_link_libraries(MRA-components MRA-libraries MRA-components-proto MRA-base nlohmann_json::nlohmann_json)
