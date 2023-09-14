@@ -14,6 +14,11 @@ set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror -Wno-address -Wno-reorder")
 find_package(Protobuf REQUIRED)
 find_library(PROTOBUF_LIBRARY protobuf)
 
+# check if spdlog is installed
+# install on Ubuntu: sudo apt-get install libspdlog-dev
+find_package(spdlog REQUIRED)
+
+
 # dependency: json
 include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
@@ -27,6 +32,7 @@ FetchContent_MakeAvailable(json)
 set(MESSAGE_PROTOS_COMMON
     datatypes/ActionResult.proto
     datatypes/Ball.proto
+    datatypes/Logging.proto
     datatypes/Obstacle.proto
     datatypes/Player.proto
     datatypes/Pose.proto
@@ -34,11 +40,13 @@ set(MESSAGE_PROTOS_COMMON
     datatypes/WorldState.proto
 )
 
+include_directories(datatypes)
 add_library(MRA-datatypes)
 target_include_directories(MRA-datatypes PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(MRA-datatypes protobuf)
 
 protobuf_generate(TARGET MRA-datatypes PROTOS ${MESSAGE_PROTOS_COMMON} LANGUAGE cpp IMPORT_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
+
 
 
 ##########################################################
@@ -50,6 +58,8 @@ add_library(MRA-libraries
     libraries/geometry/pose.cpp
     libraries/geometry/position.cpp
     libraries/geometry/velocity.cpp
+    libraries/logging/backend.cpp
+    libraries/logging/control.cpp
     libraries/reflexxes/RMLTypeII/src/TypeIIRML/TypeIIRMLStep2PhaseSynchronization.cpp
     libraries/reflexxes/RMLTypeII/src/TypeIIRML/TypeIIRMLStep2Profiles.cpp
     libraries/reflexxes/RMLTypeII/src/TypeIIRML/TypeIIRMLStep2WithoutSynchronization.cpp
@@ -80,7 +90,7 @@ add_library(MRA-libraries
     libraries/reflexxes/RMLTypeII/src/TypeIIRML/TypeIIRMLStep2IntermediateProfiles.cpp
 )
 target_include_directories(MRA-datatypes PUBLIC libraries/geometry libraries/reflexxes/RMLTypeII/include .)
-target_link_libraries(MRA-libraries MRA-datatypes)
+target_link_libraries(MRA-libraries MRA-datatypes nlohmann_json::nlohmann_json rt)
 
 
 ##########################################################
@@ -89,6 +99,10 @@ target_link_libraries(MRA-libraries MRA-datatypes)
 
 include_directories(base)
 
+add_library(MRA-base
+    base/json_convert.cpp
+)
+target_link_libraries(MRA-base nlohmann_json::nlohmann_json)
 
 ##########################################################
 # component interfaces
@@ -103,9 +117,14 @@ set(MESSAGE_PROTOS_COMPONENTS
     components/falcons/velocity_control/interface/Params.proto
     components/falcons/velocity_control/interface/Output.proto
     components/falcons/velocity_control/interface/State.proto
-    components/robotsports/getball-intercept/interface/Input.proto
-    components/robotsports/getball-intercept/interface/Params.proto
-    components/robotsports/getball-intercept/interface/Output.proto
+    components/robotsports/getball_intercept/interface/Input.proto
+    components/robotsports/getball_intercept/interface/Params.proto
+    components/robotsports/getball_intercept/interface/Output.proto
+    components/robotsports/proof_is_alive/interface/Input.proto
+    components/robotsports/proof_is_alive/interface/Local.proto
+    components/robotsports/proof_is_alive/interface/Params.proto
+    components/robotsports/proof_is_alive/interface/Output.proto
+    components/robotsports/proof_is_alive/interface/State.proto
 )
 
 add_library(MRA-components-proto)
@@ -134,7 +153,69 @@ add_library(MRA-components
     components/falcons/velocity_control/internal/src/algorithms/CalculateVelocity.cpp
     components/falcons/velocity_control/internal/src/algorithms/SetOutputsPrepareNext.cpp
 
-    components/robotsports/getball-intercept/tick.cpp
+    components/robotsports/getball_intercept/tick.cpp
+    components/robotsports/proof_is_alive/tick.cpp
 )
-target_include_directories(MRA-components PUBLIC components/falcons/velocity_control/internal/include )
+target_include_directories(MRA-components PUBLIC components/falcons/velocity_control/internal/include 
+                                                 libraries/logging)
 target_link_libraries(MRA-components MRA-libraries MRA-components-proto MRA-base nlohmann_json::nlohmann_json)
+
+
+##########################################################
+# component testing
+##########################################################
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+
+enable_testing()
+
+add_executable(
+	getball_fetch_test
+	components/falcons/getball_fetch/test.cpp
+)
+
+target_link_libraries(
+	getball_fetch_test
+	MRA-components MRA-libraries MRA-components-proto nlohmann_json::nlohmann_json rt GTest::gtest_main gmock
+)
+
+add_executable(
+	getball_intercept_test
+	components/robotsports/getball_intercept/test.cpp
+)
+
+target_link_libraries(
+	getball_intercept_test
+	MRA-components MRA-libraries MRA-components-proto nlohmann_json::nlohmann_json rt GTest::gtest_main gmock
+)
+
+add_executable(
+	proof_is_alive_test
+	components/robotsports/proof_is_alive/test.cpp
+)
+
+target_link_libraries(
+	proof_is_alive_test
+	MRA-components MRA-libraries MRA-components-proto nlohmann_json::nlohmann_json rt GTest::gtest_main gmock
+)
+
+add_executable(
+	velocity_control_test
+	components/falcons/velocity_control/test.cpp
+)
+
+target_link_libraries(
+	velocity_control_test
+	MRA-components MRA-libraries MRA-components-proto nlohmann_json::nlohmann_json rt GTest::gtest_main gmock
+)
+
+#include(GoogleTest)
+#gtest_discover_tests(getball_fetch_test getball_intercept_test local_ball_tracking_test velocity_control_test)
+
