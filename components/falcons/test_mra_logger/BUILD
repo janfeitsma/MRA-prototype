@@ -26,7 +26,7 @@ cc_library(
         "//base:abstract_interface",
         ":datatypes",
         "//libraries/logging",
-        
+        "//components/falcons/test_mra_logger/src:test_helpers",
     ],
 )
 

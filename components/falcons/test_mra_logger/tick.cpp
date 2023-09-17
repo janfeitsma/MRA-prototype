@@ -20,7 +20,8 @@ int FalconsTestMraLogger::FalconsTestMraLogger::tick
     LocalType                  &local        // local/diagnostics data, type generated from Local.proto
 )
 {
-    int error_value = 0;
+	int error_value = 0;
+	MRA_LOG_TICK();
 
     // user implementation goes here
 
