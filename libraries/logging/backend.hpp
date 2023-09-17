@@ -87,15 +87,23 @@ public:
 
     static std::shared_ptr<MraLogger> getInstance();
 
-    void log(source_loc loc, MRA::Logging::LogLevel loglevel, const char *fmt,...);
+    void log(source_loc loc, MRA::Logging::LogLevel loglevel, const char *fmt, ...);
 
-    class log_function
+    class FunctionRecord // similar to scoped logtick
     {
     public:
-        log_function(source_loc loc);
-        ~log_function();
+        FunctionRecord(source_loc loc);
+        ~FunctionRecord();
+        void add_input(std::string const &varname, int value);
+        void add_output(std::string const &varname, int value);
+        // TODO more primitive types
+        void flush_input();
+        void flush_output();
     private:
+        std::vector<std::pair<std::string, std::variant<int, float, bool, std::string>>> _input_data;
+        std::vector<std::pair<std::string, std::variant<int, float, bool, std::string>>> _output_data;
         source_loc _loc;
+        std::string _convert_to_json(std::vector<std::pair<std::string, std::variant<int, float, bool, std::string>>> const &data);
     };
 
     void setPreLogText(const std::string& r_pretext);

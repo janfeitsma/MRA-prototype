@@ -30,6 +30,13 @@ __attribute__((weak)) std::string componentName() {
 #define MRA_TRACE_FUNCTION() MRA::Logging::backend::MraLogger::log_function scoped(\
     MRA::Logging::backend::source_loc(__FILE__, componentName().c_str(), __LINE__, __FUNCTION__) )
 
+#define MRA_TRACE_FUNCTION_INPUT(varname) \
+    MRA::Logging::backend::MraLogger::FunctionRecord scoped( \
+        MRA::Logging::backend::source_loc(__FILE__, componentName().c_str(), __LINE__, __FUNCTION__) \
+    ); \
+    scoped.add_input(#varname, varname); \
+    scoped.flush_input()
+#define MRA_TRACE_FUNCTION_OUTPUT(varname) scoped.add_output(#varname, varname)
 
 #endif // #ifndef _MRA_LIBRARIES_LOGGING_MACROS_HPP
 

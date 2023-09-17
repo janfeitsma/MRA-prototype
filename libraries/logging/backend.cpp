@@ -268,15 +268,58 @@ void MraLogger::log(source_loc loc, MRA::Logging::LogLevel loglevel, const char 
 }
 
 
-MraLogger::log_function::log_function(source_loc loc)
+MraLogger::FunctionRecord::FunctionRecord(source_loc loc)
     : _loc(loc)
 {
-    MRA::Logging::backend::MraLogger::getInstance()->log(_loc, MRA::Logging::TRACE, "start");
 }
 
-MraLogger::log_function::~log_function()
+MraLogger::FunctionRecord::~FunctionRecord()
 {
-    MRA::Logging::backend::MraLogger::getInstance()->log(_loc, MRA::Logging::TRACE, "end");
+    flush_output();
+}
+
+void MraLogger::FunctionRecord::add_input(std::string const &varname, int value)
+{
+    _input_data.emplace_back(varname, value);
+}
+
+void MraLogger::FunctionRecord::add_output(std::string const &varname, int value)
+{
+    _output_data.emplace_back(varname, value);
+}
+
+std::string MraLogger::FunctionRecord::_convert_to_json(std::vector<std::pair<std::string, std::variant<int, float, bool, std::string>>> const &data)
+{
+    std::string js = "{";
+    bool first = true;
+    for (const auto& item : data) {
+        if (!first) js += ",";
+        first = false;
+        js += "\"" + item.first + "\":";
+        if (std::holds_alternative<int>(item.second)) {
+            js += std::to_string(std::get<int>(item.second));
+        } else if (std::holds_alternative<float>(item.second)) {
+            js += std::to_string(std::get<float>(item.second));
+        } else if (std::holds_alternative<bool>(item.second)) {
+            js += (std::get<bool>(item.second) ? "true" : "false");
+        } else if (std::holds_alternative<std::string>(item.second)) {
+            js += std::get<std::string>(item.second);
+        }
+    }
+    js += "}";
+    return js;
+}
+
+void MraLogger::FunctionRecord::flush_input()
+{
+    std::string js = _convert_to_json(_input_data);
+    MRA::Logging::backend::MraLogger::getInstance()->log(_loc, MRA::Logging::TRACE, "FUNCTION_START %s", js.c_str());
+}
+
+void MraLogger::FunctionRecord::flush_output()
+{
+    std::string js = _convert_to_json(_output_data);
+    MRA::Logging::backend::MraLogger::getInstance()->log(_loc, MRA::Logging::TRACE, "FUNCTION_END %s", js.c_str());
 }
 
 } // namespace MRA::Logging::backend
