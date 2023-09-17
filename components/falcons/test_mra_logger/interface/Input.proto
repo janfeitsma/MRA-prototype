@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package MRA.FalconsTestMraLogger;
+
+message Input
+{
+    repeated int32 intArray = 1;
+    string myString = 2;
+    float timeToSleep = 3;
+    bool generateInfoMessage = 4;
+    bool generateDebugMessage = 5;
+    bool generateWarningMessage = 6;
+    bool generateErrorMessage = 7;
+}
+
