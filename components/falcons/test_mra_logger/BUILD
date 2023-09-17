@@ -27,7 +27,7 @@ cc_library(
         ":datatypes",
         "//libraries/logging",
         "//components/falcons/test_mra_logger/src:test_helpers",
-        "//components/falcons/test_mra_logger/src:fibonacci",
+        "//components/falcons/test_mra_logger/src:demofunctions",
     ],
 )
 

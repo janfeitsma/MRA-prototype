@@ -14,12 +14,12 @@ cc_library(
 )
 
 cc_library(
-    name = "fibonacci",
+    name = "demofunctions",
     hdrs = [
-        "fibonacci.hpp",
+        "demofunctions.hpp",
     ],
     srcs = [
-        "fibonacci.cpp",
+        "demofunctions.cpp",
     ],
     visibility = ["//visibility:public"],
     deps = [

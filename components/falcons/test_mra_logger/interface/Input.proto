@@ -13,5 +13,6 @@ message Input
     bool generateInfoMessage = 7;
     bool generateDebugMessage = 8;
     int32 fibonacci_n = 9; // just for some tracing / tests / demo, do not pass values much larger than 5
+    bool doDemoFunctions = 10;
 }
 

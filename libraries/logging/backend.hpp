@@ -95,8 +95,13 @@ public:
         FunctionRecord(source_loc loc);
         ~FunctionRecord();
         void add_input(std::string const &varname, int value);
+        void add_input(std::string const &varname, float value);
+        void add_input(std::string const &varname, bool value);
+        void add_input(std::string const &varname, std::string const &value);
         void add_output(std::string const &varname, int value);
-        // TODO more primitive types
+        void add_output(std::string const &varname, float value);
+        void add_output(std::string const &varname, bool value);
+        void add_output(std::string const &varname, std::string const &value);
         void flush_input();
         void flush_output();
     private:

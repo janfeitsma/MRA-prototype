@@ -7,7 +7,7 @@
 using namespace MRA;
 
 // custom includes, if any
-#include "src/fibonacci.hpp"
+#include "src/demofunctions.hpp"
 
 
 int FalconsTestMraLogger::FalconsTestMraLogger::tick
@@ -25,10 +25,7 @@ int FalconsTestMraLogger::FalconsTestMraLogger::tick
 
     // user implementation goes here
 
-    float tts = input.timetosleep();
-    if (tts > 0) {
-        usleep(int(1e6 * tts));
-    }
+    mysleep(input.timetosleep());
 
     if (input.generatecriticalmessage()) {
         MRA_LOG_CRITICAL("test critical %d", 37);
@@ -51,6 +48,13 @@ int FalconsTestMraLogger::FalconsTestMraLogger::tick
     }
 
     output.set_fibonacci_result(fibonacci(input.fibonacci_n()));
+
+    if (input.dodemofunctions()) {
+        MRA_LOG_DEBUG("hypotenuse(3.0, 4.0) = %f", hypotenuse(3.0, 4.0));
+        MRA_LOG_DEBUG("parity(1, 2, 5) = %d", parity(1, 2, 5));
+        MRA_LOG_DEBUG("reverse(stressed) = %s", stringReverse("stressed").c_str());
+        MRA_LOG_DEBUG("repeat(ai,4) = %s", stringRepeater("ai", 4).c_str());
+    }
 
     return error_value;
 }

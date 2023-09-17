@@ -283,7 +283,37 @@ void MraLogger::FunctionRecord::add_input(std::string const &varname, int value)
     _input_data.emplace_back(varname, value);
 }
 
+void MraLogger::FunctionRecord::add_input(std::string const &varname, float value)
+{
+    _input_data.emplace_back(varname, value);
+}
+
+void MraLogger::FunctionRecord::add_input(std::string const &varname, bool value)
+{
+    _input_data.emplace_back(varname, value);
+}
+
+void MraLogger::FunctionRecord::add_input(std::string const &varname, std::string const &value)
+{
+    _input_data.emplace_back(varname, value);
+}
+
 void MraLogger::FunctionRecord::add_output(std::string const &varname, int value)
+{
+    _output_data.emplace_back(varname, value);
+}
+
+void MraLogger::FunctionRecord::add_output(std::string const &varname, float value)
+{
+    _output_data.emplace_back(varname, value);
+}
+
+void MraLogger::FunctionRecord::add_output(std::string const &varname, bool value)
+{
+    _output_data.emplace_back(varname, value);
+}
+
+void MraLogger::FunctionRecord::add_output(std::string const &varname, std::string const &value)
 {
     _output_data.emplace_back(varname, value);
 }
@@ -303,7 +333,7 @@ std::string MraLogger::FunctionRecord::_convert_to_json(std::vector<std::pair<st
         } else if (std::holds_alternative<bool>(item.second)) {
             js += (std::get<bool>(item.second) ? "true" : "false");
         } else if (std::holds_alternative<std::string>(item.second)) {
-            js += std::get<std::string>(item.second);
+            js += "\"" + std::get<std::string>(item.second) + "\"";
         }
     }
     js += "}";

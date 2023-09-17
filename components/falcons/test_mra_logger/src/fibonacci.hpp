@@ -1,9 +1,0 @@
-#ifndef _MRA_TEST_MRA_LOGGER_FIBONACCI_HPP
-#define _MRA_TEST_MRA_LOGGER_FIBONACCI_HPP
-
-
-int fibonacci(int n);
-
-
-#endif // #ifndef _MRA_TEST_MRA_LOGGER_FIBONACCI_HPP
-

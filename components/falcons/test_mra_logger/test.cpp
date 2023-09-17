@@ -155,14 +155,15 @@ TEST_F(TestFixture, allowDisableLogging) {
     EXPECT_FALSE(check_log_folder_existing());
 }
 
-// Fibonacci demo
-TEST_F(TestFixture, fibonacci) {
+// Fibonacci demo and more
+TEST_F(TestFixture, demoFunctions) {
     // Arrange
     auto m = MRA::FalconsTestMraLogger::FalconsTestMraLogger();
     auto input = MRA::FalconsTestMraLogger::Input();
     auto params = MRA::FalconsTestMraLogger::Params();
     auto output = MRA::FalconsTestMraLogger::Output();
     input.set_fibonacci_n(8);
+    input.set_dodemofunctions(true);
     // enable tracing
     auto cfg = MRA::Logging::control::getConfiguration();
     cfg.mutable_general()->set_level(MRA::Datatypes::TRACE);
