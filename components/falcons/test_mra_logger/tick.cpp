@@ -7,7 +7,7 @@
 using namespace MRA;
 
 // custom includes, if any
-// ...
+#include "src/fibonacci.hpp"
 
 
 int FalconsTestMraLogger::FalconsTestMraLogger::tick
@@ -49,6 +49,8 @@ int FalconsTestMraLogger::FalconsTestMraLogger::tick
     if (input.generatedebugmessage()) {
         MRA_LOG_DEBUG("test debug %d", 41);
     }
+
+    output.set_fibonacci_result(fibonacci(input.fibonacci_n()));
 
     return error_value;
 }

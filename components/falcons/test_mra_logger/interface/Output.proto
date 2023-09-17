@@ -4,5 +4,6 @@ package MRA.FalconsTestMraLogger;
 
 message Output
 {
+    int32 fibonacci_result = 1;
 }
 

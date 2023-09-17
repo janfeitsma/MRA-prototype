@@ -13,3 +13,17 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "fibonacci",
+    hdrs = [
+        "fibonacci.hpp",
+    ],
+    srcs = [
+        "fibonacci.cpp",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//libraries/logging",
+    ],
+)
+
