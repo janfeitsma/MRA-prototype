@@ -26,6 +26,7 @@ protected:
         // switch back to standard config&folder
         cleanupLogFolder();
         MRA::Logging::control::resetConfiguration();
+        MRA::Logging::backend::clear();
     }
 
     void cleanupLogFolder() {

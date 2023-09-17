@@ -79,6 +79,8 @@ struct source_loc
     const char *funcname{nullptr};
 };
 
+void clear();
+
 class MraLogger
 {
 public:
@@ -91,8 +93,10 @@ public:
     void setFileName(const std::string& filename);
 
     MraLogger(const MraLogger& obj) = delete;
+    ~MraLogger();
 
     void setup(MRA::Datatypes::LogSpec const &cfg);
+
 
 private:
     MraLogger();
@@ -102,9 +106,12 @@ private:
     std::string m_pretext = "";
     std::shared_ptr<spdlog::logger> m_spdlog_logger;
     std::string m_filename_pattern = "";
+    std::string m_log_name;
+    std::string m_log_file;
 
 }; // class MraLogger
 
+static std::shared_ptr<MraLogger> s_logger = NULL;
 
 } // namespace MRA::Logging::backend
 

@@ -51,6 +51,28 @@ TEST_F(TestFixture, allowDisableLogging) {
     EXPECT_FALSE(check_log_folder_existing());
 }
 
+/* TODO: doesnt work yet
+// Configurable log level and coverage for all levels
+TEST_F(TestFixture, configurableLogLevels) {
+    // Arrange
+    std::string expected_log_file = LOG_FOLDER_TEST "/RobotsportsProofIsAlive.log";
+    auto cfg = MRA::Logging::control::getConfiguration(); // return type: Logging.proto
+    cfg.mutable_general()->set_enabled(true);
+    MRA::Logging::control::setConfiguration(cfg);
+    std::cout << "TESTCFG " << MRA::convert_proto_to_json_str(MRA::Logging::control::getConfiguration()) << std::endl;
+
+    // Act
+    MRA_LOG_CRITICAL("test critical %d", 37);
+    MRA_LOG_ERROR("test error %d", 37);
+    MRA_LOG_WARNING("test warning %d", 37);
+    MRA_LOG_INFO("test info %d", 37);
+    MRA_LOG_DEBUG("test debug %d", 37);
+
+    sleep(3);
+    // Assert
+    EXPECT_EQ(count_log_lines(expected_log_file), 5);
+}*/
+
 int main(int argc, char **argv) {
     configure_logger();
     testing::InitGoogleTest(&argc, argv);

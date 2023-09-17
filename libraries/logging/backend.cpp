@@ -88,7 +88,7 @@ void reconfigure(MRA::Datatypes::LogSpec const &cfg)
     static MRA::Datatypes::LogSpec currentCfg;
     // only reconfigure upon change
     // protobuf c++ API does not provide (in-)equality operators - use json conversion (or create a Configuration class?)
-    if (MRA::convert_proto_to_json_str(currentCfg) != MRA::convert_proto_to_json_str(cfg))
+    if (MRA::convert_proto_to_json_str(currentCfg) != MRA::convert_proto_to_json_str(cfg) || s_logger == NULL)
     {
         MraLogger::getInstance()->setup(cfg);
         currentCfg = cfg;
@@ -112,14 +112,28 @@ spdlog::level::level_enum convert_log_level(MRA::Logging::LogLevel log_level)
 
 std::shared_ptr<MraLogger> MraLogger::getInstance()
 {
-    static std::shared_ptr<MraLogger> sp_logger(new MraLogger);
-    return sp_logger;
+    if (s_logger == NULL) {
+        s_logger = std::shared_ptr<MraLogger>(new MraLogger());
+    }
+    return s_logger;
+}
+
+void clear()
+{
+    s_logger.reset();
 }
 
 MraLogger::MraLogger()
 {
+    m_active = false;
     m_filename_pattern = MRA::Logging::control::getFileNamePattern();
     // for the remainder: lazy setup: at first logger call
+}
+
+MraLogger::~MraLogger()
+{
+    m_spdlog_logger.reset();
+    spdlog::drop(m_log_name);
 }
 
 void MraLogger::setFileName(std::string const &f)
@@ -183,11 +197,11 @@ void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
     // No runtime reconfiguration for this part.
     if (m_spdlog_logger == NULL) {
         // Determine log name and file.
-        std::string log_name = "MRA:" + cfg.component();
-        std::string log_file = MRA::Logging::control::getLogFolder() + "/" + determineFileName(cfg.component());
+        m_log_name = "MRA:" + cfg.component();
+        m_log_file = MRA::Logging::control::getLogFolder() + "/" + determineFileName(cfg.component());
 
         // Create the logger
-        m_spdlog_logger = spdlog::basic_logger_mt(log_name, log_file);
+        m_spdlog_logger = spdlog::basic_logger_mt(m_log_name, m_log_file);
         // TODO: consider using <spdlog::async_factory> for performance?
         // but then check that __FILE__ logging does not become garbage
         // see also https://github.com/gabime/spdlog/issues/2867
