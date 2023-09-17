@@ -89,6 +89,15 @@ public:
 
     void log(source_loc loc, MRA::Logging::LogLevel loglevel, const char *fmt,...);
 
+    class log_function
+    {
+    public:
+        log_function(source_loc loc);
+        ~log_function();
+    private:
+        source_loc _loc;
+    };
+
     void setPreLogText(const std::string& r_pretext);
     void setFileName(const std::string& filename);
 

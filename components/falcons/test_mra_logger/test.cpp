@@ -155,6 +155,28 @@ TEST_F(TestFixture, allowDisableLogging) {
     EXPECT_FALSE(check_log_folder_existing());
 }
 
+// Fibonacci demo
+TEST_F(TestFixture, fibonacci) {
+    // Arrange
+    auto m = MRA::FalconsTestMraLogger::FalconsTestMraLogger();
+    auto input = MRA::FalconsTestMraLogger::Input();
+    auto params = MRA::FalconsTestMraLogger::Params();
+    auto output = MRA::FalconsTestMraLogger::Output();
+    input.set_fibonacci_n(8);
+    // enable tracing
+    auto cfg = MRA::Logging::control::getConfiguration();
+    cfg.mutable_general()->set_level(MRA::Datatypes::TRACE);
+    MRA::Logging::control::setConfiguration(cfg);
+
+    // Act
+    int error_value = m.tick(input, params, output);
+
+    // Assert
+    EXPECT_EQ(error_value, 0);
+    EXPECT_EQ(output.fibonacci_result(), 21);
+    EXPECT_GT(count_log_lines(EXPECTED_LOG_FILE), 100);
+}
+
 int main(int argc, char **argv) {
     configure_logger();
     testing::InitGoogleTest(&argc, argv);

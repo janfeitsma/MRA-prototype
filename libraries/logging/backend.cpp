@@ -105,6 +105,7 @@ spdlog::level::level_enum convert_log_level(MRA::Logging::LogLevel log_level)
     case MRA::Logging::WARNING:  return spdlog::level::level_enum::warn;
     case MRA::Logging::INFO:     return spdlog::level::level_enum::info;
     case MRA::Logging::DEBUG:    return spdlog::level::level_enum::debug;
+    case MRA::Logging::TRACE:    return spdlog::level::level_enum::trace;
     default: ;
     }
     throw std::runtime_error(std::string("Unrecognized log_level, int value " + std::to_string(int(log_level))));
@@ -264,6 +265,18 @@ void MraLogger::log(source_loc loc, MRA::Logging::LogLevel loglevel, const char 
         // TODO: why is flush needed here, why doesn't flush_on at setup() seem to work?
         m_spdlog_logger->flush();
     }
+}
+
+
+MraLogger::log_function::log_function(source_loc loc)
+    : _loc(loc)
+{
+    MRA::Logging::backend::MraLogger::getInstance()->log(_loc, MRA::Logging::TRACE, "start");
+}
+
+MraLogger::log_function::~log_function()
+{
+    MRA::Logging::backend::MraLogger::getInstance()->log(_loc, MRA::Logging::TRACE, "end");
 }
 
 } // namespace MRA::Logging::backend
