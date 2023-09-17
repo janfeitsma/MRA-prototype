@@ -47,10 +47,11 @@ class TestCheckLogFolder(unittest.TestCase):
         self.assertLess((now - t_end).total_seconds(), allowed_seconds)
 
     def test_loglevels(self):
-        # all log levels should be covered (error, info, debug etc)
-        expected_log_levels = ['critical', 'info']
+        # all log levels should be possible (error, info, debug etc)
+        # NOTE: this test suite should not be sensitive to whatever logging the components may or may not produce,
+        # instead see newer test in component test_mra_logger that control what is being logged
         column_values = self._get_column(2, uniq=True, strip='[]')
-        self.assertEqual(column_values, expected_log_levels)
+        self.assertTrue('info' in column_values)
 
     def test_line_truncation(self):
         # lines should be truncated if too long

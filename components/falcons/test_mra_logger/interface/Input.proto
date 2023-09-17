@@ -7,9 +7,10 @@ message Input
     repeated int32 intArray = 1;
     string myString = 2;
     float timeToSleep = 3;
-    bool generateInfoMessage = 4;
-    bool generateDebugMessage = 5;
+    bool generateCriticalMessage = 4;
+    bool generateErrorMessage = 5;
     bool generateWarningMessage = 6;
-    bool generateErrorMessage = 7;
+    bool generateInfoMessage = 7;
+    bool generateDebugMessage = 8;
 }
 

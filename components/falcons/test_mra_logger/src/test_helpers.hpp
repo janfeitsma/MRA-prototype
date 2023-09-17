@@ -50,6 +50,9 @@ int count_log_files(std::string log_folder = LOG_FOLDER_TEST);
 // Helper function: count number of produced log lines
 int count_log_lines(std::string filename);
 
+// Helper function: search for given string in log file
+int log_content_count_substring(std::string filename, std::string search);
+
 
 #endif // #ifndef _MRA_TEST_MRA_LOGGER_HELPERS_HPP
 

@@ -25,7 +25,30 @@ int FalconsTestMraLogger::FalconsTestMraLogger::tick
 
     // user implementation goes here
 
+    float tts = input.timetosleep();
+    if (tts > 0) {
+        usleep(int(1e6 * tts));
+    }
 
+    if (input.generatecriticalmessage()) {
+        MRA_LOG_CRITICAL("test critical %d", 37);
+    }
+
+    if (input.generateerrormessage()) {
+        MRA_LOG_ERROR("test error %d", 38);
+    }
+
+    if (input.generatewarningmessage()) {
+        MRA_LOG_WARNING("test warning %d", 39);
+    }
+
+    if (input.generateinfomessage()) {
+        MRA_LOG_INFO("test info %d", 40);
+    }
+
+    if (input.generatedebugmessage()) {
+        MRA_LOG_DEBUG("test debug %d", 41);
+    }
 
     return error_value;
 }

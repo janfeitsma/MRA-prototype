@@ -58,3 +58,17 @@ int count_log_lines(std::string filename) {
     return count;
 }
 
+// Helper function: search for given string in log file
+int log_content_count_substring(std::string filename, std::string search) {
+    std::ifstream fh(filename);
+    int count = 0;
+    if (fh.is_open()) {
+        std::string line;
+        while (std::getline(fh, line)) {
+            count += (line.find(search) != std::string::npos);
+        }
+        fh.close();
+    }
+    return count;
+}
+
