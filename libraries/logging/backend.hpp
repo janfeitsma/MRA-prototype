@@ -5,6 +5,7 @@
 #include "levels.hpp"
 #include <memory>
 #include <string>
+#include <variant>
 #include <google/protobuf/util/time_util.h>
 #define SPDLOG_ACTIVE_LEVEL TRACE
 #include "spdlog/spdlog.h"  // spdlog API: https://github.com/gabime/spdlog
