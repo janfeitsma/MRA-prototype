@@ -28,7 +28,7 @@ class TestCheckLogFolder(unittest.TestCase):
     def setUpClass(cls):
         # wait until folder is not growing/changing anymore, which indirectly signals all other testcases run by bazel/ctest are done
         assert(os.path.isdir(TESTSUITE_LOG_FOLDER))
-        wait_for_folder_stable(TESTSUITE_LOG_FOLDER, 0.5, 3)
+        wait_for_folder_stable(TESTSUITE_LOG_FOLDER, 0.5, 30.0)
         cls._folder_contents = get_folder_contents(TESTSUITE_LOG_FOLDER, True)
 
     def test_filecount(self):
