@@ -7,6 +7,7 @@ cc_library(
         "backend.hpp",
         "logtick.hpp",
         "macros.hpp",
+        "macromap.h",
         "levels.hpp",
         "control.hpp",
     ],
