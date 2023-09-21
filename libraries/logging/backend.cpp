@@ -221,6 +221,17 @@ void MraLogger::setPreLogText(const std::string& r_pretext)
     m_pretext = r_pretext;
 }
 
+std::string sanitize(std::string const &s)
+{
+    std::string result = s;
+    std::string search = "\n", replace = "\\n";
+    size_t pos;
+    while ((pos = result.find(search)) != std::string::npos) {
+        result.replace(pos, 1, replace);
+    }
+    return result;
+}
+
 void MraLogger::log(source_loc loc, MRA::Logging::LogLevel loglevel, const char *fmt,...)
 {
     spdlog::source_loc loc_spd{loc.filename, loc.line, loc.funcname};
@@ -241,24 +252,26 @@ void MraLogger::log(source_loc loc, MRA::Logging::LogLevel loglevel, const char 
             buffer[MAXTEXT - 2] = '.';
             buffer[MAXTEXT - 1] = '\0';
         }
+        // sanitize string
+        std::string s = sanitize(m_pretext + buffer);
         switch (loglevel) {
         case MRA::Logging::CRITICAL:
-            m_spdlog_logger->log(loc_spd, spdlog::level::critical, m_pretext + buffer);
+            m_spdlog_logger->log(loc_spd, spdlog::level::critical, s);
             break;
         case MRA::Logging::ERROR:
-            m_spdlog_logger->log(loc_spd, spdlog::level::err, m_pretext + buffer);
+            m_spdlog_logger->log(loc_spd, spdlog::level::err, s);
             break;
         case MRA::Logging::WARNING:
-            m_spdlog_logger->log(loc_spd, spdlog::level::warn, m_pretext + buffer);
+            m_spdlog_logger->log(loc_spd, spdlog::level::warn, s);
             break;
         case MRA::Logging::INFO:
-            m_spdlog_logger->log(loc_spd, spdlog::level::info, m_pretext + buffer);
+            m_spdlog_logger->log(loc_spd, spdlog::level::info, s);
             break;
         case MRA::Logging::DEBUG:
-            m_spdlog_logger->log(loc_spd, spdlog::level::debug, m_pretext + buffer);
+            m_spdlog_logger->log(loc_spd, spdlog::level::debug, s);
             break;
         case MRA::Logging::TRACE:
-            m_spdlog_logger->log(loc_spd, spdlog::level::trace, m_pretext + buffer);
+            m_spdlog_logger->log(loc_spd, spdlog::level::trace, s);
             break;
         }
         va_end(argptr);
