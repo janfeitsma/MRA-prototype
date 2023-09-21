@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package MRA.FalconsTestMraLogger;
+
+message Input
+{
+    repeated int32 intArray = 1;
+    string myString = 2;
+    float timeToSleep = 3;
+    bool generateCriticalMessage = 4;
+    bool generateErrorMessage = 5;
+    bool generateWarningMessage = 6;
+    bool generateInfoMessage = 7;
+    bool generateDebugMessage = 8;
+    int32 fibonacci_n = 9; // just for some tracing / tests / demo, do not pass values much larger than 5
+    bool doDemoFunctions = 10;
+}
+

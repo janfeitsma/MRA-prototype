@@ -79,29 +79,61 @@ struct source_loc
     const char *funcname{nullptr};
 };
 
+void clear();
+
 class MraLogger
 {
 public:
 
     static std::shared_ptr<MraLogger> getInstance();
 
-    void log(source_loc loc, MRA::Logging::LogLevel loglevel, const char *fmt,...);
+    void log(source_loc loc, MRA::Logging::LogLevel loglevel, const char *fmt, ...);
+
+    class FunctionRecord // similar to scoped logtick
+    {
+    public:
+        FunctionRecord(source_loc loc);
+        ~FunctionRecord();
+        void add_input(std::string const &varname, int value);
+        void add_input(std::string const &varname, float value);
+        void add_input(std::string const &varname, bool value);
+        void add_input(std::string const &varname, std::string const &value);
+        void add_output(std::string const &varname, int value);
+        void add_output(std::string const &varname, float value);
+        void add_output(std::string const &varname, bool value);
+        void add_output(std::string const &varname, std::string const &value);
+        void flush_input();
+        void flush_output();
+    private:
+        std::vector<std::pair<std::string, std::variant<int, float, bool, std::string>>> _input_data;
+        std::vector<std::pair<std::string, std::variant<int, float, bool, std::string>>> _output_data;
+        source_loc _loc;
+        std::string _convert_to_json(std::vector<std::pair<std::string, std::variant<int, float, bool, std::string>>> const &data);
+    };
 
     void setPreLogText(const std::string& r_pretext);
+    void setFileName(const std::string& filename);
 
     MraLogger(const MraLogger& obj) = delete;
+    ~MraLogger();
 
     void setup(MRA::Datatypes::LogSpec const &cfg);
 
+
 private:
     MraLogger();
+    std::string determineFileName(std::string const &cname);
 
     bool m_active = false;
     std::string m_pretext = "";
     std::shared_ptr<spdlog::logger> m_spdlog_logger;
+    std::string m_filename_pattern = "";
+    std::string m_log_name;
+    std::string m_log_file;
 
 }; // class MraLogger
 
+static std::shared_ptr<MraLogger> s_logger = NULL;
 
 } // namespace MRA::Logging::backend
 

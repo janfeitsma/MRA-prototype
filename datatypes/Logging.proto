@@ -12,9 +12,12 @@ enum LogLevel // needs to be consistent with levels.hpp
     TRACE = 5;
 }
 
+// configuration can be customized per component
+// the main structure LogControl contains a general LogSpec and optional component LogSpec overrules
+
 message LogSpec
 {
-    string component = 1; // name of the component, for example "robotsports/proof_is_alive"
+    string component = 1; // name of the component, for example "RobotsportsProofIsAlive"
     LogLevel level = 2; // level to use, default INFO
     bool enabled = 3; // write data to ASCII/JSON file (using level, spdlog), default true
     bool dumpTicks = 4; // write binary protobuf data to a file per tick, default false - can hurt performance but is valuable for debugging and unittesting
@@ -27,7 +30,8 @@ message LogSpec
 message LogControl
 {
     string folder = 1; // folder to write to, default auto-create in /tmp, something like /tmp/mra_logging
-    LogSpec general = 2; // settings to use if no component overrule is specified
-    repeated LogSpec overrules = 3; // component overrules, when not specified, use general settings
+    string filename = 2; // filename to use, default "<maincomponent>_<pid>.log" (supports logging nested components into same file)
+    LogSpec general = 3; // settings to use if no component overrule is specified
+    repeated LogSpec overrules = 4; // component overrules, when not specified, use general settings
 }
 

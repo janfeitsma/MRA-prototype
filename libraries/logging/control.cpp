@@ -1,5 +1,6 @@
 #include "control.hpp"
 #include "google/protobuf/util/json_util.h"
+#include "json_convert.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -66,17 +67,24 @@ std::string getLogFolder()
     return result;
 }
 
+std::string getFileNamePattern()
+{
+    MRA::Datatypes::LogControl config = getConfiguration();
+    return config.filename();
+}
+
 MRA::Datatypes::LogControl defaultConfiguration()
 {
     MRA::Datatypes::LogControl result;
     result.set_folder(_mkLogFolder());
+    result.set_filename("<maincomponent>_<pid>.log");
     result.mutable_general()->set_component("MRA");
     result.mutable_general()->set_level(MRA::Datatypes::LogLevel::INFO);
     result.mutable_general()->set_enabled(true);
     result.mutable_general()->set_dumpticks(false);
     result.mutable_general()->set_maxlinesize(1000);
     result.mutable_general()->set_maxfilesizemb(10.0);
-    result.mutable_general()->set_pattern("[%Y-%m-%d %H:%M:%S.%f] [%P/%t/%n] [%^%l%$] [%s:%#,%!] %v");
+    result.mutable_general()->set_pattern("[%Y-%m-%dT%H:%M:%S.%f] [%P/%t/%n] [%^%l%$] [%s:%#,%!] %v");
     return result;
 }
 
@@ -162,7 +170,7 @@ MRA::Datatypes::LogSpec getConfiguration(std::string const &component)
 {
     MRA::Datatypes::LogControl control = getConfiguration(); // Get current configuration
 
-    MRA::Datatypes::LogSpec result = defaultConfiguration().general(); // Default configuration
+    MRA::Datatypes::LogSpec result = control.general(); // Default configuration
 
     // Search for the component and retrieve its configuration
     for (int i = 0; i < control.overrules_size(); ++i) {
