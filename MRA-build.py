@@ -10,11 +10,16 @@ Examples:
   $ ./MRA-build.py
 * display the commands to run a full build and test
   $ ./MRA-build.py -n -t
-     bazel build --color=yes //...
-     bazel test //... --test_output all --nocache_test_results
+     bazel build --jobs 4 --test_env=MRA_LOGGER_CONTEXT=testsuite --color=yes //...
+     rm -rf /tmp/testsuite_mra_logging
+     bazel test //... --test_output all --nocache_test_results --test_env=MRA_LOGGER_CONTEXT=testsuite
 * commands to build only one component
   $ ./MRA-build.py -n -s alive
-     bazel build --color=yes //robotsports/proof_is_alive
+     bazel build --jobs 4 --test_env=MRA_LOGGER_CONTEXT=testsuite --color=yes //components/robotsports/proof_is_alive/...
+* test a single test case with tracing enabled (while using a handy alias)
+     w=`pwd`
+     alias b='$w/MRA-codegen.py && $w/MRA-build.py -t'
+     b -T -s vision -- --test_arg=--gtest_filter=FalconsLocalizationVisionTest.basicTick
 '''
 
 # python modules
