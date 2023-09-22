@@ -376,13 +376,13 @@ std::string MraLogger::FunctionRecord::_convert_to_json(std::vector<std::pair<st
 void MraLogger::FunctionRecord::flush_input()
 {
     std::string js = _convert_to_json(_input_data);
-    MRA::Logging::backend::MraLogger::getInstance()->log(_loc, MRA::Logging::TRACE, "FUNCTION_START %s", js.c_str());
+    MRA::Logging::backend::MraLogger::getInstance()->log(_loc, MRA::Logging::TRACE, "> %s", js.c_str());
 }
 
 void MraLogger::FunctionRecord::flush_output()
 {
     std::string js = _convert_to_json(_output_data);
-    MRA::Logging::backend::MraLogger::getInstance()->log(_loc, MRA::Logging::TRACE, "FUNCTION_END %s", js.c_str());
+    MRA::Logging::backend::MraLogger::getInstance()->log(_loc, MRA::Logging::TRACE, "< %s", js.c_str());
 }
 
 } // namespace MRA::Logging::backend
