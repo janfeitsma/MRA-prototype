@@ -1,8 +1,8 @@
 // this file was produced by MRA-codegen.py from template_instance.hpp
 // it should NOT be modified by user
 
-#ifndef _MRA_FALCONS_GETBALL_INTERCEPT_HPP
-#define _MRA_FALCONS_GETBALL_INTERCEPT_HPP
+#ifndef _MRA_FALCONS_TEST_MRA_LOGGER_HPP
+#define _MRA_FALCONS_TEST_MRA_LOGGER_HPP
 
 #include "abstract_interface.hpp"
 #include "params_loader.hpp"
@@ -17,24 +17,24 @@
 #ifdef MRA_COMPONENT_NAME
 #undef MRA_COMPONENT_NAME
 #endif
-#define MRA_COMPONENT_NAME "FalconsGetballIntercept"
+#define MRA_COMPONENT_NAME "FalconsTestMraLogger"
 
 
-namespace MRA::FalconsGetballIntercept
+namespace MRA::FalconsTestMraLogger
 {
 
-typedef MRA::FalconsGetballIntercept::Input InputType;
-typedef MRA::FalconsGetballIntercept::Params ParamsType;
+typedef MRA::FalconsTestMraLogger::Input InputType;
+typedef MRA::FalconsTestMraLogger::Params ParamsType;
 typedef google::protobuf::Empty StateType; // no .proto -> unused
-typedef MRA::FalconsGetballIntercept::Output OutputType;
+typedef MRA::FalconsTestMraLogger::Output OutputType;
 typedef google::protobuf::Empty LocalType; // no .proto -> unused
 
 
-class FalconsGetballIntercept: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>
+class FalconsTestMraLogger: public MRAInterface<InputType, ParamsType, StateType, OutputType, LocalType>
 {
 public:
-    FalconsGetballIntercept() {};
-    ~FalconsGetballIntercept() {};
+    FalconsTestMraLogger() {};
+    ~FalconsTestMraLogger() {};
 
     // user implementation
     int tick(
@@ -49,7 +49,7 @@ public:
     // make default configuration easily accessible
     ParamsType defaultParams() const
     {
-        return MRA::LoadDefaultParams<ParamsType>("components/falcons/getball_intercept/interface/DefaultParams.json");
+        return MRA::LoadDefaultParams<ParamsType>("components/falcons/test_mra_logger/interface/DefaultParams.json");
     };
 
     // allow omitting arguments, useful for testing and code brevity
@@ -93,20 +93,20 @@ public:
         return tick(google::protobuf::util::TimeUtil::GetCurrentTime(), input, params, state, output, local);
     };
 
-}; // class FalconsGetballIntercept
+}; // class FalconsTestMraLogger
 
 
 // configuration handling
 inline ParamsType defaultParams()
 {
-    return FalconsGetballIntercept().defaultParams();
+    return FalconsTestMraLogger().defaultParams();
 }
 inline ParamsType loadParams(std::string configFile)
 {
     return MRA::LoadDefaultParams<ParamsType>(configFile);
 }
 
-} // namespace MRA::FalconsGetballIntercept
+} // namespace MRA::FalconsTestMraLogger
 
 
 #endif

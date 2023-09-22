@@ -25,6 +25,7 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         ":datatypes",
+        "//libraries/logging",
         BAZEL_IMPLEMENTATION_DEPENDENCIES
     ],
 )

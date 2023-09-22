@@ -7,6 +7,7 @@ cc_library(
         "backend.hpp",
         "logtick.hpp",
         "macros.hpp",
+        "macromap.h",
         "levels.hpp",
         "control.hpp",
     ],
@@ -22,5 +23,10 @@ cc_library(
         "//base:abstract_interface",
         "//datatypes:MRA_cc_proto",
     ],
+)
+
+py_test(
+    name = "check_logfolder",
+    srcs = ["check_logfolder.py"],
 )
 

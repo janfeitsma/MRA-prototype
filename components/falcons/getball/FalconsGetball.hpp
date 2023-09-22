@@ -7,9 +7,18 @@
 #include "abstract_interface.hpp"
 #include "params_loader.hpp"
 #include <google/protobuf/empty.pb.h>
+#include "logging.hpp"
 
 // generated protobuf types from interface of this component
 #include "datatypes.hpp"
+
+
+// used in tracing
+#ifdef MRA_COMPONENT_NAME
+#undef MRA_COMPONENT_NAME
+#endif
+#define MRA_COMPONENT_NAME "FalconsGetball"
+
 
 namespace MRA::FalconsGetball
 {
@@ -87,13 +96,6 @@ public:
 }; // class FalconsGetball
 
 
-// component name
-inline std::string componentName()
-{
-    return "FalconsGetball";
-}
-
-
 // configuration handling
 inline ParamsType defaultParams()
 {
@@ -105,6 +107,7 @@ inline ParamsType loadParams(std::string configFile)
 }
 
 } // namespace MRA::FalconsGetball
+
 
 #endif
 

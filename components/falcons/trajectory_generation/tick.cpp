@@ -13,6 +13,7 @@ using namespace MRA;
 #include "geometry.hpp"
 
 
+
 int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
 (
     google::protobuf::Timestamp timestamp,   // absolute timestamp
@@ -24,6 +25,7 @@ int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
 )
 {
     int error_value = 0;
+    MRA_LOG_TICK();
 
     // user implementation goes here
 
@@ -55,7 +57,7 @@ int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
     }
     catch (...)
     {
-        std::cerr << "failed to reconfigure VelocityControl with json string (" << params.vcparamsjsonstr() << ")" << std::endl;
+        MRA_LOG_ERROR("failed to reconfigure VelocityControl with json string (%s)", params.vcparamsjsonstr());
         return 254;
     }
 
@@ -89,14 +91,14 @@ int FalconsTrajectoryGeneration::FalconsTrajectoryGeneration::tick
         // check for errors
         if (error_value)
         {
-            std::cerr << "tick " << tick_counter << " failed with error " << error_value << std::endl;
+            MRA_LOG_ERROR("tick %d failed with error %d", tick_counter, error_value);
             return error_value;
         }
 
         // check for non-convergence
         if (tick_counter > maxTicks)
         {
-            std::cerr << "tick limit exceeded (" << maxTicks << ")" << std::endl;
+            MRA_LOG_ERROR("tick limit exceeded (%d)", maxTicks);
             return 255;
         }
 

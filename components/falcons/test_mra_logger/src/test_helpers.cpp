@@ -1,4 +1,4 @@
-#include "test_mra_logger_helpers.hpp"
+#include "test_helpers.hpp"
 
 #include <fstream>
 #include <filesystem>
@@ -9,13 +9,14 @@
 MRA::Datatypes::LogControl testConfiguration() {
     MRA::Datatypes::LogControl result = MRA::Logging::control::defaultConfiguration();
     result.set_folder(LOG_FOLDER_TEST);
+    result.set_filename("<maincomponent>.log");
     result.mutable_general()->set_component("MRA-test");
     result.mutable_general()->set_level(MRA::Datatypes::LogLevel::INFO);
     result.mutable_general()->set_enabled(true);
     result.mutable_general()->set_dumpticks(false);
     result.mutable_general()->set_maxlinesize(1000);
     result.mutable_general()->set_maxfilesizemb(10.0);
-    result.mutable_general()->set_pattern("[%Y-%m-%d %H:%M:%S.%f] [%n] [%^%l%$] %v");
+    result.mutable_general()->set_pattern("[%Y-%m-%dT%H:%M:%S.%f] [%n] [%^%l%$] [%s:%#,%!] %v");
     result.mutable_general()->set_hotflush(true);
     return result;
 }
@@ -51,6 +52,20 @@ int count_log_lines(std::string filename) {
         std::string line;
         while (std::getline(fh, line)) {
             count++;
+        }
+        fh.close();
+    }
+    return count;
+}
+
+// Helper function: search for given string in log file
+int log_content_count_substring(std::string filename, std::string search) {
+    std::ifstream fh(filename);
+    int count = 0;
+    if (fh.is_open()) {
+        std::string line;
+        while (std::getline(fh, line)) {
+            count += (line.find(search) != std::string::npos);
         }
         fh.close();
     }
