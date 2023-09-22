@@ -50,11 +50,17 @@ std::string stringRepeater(std::string const &s, int n)
     return result;
 }
 
+void donothing()
+{
+    MRA_TRACE_FUNCTION();
+}
+
 void mysleep(float duration)
 {
     MRA_TRACE_FUNCTION_INPUTS(duration);
     if (duration > 0) {
         usleep(int(1e6 * duration));
     }
+    donothing();
 }
 
