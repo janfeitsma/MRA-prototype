@@ -65,11 +65,15 @@ class BazelBuilder():
         for s in scope:
             self.run_cmd(' '.join(cmd_parts + ['--color=yes', f'//{s}']))
     def run_test(self, scope: list, tracing: bool = False) -> None:
+        # wipe /tmp/testsuite_mra_logging, used via MRA_LOGGER_CONTEXT action_env, for post-testsuite inspection
+        # (note how unittest test_mra_logger uses a different environment)
+        cmd = 'rm -rf /tmp/testsuite_mra_logging'
+        self.run_cmd(cmd)
+        # also wipe configuration
+        cmd = 'rm -rf /dev/shm/testsuite_mra_logging_shared_memory'
+        self.run_cmd(cmd)
+        # iterate over scope
         for s in scope:
-            # wipe /tmp/testsuite_mra_logging, used via MRA_LOGGER_CONTEXT action_env, for post-testsuite inspection
-            # (note how unittest test_mra_logger uses a different environment)
-            cmd = 'rm -rf /tmp/testsuite_mra_logging'
-            self.run_cmd(cmd)
             test_options = TEST_OPTIONS + ENV_OPTIONS
             if tracing:
                 test_options += TRACING_OPTIONS
