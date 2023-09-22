@@ -27,7 +27,7 @@ __attribute__((weak)) std::string componentName() {
 #define MRA_LOG_DEBUG(...) MRA::Logging::backend::MraLogger::getInstance()->log(\
     MRA::Logging::backend::source_loc(__FILE__, componentName().c_str(), __LINE__, __FUNCTION__) , MRA::Logging::DEBUG, __VA_ARGS__ )
 
-#define MRA_TRACE_FUNCTION() MRA::Logging::backend::MraLogger::log_function scoped(\
+#define MRA_TRACE_FUNCTION() MRA::Logging::backend::MraLogger::FunctionRecord scoped(\
     MRA::Logging::backend::source_loc(__FILE__, componentName().c_str(), __LINE__, __FUNCTION__) )
 
 // single-argument function i/o logging
