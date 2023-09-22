@@ -12,6 +12,14 @@
 // generated protobuf types from interface of this component
 #include "datatypes.hpp"
 
+
+// used in tracing
+#ifdef MRA_COMPONENT_NAME
+#undef MRA_COMPONENT_NAME
+#endif
+#define MRA_COMPONENT_NAME "COMPONENT_CPP_NAME_CAMELCASE"
+
+
 namespace MRA::COMPONENT_CPP_NAME_CAMELCASE
 {
 
@@ -83,13 +91,6 @@ public:
 }; // class COMPONENT_CPP_NAME_CAMELCASE
 
 
-// component name
-inline std::string componentName()
-{
-    return "COMPONENT_CPP_NAME_CAMELCASE";
-}
-
-
 // configuration handling
 inline ParamsType defaultParams()
 {
@@ -101,6 +102,7 @@ inline ParamsType loadParams(std::string configFile)
 }
 
 } // namespace MRA::COMPONENT_CPP_NAME_CAMELCASE
+
 
 #endif
 
