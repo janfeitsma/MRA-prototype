@@ -147,6 +147,8 @@ std::vector<cv::Point2f> Solver::createLinePoints() const
         cv::Point2f lp(x, y);
         result.push_back(lp);
     }
+    int n = result.size();
+    MRA_TRACE_FUNCTION_OUTPUT(n);
     return result;
 }
 
@@ -295,14 +297,20 @@ int Solver::run()
     // create a floor (linePoints RCS, robot at (0,0,0)) for input linepoints
     _linePoints = createLinePoints();
 
-    // setup trackers: existing from state and new from guessing configuration
-    _trackers = createTrackers();
+    // check for any linepoints
+    // (having none at all is very unusual for a real robot, but not so much in test suite)
+    if (_linePoints.size())
+    {
 
-    // run the fit algorithm (multithreaded), update trackers, update _fitResult
-    runFitUpdateTrackers();
+        // setup trackers: existing from state and new from guessing configuration
+        _trackers = createTrackers();
 
-    // create and optionally dump of diagnostics data for plotting
-    dumpDiagnosticsMat();
+        // run the fit algorithm (multithreaded), update trackers, update _fitResult
+        runFitUpdateTrackers();
+
+        // create and optionally dump of diagnostics data for plotting
+        dumpDiagnosticsMat();
+    }
 
     // prepare for next tick
     _state.set_tick(1 + _state.tick());
