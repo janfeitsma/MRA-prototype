@@ -24,7 +24,9 @@ protected:
 
     void TearDown() override {
         // switch back to standard config&folder
-        cleanupLogFolder();
+        if (!getenv("MRA_LOGGER_KEEP_TESTSUITE_TRACING")) {
+            cleanupLogFolder();
+        }
         MRA::Logging::control::resetConfiguration();
         MRA::Logging::backend::clear();
     }

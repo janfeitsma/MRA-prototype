@@ -28,9 +28,10 @@ import argparse
 
 
 MRA_ROOT = pathlib.Path(__file__).parent.resolve()
-DEBUG_OPTIONS = '--subcommands --verbose_failures --sandbox_debug'
-ENV_OPTIONS = '--action_env=MRA_LOGGER_CONTEXT=testsuite'
-TEST_OPTIONS = '--test_output all --nocache_test_results ' + ENV_OPTIONS
+DEBUG_OPTIONS = ['--subcommands', '--verbose_failures', '--sandbox_debug']
+ENV_OPTIONS = ['--action_env=MRA_LOGGER_CONTEXT=testsuite']
+TEST_OPTIONS = ['--test_output', 'all', '--nocache_test_results']
+TRACING_OPTIONS = ['--action_env=MRA_LOG_LEVEL=TRACE', '--action_env=MRA_LOGGER_KEEP_TESTSUITE_TRACING=1']
 BAZEL_ALL = '...' # see bazel syntax / cheatsheet
 DEFAULT_SCOPE = BAZEL_ALL
 DEFAULT_NUM_PARALLEL_JOBS = 4 # TODO guess? building is nowadays quite memory-intensive ... easy to lock/swap
@@ -41,7 +42,7 @@ class BazelBuilder():
         self.verbose = verbose
         self.debug = debug
         self.dryrun = dryrun
-    def run(self, clean: bool = False, test: bool = False, scope: str = DEFAULT_SCOPE, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
+    def run(self, clean: bool = False, test: bool = False, tracing: bool = False, scope: str = DEFAULT_SCOPE, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
         """
         Perform the work:
         1. clean (optional)
@@ -50,24 +51,31 @@ class BazelBuilder():
         """
         if clean:
             self.run_clean()
-        self.run_build(scope, jobs)
-        if test:
-            self.run_test(scope)
+        self.run_build(scope, tracing, jobs)
+        # TODO: using tracing env variable currently may interfere with bazel caching ... it should not.
+        # see also: https://stackoverflow.com/questions/70672852/dont-discard-analysis-cache-when-action-env-changes
+        if test or tracing:
+            self.run_test(scope, tracing)
     def run_clean(self) -> None:
         self.run_cmd('bazel clean --color=yes')
-    def run_build(self, scope: list, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
-        cmd_parts = ['bazel', 'build', '--jobs', str(jobs), ENV_OPTIONS]
+    def run_build(self, scope: list, tracing: bool = False, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
+        cmd_parts = ['bazel', 'build', '--jobs', str(jobs)] + ENV_OPTIONS
         if self.debug:
-            cmd_parts.append(DEBUG_OPTIONS)
+            cmd_parts += DEBUG_OPTIONS
+        if tracing:
+            cmd_parts += TRACING_OPTIONS
         for s in scope:
             self.run_cmd(' '.join(cmd_parts + ['--color=yes', f'//{s}']))
-    def run_test(self, scope: list) -> None:
+    def run_test(self, scope: list, tracing: bool = False) -> None:
         for s in scope:
             # wipe /tmp/testsuite_mra_logging, used via MRA_LOGGER_CONTEXT action_env, for post-testsuite inspection
             # (note how unittest test_mra_logger uses a different environment)
             cmd = 'rm -rf /tmp/testsuite_mra_logging'
             self.run_cmd(cmd)
-            cmd = f'bazel test //{s} ' + TEST_OPTIONS
+            test_options = TEST_OPTIONS + ENV_OPTIONS
+            if tracing:
+                test_options += TRACING_OPTIONS
+            cmd = f'bazel test //{s} ' + ' '.join(test_options)
             self.run_cmd(cmd)
     def run_cmd(self, cmd: str) -> None:
         extra_opts = {}
@@ -122,7 +130,7 @@ def main(**kwargs) -> None:
     os.chdir(MRA_ROOT)
     b = BazelBuilder(verbose = not kwargs.get('quiet'), debug = kwargs.get('debug'), dryrun = kwargs.get('dryrun'))
     scope = resolve_scope(kwargs.get('scope'))
-    b.run(clean = kwargs.get('clean'), test = kwargs.get('test'), scope = scope, jobs = kwargs.get('jobs'))
+    b.run(clean = kwargs.get('clean'), test = kwargs.get('test'), scope = scope, jobs = kwargs.get('jobs'), tracing = kwargs.get('tracing'))
 
 
 def parse_args(args: list) -> argparse.Namespace:
@@ -135,6 +143,7 @@ def parse_args(args: list) -> argparse.Namespace:
     parser.add_argument('-s', '--scope', help='build scope, comma-separated lists of (brief) component names', type=str, default=DEFAULT_SCOPE)
     parser.add_argument('-c', '--clean', help='start with cleaning', action='store_true')
     parser.add_argument('-t', '--test', help='also run tests', action='store_true')
+    parser.add_argument('-T', '--tracing', help='enable/keep tracing during tests', action='store_true')
     parser.add_argument('-n', '--dryrun', help='only print commands', action='store_true')
     parser.add_argument('-d', '--debug', help='enable some debug flags', action='store_true')
     parser.add_argument('-j', '--jobs', help='number of parallel build jobs (threads) to run', type=int, default=DEFAULT_NUM_PARALLEL_JOBS)
