@@ -45,8 +45,10 @@ private:
 
     // reference floor: calculate once, based on letter model and optional extra shapes
     cv::Mat _referenceFloorMat;
+public:
     cv::Mat createReferenceFloorMat(float blurFactor = 0.0) const;
 
+private:
     // initialization (a bit expensive), only once, or when parameters change
     bool _reinit = false;
     void reinitialize();

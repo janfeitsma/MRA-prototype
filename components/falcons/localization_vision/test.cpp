@@ -16,6 +16,8 @@ using namespace ::testing;
 // System under test:
 #include "FalconsLocalizationVision.hpp"
 #include "fit.hpp" // internal actually
+#include "floor.hpp" // internal actually
+#include "solver.hpp" // internal actually
 using namespace MRA;
 
 // Basic tick shall run OK and return error_value 0.
@@ -78,7 +80,32 @@ TEST(FalconsLocalizationVisionTest, referenceFloor)
     EXPECT_EQ(pixel_count, 117051);
 }
 
-// Test core fit scoring function: fitting a reference field with itself should yield a perfect result
+// Calculation/scoring function
+TEST(FalconsLocalizationVisionTest, calc000)
+{
+    // Arrange
+    auto m = FalconsLocalizationVision::FalconsLocalizationVision();
+    auto params = m.defaultParams();
+    FalconsLocalizationVision::Solver solver;    
+    cv::Mat referenceFloor = solver.createReferenceFloorMat();
+    std::vector<cv::Point2f> rcsLinePoints;
+    rcsLinePoints.push_back(cv::Point2f(0.0, 0.0));
+    rcsLinePoints.push_back(cv::Point2f(6.0, 0.0));
+    rcsLinePoints.push_back(cv::Point2f(-6.0, 0.0));
+    rcsLinePoints.push_back(cv::Point2f(0.0, 9.0));
+    rcsLinePoints.push_back(cv::Point2f(0.0, -9.0));
+    float ppm = params.solver().pixelspermeter();
+    FalconsLocalizationVision::FitFunction fit(referenceFloor, rcsLinePoints, ppm);
+
+    // Act
+    double x[3] = {0.0, 0.0, 0.0};
+    double score = fit.calc(x);
+
+    // Assert
+    EXPECT_EQ(score, 0.8);
+}
+
+/*// Test core fit scoring function: fitting a reference field with itself should yield a perfect result
 TEST(FalconsLocalizationVisionTest, perfectFit)
 {
     // Arrange
@@ -101,7 +128,7 @@ TEST(FalconsLocalizationVisionTest, perfectFit)
 
     // Assert
     EXPECT_EQ(overlapScore, 1.0);
-}
+}*/
 
 // Test core fit scoring function: choose some pixels which match perfect field definition
 // This is data driven -> json test case

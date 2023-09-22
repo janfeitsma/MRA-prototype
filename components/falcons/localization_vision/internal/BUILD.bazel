@@ -21,6 +21,7 @@ cc_library(
     deps = [
         "@opencv",
         "//libraries/opencv_utils",
+        "//libraries/logging",
         "//libraries/geometry",
         "//components/falcons/localization_vision:datatypes",
     ],

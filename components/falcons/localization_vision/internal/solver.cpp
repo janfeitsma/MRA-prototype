@@ -4,6 +4,7 @@
 // MRA libraries
 #include "geometry.hpp"
 #include "opencv_utils.hpp"
+#include "logging.hpp"
 
 
 using namespace MRA::FalconsLocalizationVision;
@@ -19,6 +20,7 @@ Solver::~Solver()
 
 void Solver::configure(Params const &p)
 {
+    MRA_TRACE_FUNCTION_INPUTS(p);
     _params = p;
     // check for missing required parameters
     checkParamsValid();
@@ -31,6 +33,7 @@ void Solver::configure(Params const &p)
 
 void Solver::checkParamsValid() const
 {
+    MRA_TRACE_FUNCTION();
     // check field model params
     if (_params.model().a() < 1)
     {
@@ -70,16 +73,19 @@ void Solver::checkParamsValid() const
 
 void Solver::setState(State const &s)
 {
+    MRA_TRACE_FUNCTION_INPUTS(s);
     _state = s;
 }
 
 void Solver::setInput(Input const &in)
 {
+    MRA_TRACE_FUNCTION_INPUTS(in);
     _input = in;
 }
 
 cv::Mat Solver::createReferenceFloorMat(float blurFactor) const
 {
+    MRA_TRACE_FUNCTION_INPUTS(blurFactor);
     cv::Mat result;
 
     // given the configured field (letter model and optional custom shapes),
@@ -103,6 +109,7 @@ cv::Mat Solver::createReferenceFloorMat(float blurFactor) const
 
 void Solver::reinitialize()
 {
+    MRA_TRACE_FUNCTION();
     // first check the flag
     if (!_reinit) return;
 
@@ -119,6 +126,8 @@ void Solver::reinitialize()
         return;
     }
 
+    MRA_LOG_DEBUG("cache miss, creating reference floor");
+
     // calculate reference floor and store in state as protobuf CvMatProto object for next iteration (via state)
     _referenceFloorMat = createReferenceFloorMat(_params.solver().blurfactor());
     MRA::OpenCVUtils::serializeCvMat(_referenceFloorMat, *_state.mutable_referencefloor());
@@ -129,6 +138,7 @@ void Solver::reinitialize()
 
 std::vector<cv::Point2f> Solver::createLinePoints() const
 {
+    MRA_TRACE_FUNCTION();
     std::vector<cv::Point2f> result;
     for (const Landmark& landmark : _input.landmarks())
     {
@@ -142,6 +152,7 @@ std::vector<cv::Point2f> Solver::createLinePoints() const
 
 std::vector<Tracker> Solver::createTrackers() const
 {
+    MRA_TRACE_FUNCTION();
     std::vector<Tracker> result;
 
     // load from state
@@ -178,6 +189,7 @@ std::vector<Tracker> Solver::createTrackers() const
 
 void Solver::runFitUpdateTrackers()
 {
+    MRA_TRACE_FUNCTION();
     // run the fit algorithm (multithreaded, one per tracker) and update trackers
     _fitAlgorithm.run(_referenceFloorMat, _linePoints, _trackers);
 
@@ -201,12 +213,14 @@ void Solver::runFitUpdateTrackers()
 
 void Solver::cleanupBadTrackers()
 {
+    MRA_TRACE_FUNCTION();
 }
 
 // TODO move to opencv_utils?
 // combine non-black pixels from m_other into m
 void combineImages(cv::Mat m, cv::Mat m_other)
 {
+    MRA_TRACE_FUNCTION();
     CV_Assert(m.size() == m_other.size() && m.type() == CV_8UC3 && m_other.type() == CV_8UC3);
     cv::Mat mask;
     cv::cvtColor(m_other, mask, cv::COLOR_BGR2GRAY);
@@ -219,6 +233,7 @@ void combineImages(cv::Mat m, cv::Mat m_other)
 
 cv::Mat Solver::createDiagnosticsMat() const
 {
+    MRA_TRACE_FUNCTION();
     // reference floor either with or without blur
     bool withBlur = true;
     cv::Mat referenceFloorMat = withBlur ? _referenceFloorMat : createReferenceFloorMat();
@@ -259,11 +274,14 @@ cv::Mat Solver::createDiagnosticsMat() const
 
 void Solver::dumpDiagnosticsMat()
 {
+    MRA_TRACE_FUNCTION();
     MRA::OpenCVUtils::serializeCvMat(createDiagnosticsMat(), *_diag.mutable_floor());
 }
 
 int Solver::run()
 {
+    int tick = _state.tick();
+    MRA_TRACE_FUNCTION_INPUTS(tick);
     // try to keep the design as simple as possible: minimize state, trackers over time (that is for worldModel to handle)
     // initially (and maybe also occasionally?) we should perhaps do some kind of grid search
     // that is handled in the FitAlgorithm, also optional multithreading and guessing / search space partitioning

@@ -2,12 +2,14 @@
 
 // MRA libraries
 #include "opencv_utils.hpp"
+#include "logging.hpp"
 
 using namespace MRA::FalconsLocalizationVision;
 
 
 void FitAlgorithm::run(cv::Mat const &referenceFloor, std::vector<cv::Point2f> const &rcsLinePoints, std::vector<Tracker> &trackers)
 {
+    MRA_TRACE_FUNCTION();
     // TODO: multithreading
 
     // run all fit attempts
@@ -25,6 +27,10 @@ void FitAlgorithm::run(cv::Mat const &referenceFloor, std::vector<cv::Point2f> c
 
 FitResult FitCore::run(cv::Mat const &referenceFloor, std::vector<cv::Point2f> const &rcsLinePoints, MRA::Geometry::Pose const &guess, MRA::Geometry::Pose const &step)
 {
+    int numpoints = rcsLinePoints.size();
+    MRA::Datatypes::Pose guess_ = guess;
+    MRA::Datatypes::Pose step_ = step;
+    MRA_TRACE_FUNCTION_INPUTS(numpoints, guess_, step_);
     FitResult result;
 
     // create solver
@@ -56,16 +62,18 @@ FitResult FitCore::run(cv::Mat const &referenceFloor, std::vector<cv::Point2f> c
 
 FitFunction::FitFunction(cv::Mat const &referenceFloor, std::vector<cv::Point2f> const &rcsLinePoints, float ppm)
 {
+    MRA_TRACE_FUNCTION();
     _ppm = ppm;
     _referenceFloor = referenceFloor;
     _rcsLinePoints = rcsLinePoints;
     // count pixels for normalization, prevent division by zero when no linepoints present (yet)
     _rcsLinePointsPixelCount = rcsLinePoints.size();
-    printf("FitFunction _rcsLinePointsPixelCount %9.3f\n", _rcsLinePointsPixelCount);
+    MRA_TRACE_FUNCTION_OUTPUT(_rcsLinePointsPixelCount);
 }
 
 double FitFunction::calcOverlap(cv::Mat const &m1, cv::Mat const &m2) const
 {
+    MRA_TRACE_FUNCTION();
     // calculate the intersection of the white pixels using bitwise AND operation
     cv::Mat overlapMask;
     cv::bitwise_and(m1, m2, overlapMask);
@@ -74,11 +82,13 @@ double FitFunction::calcOverlap(cv::Mat const &m1, cv::Mat const &m2) const
     double result = static_cast<double>(countNonZero(overlapMask)) / _rcsLinePointsPixelCount;
     // clip score & confidence into [0.0, 1.0]
     result = std::max(0.0, std::min(1.0, result));
+    MRA_TRACE_FUNCTION_OUTPUT(result);
     return result;
 }
 
 cv::Mat FitFunction::transform3dof(cv::Mat const &m, double x, double y, double rz) const
 {
+    MRA_TRACE_FUNCTION();
     cv::Mat result;
     // create a transformation matrix
     float rad2deg = 180.0 / M_PI;
@@ -92,21 +102,31 @@ cv::Mat FitFunction::transform3dof(cv::Mat const &m, double x, double y, double 
 
 std::vector<cv::Point2f> FitFunction::transform3dof(const std::vector<cv::Point2f> &points, double x, double y, double rz) const
 {
+    MRA_TRACE_FUNCTION();
+    // Nothing to do?
+    if (points.size() == 0)
+    {
+        return points;
+    }
     std::vector<cv::Point2f> transformedPoints;
     float rad2deg = 180.0 / M_PI;
     // Construct the transformation matrix
-    cv::Mat transformationMatrix = cv::getRotationMatrix2D(cv::Point2f(_referenceFloor.cols / 2, _referenceFloor.rows / 2), rz * rad2deg, 1.0);
-    transformationMatrix.at<double>(0, 2) = x * _ppm;
-    transformationMatrix.at<double>(1, 2) = y * _ppm;
+    cv::Mat transformationMatrix = cv::getRotationMatrix2D(cv::Point2f(), rz * rad2deg, 1.0);
+    transformationMatrix.at<double>(0, 2) = x;
+    transformationMatrix.at<double>(1, 2) = y;
     // Transform each point
     cv::transform(points, transformedPoints, transformationMatrix);
     return transformedPoints;
 }
 
-double FitFunction::calc(const double *x) const
+double FitFunction::calc(const double *v) const
 {
+    double x = v[0];
+    double y = v[1];
+    double rz = v[2];
+    MRA_TRACE_FUNCTION_INPUTS(x, y, rz);
     double score = 0.0;
-    std::vector<cv::Point2f> transformed = transform3dof(_rcsLinePoints, x[0], x[1], x[2]);
+    std::vector<cv::Point2f> transformed = transform3dof(_rcsLinePoints, v[0], v[1], v[2]);
     for (size_t i = 0; i < _rcsLinePoints.size(); ++i)
     {
         int pixelX = static_cast<int>(transformed[i].x * _ppm);
@@ -117,11 +137,13 @@ double FitFunction::calc(const double *x) const
         {
             // Look up pixel intensity in _referenceFloor and accumulate the score
             s = static_cast<float>(_referenceFloor.at<uchar>(pixelY, pixelX)) / 255.0;
-            score += s;
+            score += s; // max 1.0 per pixel
         }
         //printf("calc %3d   ix=%8.3f  iy=%8.3f  tx=%8.3f  ty=%8.3f  px=%4d py=%4d  s=%6.2f\n", (int)i, _rcsLinePoints[i].x, _rcsLinePoints[i].y, transformed[i].x, transformed[i].y, (int)(pixelX), (int)(pixelY), s);
     }
-    // final normalization
-    return score / _rcsLinePointsPixelCount;
+    // final normalization to 0..1 where 0 is good (minimization)
+    double result = 1.0 - score / _rcsLinePointsPixelCount;
+    MRA_TRACE_FUNCTION_OUTPUT(result);
+    return result;
 }
 
