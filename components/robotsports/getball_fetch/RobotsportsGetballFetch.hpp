@@ -12,6 +12,14 @@
 // generated protobuf types from interface of this component
 #include "datatypes.hpp"
 
+
+// used in tracing
+#ifdef MRA_COMPONENT_NAME
+#undef MRA_COMPONENT_NAME
+#endif
+#define MRA_COMPONENT_NAME "RobotsportsGetballFetch"
+
+
 namespace MRA::RobotsportsGetballFetch
 {
 
@@ -88,13 +96,6 @@ public:
 }; // class RobotsportsGetballFetch
 
 
-// component name
-inline std::string componentName()
-{
-    return "RobotsportsGetballFetch";
-}
-
-
 // configuration handling
 inline ParamsType defaultParams()
 {
@@ -106,6 +107,7 @@ inline ParamsType loadParams(std::string configFile)
 }
 
 } // namespace MRA::RobotsportsGetballFetch
+
 
 #endif
 
