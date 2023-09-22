@@ -18,6 +18,7 @@ namespace MRA::Logging::control
 namespace
 {
     std::string ENVIRONMENT_KEY = "MRA_LOGGER_CONTEXT";
+    std::string LOG_LEVEL_KEY = "MRA_LOG_LEVEL";
     std::string SHARED_MEMORY_FILE = "mra_logging_shared_memory";
     std::string DEFAULT_LOG_FOLDER = "mra_logging";
     const size_t SHARED_MEMORY_SIZE = 4096;
@@ -79,7 +80,11 @@ MRA::Datatypes::LogControl defaultConfiguration()
     result.set_folder(_mkLogFolder());
     result.set_filename("<maincomponent>_<pid>.log");
     result.mutable_general()->set_component("MRA");
-    result.mutable_general()->set_level(MRA::Datatypes::LogLevel::INFO);
+    std::string level_str = "INFO";
+    char const *cp = getenv(LOG_LEVEL_KEY.c_str());
+    if (cp) level_str = cp;
+    const google::protobuf::EnumDescriptor *descriptor = MRA::Datatypes::LogLevel_descriptor();
+    result.mutable_general()->set_level((MRA::Datatypes::LogLevel)descriptor->FindValueByName(level_str)->number());
     result.mutable_general()->set_enabled(true);
     result.mutable_general()->set_dumpticks(false);
     result.mutable_general()->set_maxlinesize(1000);
