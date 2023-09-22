@@ -43,11 +43,15 @@ void logTickStart(
         std::string paramsStr = MRA::convert_proto_to_json_str(params);
         std::string stateStr = MRA::convert_proto_to_json_str(state);
         MRA::Logging::backend::source_loc loc{fileName.c_str(), componentName.c_str(), lineNumber, "tick"};
-        logger->log(loc, MRA::Logging::INFO, "tick %d START", counter);
-        logger->log(loc, MRA::Logging::INFO, "timestamp: %s", google::protobuf::util::TimeUtil::ToString(timestamp).c_str());
-        logger->log(loc, MRA::Logging::INFO, "input: %s", inputStr.c_str());
-        logger->log(loc, MRA::Logging::INFO, "params: %s", paramsStr.c_str());
-        logger->log(loc, MRA::Logging::INFO, "state(in): %s", stateStr.c_str());
+        // prepare strings for logging with INFO and TRACE levels
+        // state and local may grow large -> these go to tracing, not info
+        std::string infoStr = "\"tick\":" + std::to_string(counter)
+            + ",\"timestamp\":" + google::protobuf::util::TimeUtil::ToString(timestamp)
+            + ",\"input\":" + inputStr
+            + ",\"params\":" + paramsStr;
+        std::string traceStr = infoStr + ",\"state_in\":" + stateStr;
+        logger->log(loc, MRA::Logging::TRACE, "> {%s}", traceStr.c_str());
+        logger->log(loc, MRA::Logging::INFO, "start {%s}", infoStr.c_str());
         // TODO tick bindump, if configured
     }
 }
@@ -73,10 +77,15 @@ void logTickEnd(
         std::string stateStr = MRA::convert_proto_to_json_str(state);
         std::string outputStr = MRA::convert_proto_to_json_str(output);
         MRA::Logging::backend::source_loc loc{fileName.c_str(), componentName.c_str(), lineNumber, "tick"};
-        logger->log(loc, MRA::Logging::INFO, "tick %d END error_value=%d", counter, error_value);
-        logger->log(loc, MRA::Logging::INFO, "duration: %9.6f", duration);
-        logger->log(loc, MRA::Logging::INFO, "output: %s", outputStr.c_str());
-        logger->log(loc, MRA::Logging::INFO, "state: %s", stateStr.c_str());
+        // prepare strings for logging with INFO and TRACE levels
+        // state and local may grow large -> these go to tracing, not info
+        std::string infoStr = "\"tick\":" + std::to_string(counter)
+            + ",\"error_value\":" + std::to_string(error_value)
+            + ",\"duration\":" + std::to_string(duration)
+            + ",\"output\":" + outputStr;
+        std::string traceStr = infoStr + ",\"state_out\":" + stateStr;
+        logger->log(loc, MRA::Logging::INFO, "end {%s}", infoStr.c_str());
+        logger->log(loc, MRA::Logging::TRACE, "< {%s}", traceStr.c_str());
         // TODO tick bindump, if configured
     }
 }
