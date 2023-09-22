@@ -97,19 +97,23 @@ public:
         ~FunctionRecord();
         void add_input(std::string const &varname, int value);
         void add_input(std::string const &varname, float value);
+        void add_input(std::string const &varname, double value);
         void add_input(std::string const &varname, bool value);
         void add_input(std::string const &varname, std::string const &value);
+        void add_input(std::string const &varname, google::protobuf::Message const &value);
         void add_output(std::string const &varname, int value);
         void add_output(std::string const &varname, float value);
+        void add_output(std::string const &varname, double value);
         void add_output(std::string const &varname, bool value);
         void add_output(std::string const &varname, std::string const &value);
+        void add_output(std::string const &varname, google::protobuf::Message const &value);
         void flush_input();
         void flush_output();
     private:
-        std::vector<std::pair<std::string, std::variant<int, float, bool, std::string>>> _input_data;
-        std::vector<std::pair<std::string, std::variant<int, float, bool, std::string>>> _output_data;
+        std::vector<std::pair<std::string, std::variant<int, double, bool, std::string>>> _input_data;
+        std::vector<std::pair<std::string, std::variant<int, double, bool, std::string>>> _output_data;
         source_loc _loc;
-        std::string _convert_to_json(std::vector<std::pair<std::string, std::variant<int, float, bool, std::string>>> const &data);
+        std::string _convert_to_json(std::vector<std::pair<std::string, std::variant<int, double, bool, std::string>>> const &data);
     };
 
     void setPreLogText(const std::string& r_pretext);
