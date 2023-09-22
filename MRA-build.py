@@ -42,7 +42,7 @@ class BazelBuilder():
         self.verbose = verbose
         self.debug = debug
         self.dryrun = dryrun
-    def run(self, clean: bool = False, test: bool = False, tracing: bool = False, scope: str = DEFAULT_SCOPE, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
+    def run(self, clean: bool = False, test: bool = False, tracing: bool = False, extra_args: list = [], scope: str = DEFAULT_SCOPE, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
         """
         Perform the work:
         1. clean (optional)
@@ -51,26 +51,26 @@ class BazelBuilder():
         """
         if clean:
             self.run_clean()
-        self.run_build(scope, tracing, jobs)
+        self.run_build(scope, tracing, extra_args, jobs)
         if test or tracing:
-            self.run_test(scope, tracing)
+            self.run_test(scope, tracing, extra_args)
     def run_clean(self) -> None:
         self.run_cmd('bazel clean --color=yes')
-    def run_build(self, scope: list, tracing: bool = False, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
-        cmd_parts = ['bazel', 'build', '--jobs', str(jobs)] + ENV_OPTIONS
+    def run_build(self, scope: list, tracing: bool = False, extra_args: list = [], jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
+        cmd_parts = ['bazel', 'build', '--jobs', str(jobs)] + extra_args + ENV_OPTIONS
         if self.debug:
             cmd_parts += DEBUG_OPTIONS
         if tracing:
             cmd_parts += TRACING_OPTIONS
         for s in scope:
             self.run_cmd(' '.join(cmd_parts + ['--color=yes', f'//{s}']))
-    def run_test(self, scope: list, tracing: bool = False) -> None:
+    def run_test(self, scope: list, tracing: bool = False, extra_args: list = []) -> None:
         for s in scope:
             # wipe /tmp/testsuite_mra_logging, used via MRA_LOGGER_CONTEXT action_env, for post-testsuite inspection
             # (note how unittest test_mra_logger uses a different environment)
             cmd = 'rm -rf /tmp/testsuite_mra_logging'
             self.run_cmd(cmd)
-            test_options = TEST_OPTIONS + ENV_OPTIONS
+            test_options = extra_args + TEST_OPTIONS + ENV_OPTIONS
             if tracing:
                 test_options += TRACING_OPTIONS
             cmd = f'bazel test //{s} ' + ' '.join(test_options)
@@ -128,7 +128,7 @@ def main(**kwargs) -> None:
     os.chdir(MRA_ROOT)
     b = BazelBuilder(verbose = not kwargs.get('quiet'), debug = kwargs.get('debug'), dryrun = kwargs.get('dryrun'))
     scope = resolve_scope(kwargs.get('scope'))
-    b.run(clean = kwargs.get('clean'), test = kwargs.get('test'), scope = scope, jobs = kwargs.get('jobs'), tracing = kwargs.get('tracing'))
+    b.run(clean = kwargs.get('clean'), test = kwargs.get('test'), scope = scope, jobs = kwargs.get('jobs'), tracing = kwargs.get('tracing'), extra_args = kwargs.get('extra_args'))
 
 
 def parse_args(args: list) -> argparse.Namespace:
@@ -146,6 +146,7 @@ def parse_args(args: list) -> argparse.Namespace:
     parser.add_argument('-d', '--debug', help='enable some debug flags', action='store_true')
     parser.add_argument('-j', '--jobs', help='number of parallel build jobs (threads) to run', type=int, default=DEFAULT_NUM_PARALLEL_JOBS)
     parser.add_argument('-q', '--quiet', help='suppress output on what is happening', action='store_true')
+    parser.add_argument('extra_args', help='extra arguments, passed to bazel', nargs='*')
     return parser.parse_args(args)
 
 
