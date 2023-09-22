@@ -29,9 +29,9 @@ import argparse
 
 MRA_ROOT = pathlib.Path(__file__).parent.resolve()
 DEBUG_OPTIONS = ['--subcommands', '--verbose_failures', '--sandbox_debug']
-ENV_OPTIONS = ['--action_env=MRA_LOGGER_CONTEXT=testsuite']
+ENV_OPTIONS = ['--test_env=MRA_LOGGER_CONTEXT=testsuite']
 TEST_OPTIONS = ['--test_output', 'all', '--nocache_test_results']
-TRACING_OPTIONS = ['--action_env=MRA_LOG_LEVEL=TRACE', '--action_env=MRA_LOGGER_KEEP_TESTSUITE_TRACING=1']
+TRACING_OPTIONS = ['--test_env=MRA_LOG_LEVEL=TRACE', '--test_env=MRA_LOGGER_KEEP_TESTSUITE_TRACING=1']
 BAZEL_ALL = '...' # see bazel syntax / cheatsheet
 DEFAULT_SCOPE = BAZEL_ALL
 DEFAULT_NUM_PARALLEL_JOBS = 4 # TODO guess? building is nowadays quite memory-intensive ... easy to lock/swap
@@ -52,8 +52,6 @@ class BazelBuilder():
         if clean:
             self.run_clean()
         self.run_build(scope, tracing, jobs)
-        # TODO: using tracing env variable currently may interfere with bazel caching ... it should not.
-        # see also: https://stackoverflow.com/questions/70672852/dont-discard-analysis-cache-when-action-env-changes
         if test or tracing:
             self.run_test(scope, tracing)
     def run_clean(self) -> None:
