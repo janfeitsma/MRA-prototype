@@ -1,6 +1,7 @@
 #include "backend.hpp"
 #include "control.hpp"
 #include "json_convert.hpp"
+#include "spdlogformatter.hpp" // our customizations
 #include <memory>
 #include "spdlog/spdlog.h"  // spdlog API: https://github.com/gabime/spdlog
 #include "spdlog/async.h"
@@ -210,7 +211,7 @@ void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
 
     auto log_level_mra = (MRA::Logging::LogLevel)(int)cfg.level();
     auto log_level_spd = convert_log_level(log_level_mra);
-    spdlog::set_pattern(cfg.pattern().c_str());
+    spdlog::set_formatter(make_formatter(cfg.pattern()));
     spdlog::set_level(log_level_spd);
 
     // Logger construction only happens once per process.
