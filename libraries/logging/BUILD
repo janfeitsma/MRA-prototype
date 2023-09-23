@@ -8,6 +8,7 @@ cc_library(
         "logtick.hpp",
         "macros.hpp",
         "macromap.h",
+        "spdlogformatter.hpp",
         "levels.hpp",
         "control.hpp",
     ],
