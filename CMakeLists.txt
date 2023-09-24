@@ -77,7 +77,8 @@ file(TOUCH ${MRA_BINARY_DIR}/dummy.cpp)
 ##########################################################
 # subdirectories
 ##########################################################
-#TODO add_subdirectory(datatypes)
+#TODO use datatypes/CMakeLists.txt: 
+# add_subdirectory(datatypes)
 add_subdirectory(base)
 add_subdirectory(components)
 add_subdirectory(libraries)
@@ -87,6 +88,14 @@ add_subdirectory(libraries)
 ##########################################################
 # create libraries with input from subdirectories
 ##########################################################
+# TODO use datatypes/CMakeLists.txt
+#add_library(MRA-datatypes ${MRA_BINARY_DIR}/dummy.cpp)
+#target_link_libraries(MRA-datatypes 
+#   				   MRA-libraries-dir)
+#target_link_directories(MRA-datatypes PUBLIC 
+#	${MRA_BINARY_DIR}/datatypes
+#)
+
 add_library(MRA-components ${MRA_BINARY_DIR}/dummy.cpp)
 target_link_libraries(MRA-components 
    				   MRA-components-dir)
