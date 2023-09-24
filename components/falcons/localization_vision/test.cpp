@@ -89,7 +89,8 @@ TEST(FalconsLocalizationVisionTest, calc000)
     // Arrange
     auto m = FalconsLocalizationVision::FalconsLocalizationVision();
     auto params = m.defaultParams();
-    FalconsLocalizationVision::Solver solver;    
+    FalconsLocalizationVision::Solver solver;
+    solver.configure(params);
     cv::Mat referenceFloor = solver.createReferenceFloorMat();
     std::vector<cv::Point2f> rcsLinePoints;
     rcsLinePoints.push_back(cv::Point2f(0.0, 0.0));

@@ -1,18 +1,22 @@
 #include "floor.hpp"
 #include "geometry.hpp" // from MRA library geometry
+#include "logging.hpp" // from MRA library logging
 
 using namespace MRA::FalconsLocalizationVision;
 
 Floor::Floor()
 {
+    MRA_TRACE_FUNCTION();
 }
 
 Floor::~Floor()
 {
+    MRA_TRACE_FUNCTION();
 }
 
 void Floor::configure(Params const &config)
 {
+    MRA_TRACE_FUNCTION_INPUTS(config);
     settings.CopyFrom(config);
     _ppm = settings.solver().pixelspermeter();
     // determine floor size
@@ -24,15 +28,21 @@ void Floor::configure(Params const &config)
     // number of pixels (rotated)
     _numPixelsY = int(_sizeY * _ppm);
     _numPixelsX = int(_sizeX * _ppm);
+    MRA_TRACE_FUNCTION_OUTPUTS(_numPixelsX, _numPixelsY);
 }
 
 cv::Mat Floor::createMat() const
 {
+    MRA_TRACE_FUNCTION_INPUTS(_numPixelsX, _numPixelsY);
+    if (_numPixelsX * _numPixelsY == 0) {
+        throw std::runtime_error("Floor::createMat: invalid shape (" + std::to_string(_numPixelsX) + "," + std::to_string(_numPixelsY) + ")");
+    }
     return cv::Mat::zeros(_numPixelsX, _numPixelsY, CV_8UC1);
 }
 
 void Floor::letterModelToShapes(StandardLetterModel const &model, std::vector<MRA::Datatypes::Shape> &shapes) const
 {
+    MRA_TRACE_FUNCTION_INPUTS(model);
     // some elements can be omitted from the letter model, but not the main dimensions (A,B) and linewidth K
 
     // usability: any existing custom shapes without specified linewidth get configured model.K value
@@ -120,6 +130,8 @@ void Floor::letterModelToShapes(StandardLetterModel const &model, std::vector<MR
             shapes.push_back(s);
         }
     }
+    int numShapes = shapes.size();
+    MRA_TRACE_FUNCTION_OUTPUT(numShapes);
 }
 
 cv::Point Floor::pointFcsToPixel(MRA::Datatypes::Point const &p) const
@@ -132,6 +144,7 @@ cv::Mat Floor::applyBlur(const cv::Mat &image, float blurFactor) const
 {
     int nx = image.cols;
     int ny = image.rows;
+    MRA_TRACE_FUNCTION_INPUTS(nx, ny, blurFactor);
     cv::Mat imageOut = image.clone(); // Create a copy of the input image
     for (int x = 0; x < nx; x++)
     {
@@ -148,6 +161,7 @@ cv::Mat Floor::applyBlur(const cv::Mat &image, float blurFactor) const
 
 void Floor::recursiveBlur(cv::Mat &image, int x, int y, float blurFactor, uchar newPixelValue, int depth) const
 {
+    // NO TRACING, this recursive function is too heavy
     int nx = image.cols;
     int ny = image.rows;
 
@@ -177,6 +191,8 @@ void Floor::recursiveBlur(cv::Mat &image, int x, int y, float blurFactor, uchar 
 
 void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, float blurFactor, cv::Mat &m) const
 {
+    int numShapes = shapes.size();
+    MRA_TRACE_FUNCTION_INPUTS(numShapes, blurFactor);
     cv::Scalar color(255, 255, 255); // white
     for (auto const &s: shapes)
     {
@@ -226,6 +242,8 @@ void Floor::shapesToCvMat(std::vector<MRA::Datatypes::Shape> const &shapes, floa
 
 void Floor::linePointsToCvMat(std::vector<cv::Point2f> const &linePoints, cv::Mat &m, float overruleRadius) const
 {
+    int numLinePoints = linePoints.size();
+    MRA_TRACE_FUNCTION_INPUTS(numLinePoints, overruleRadius);
     // for every linepoint, create a circle
     std::vector<MRA::Datatypes::Shape> shapes;
     MRA::Datatypes::Shape s;
@@ -256,6 +274,7 @@ void Floor::linePointsToCvMat(std::vector<cv::Point2f> const &linePoints, cv::Ma
 
 void Floor::addGridLines(cv::Mat &m, float step, cv::Scalar color) const
 {
+    MRA_TRACE_FUNCTION_INPUTS(step);
     int nx = ceil(_sizeX / step);
     int ny = ceil(_sizeY / step);
     float ox = nx * step;

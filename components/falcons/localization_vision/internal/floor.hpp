@@ -28,12 +28,12 @@ public:
 private:
     Params settings;
     float _ppm = 1;
-    float _sizeX;
-    float _sizeY;
-    float _originX;
-    float _originY;
-    int _numPixelsX;
-    int _numPixelsY;
+    float _sizeX = 0.0;
+    float _sizeY = 0.0;
+    float _originX = 0.0;
+    float _originY = 0.0;
+    int _numPixelsX = 0;
+    int _numPixelsY = 0;
 
     // blur helpers
     cv::Mat applyBlur(const cv::Mat &image, float blurFactor) const;

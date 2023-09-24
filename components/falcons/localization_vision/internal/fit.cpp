@@ -139,7 +139,7 @@ double FitFunction::calc(const double *v) const
             s = static_cast<float>(_referenceFloor.at<uchar>(pixelY, pixelX)) / 255.0;
             score += s; // max 1.0 per pixel
         }
-        //printf("calc %3d   ix=%8.3f  iy=%8.3f  tx=%8.3f  ty=%8.3f  px=%4d py=%4d  s=%6.2f\n", (int)i, _rcsLinePoints[i].x, _rcsLinePoints[i].y, transformed[i].x, transformed[i].y, (int)(pixelX), (int)(pixelY), s);
+        MRA_LOG_DEBUG("calc %3d   ix=%8.3f  iy=%8.3f  tx=%8.3f  ty=%8.3f  px=%4d py=%4d  s=%6.2f\n", (int)i, _rcsLinePoints[i].x, _rcsLinePoints[i].y, transformed[i].x, transformed[i].y, (int)(pixelX), (int)(pixelY), s);
     }
     // final normalization to 0..1 where 0 is good (minimization)
     double result = 1.0 - score / _rcsLinePointsPixelCount;
