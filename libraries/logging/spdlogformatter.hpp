@@ -3,6 +3,8 @@
 
 
 #include "spdlog/pattern_formatter.h"
+#include "logdebug.hpp"
+
 
 class ComponentNameFlagFormatter : public spdlog::custom_flag_formatter
 {
@@ -21,6 +23,7 @@ public:
 
 std::unique_ptr<::spdlog::pattern_formatter> make_formatter(std::string const& pattern)
 {
+    LOGDEBUG("make_formatter %s", pattern.c_str());
     auto formatter = std::make_unique<spdlog::pattern_formatter>();
     formatter->add_flag<ComponentNameFlagFormatter>('k');
     formatter->set_pattern(pattern);

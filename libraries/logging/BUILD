@@ -9,6 +9,7 @@ cc_library(
         "macros.hpp",
         "macromap.h",
         "spdlogformatter.hpp",
+        "logdebug.hpp",
         "levels.hpp",
         "control.hpp",
     ],
