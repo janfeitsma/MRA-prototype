@@ -224,7 +224,6 @@ void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
     }
 
     // Configure logger
-    m_spdlog_logger->set_pattern(cfg.pattern());
     m_spdlog_logger->set_level(log_level_spd);
     if (cfg.hotflush()) {
         m_spdlog_logger->flush_on(log_level_spd);
@@ -252,6 +251,7 @@ void MraLogger::log(source_loc loc, MRA::Logging::LogLevel loglevel, const char 
     spdlog::source_loc loc_spd{loc.filename, loc.line, loc.funcname};
     if (m_active) {
         LOGDEBUG("log[%s] %s(%d):%s()", spdlog::level::to_string_view(convert_log_level(loglevel)).data(), loc.filename, loc.line, loc.funcname);
+        MRA::Logging::setComponentName(loc.componentname); // for %k custom formatter
         const int MAXTEXT = 4096; // TODO use configuration
         char buffer[MAXTEXT];
         buffer[MAXTEXT-1] = '\0';
