@@ -15,7 +15,7 @@ namespace MRA::Logging::backend
 {
 
 // tick logging: get binary file if configured, or NULL pointer
-std::ofstream *logTickBinFile(
+std::pair<std::ofstream *, std::string> logTickBinFile(
     MRA::Datatypes::LogSpec const &cfg,
     std::string const &componentName,
     int counter)
@@ -29,13 +29,13 @@ std::ofstream *logTickBinFile(
         std::string filename = binfolder + "/" + "tick_" + componentName + "_" + std::to_string(counter) + ".bin";
         if (std::filesystem::exists(filename)) {
             // TODO: with nested components, this can happen, may need some context/folder?
-            return NULL; // hack it for now
+            return std::make_pair<std::ofstream *, std::string>(NULL, ""); // hack it for now
             throw std::runtime_error("file already exists: " + filename);
         }
         LOGDEBUG("dumping binary data to %s", filename.c_str());
-        return new std::ofstream(filename);
+        return std::make_pair(new std::ofstream(filename), filename);
     }
-    return NULL;
+    return std::make_pair<std::ofstream *, std::string>(NULL, "");
 }
 
 // dump protobuf data to binary file
@@ -59,6 +59,7 @@ void logTickStart(
     std::string const &fileName,
     int lineNumber,
     MRA::Datatypes::LogSpec const &cfg,
+    std::string const &binfileName,
     std::ofstream *binfile,
     int counter,
     google::protobuf::Timestamp const &timestamp,
@@ -86,6 +87,7 @@ void logTickStart(
         // tick .bin dump
         if (cfg.dumpticks() && (binfile != NULL))
         {
+            logger->log(loc, MRA::Logging::DEBUG, "dumping binary data to %s", binfileName.c_str());
             dumpToFile(input, binfile);
             dumpToFile(params, binfile);
             dumpToFile(state, binfile);

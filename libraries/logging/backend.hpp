@@ -16,7 +16,7 @@ namespace MRA::Logging::backend
 {
 
 // tick logging: get binary file if configured, or NULL pointer
-std::ofstream *logTickBinFile(
+std::pair<std::ofstream *, std::string> logTickBinFile(
     MRA::Datatypes::LogSpec const &cfg,
     std::string const &componentName,
     int counter);
@@ -27,6 +27,7 @@ void logTickStart(
     std::string const &fileName,
     int lineNumber,
     MRA::Datatypes::LogSpec const &cfg,
+    std::string const &binfileName,
     std::ofstream *binfile,
     int counter,
     google::protobuf::Timestamp const &timestamp,
