@@ -10,16 +10,11 @@ Examples:
   $ ./MRA-build.py
 * display the commands to run a full build and test
   $ ./MRA-build.py -n -t
-     bazel build --jobs 4 --test_env=MRA_LOGGER_CONTEXT=testsuite --color=yes //...
-     rm -rf /tmp/testsuite_mra_logging
-     bazel test //... --test_output all --nocache_test_results --test_env=MRA_LOGGER_CONTEXT=testsuite
+     bazel build --color=yes //...
+     bazel test //... --test_output all --nocache_test_results
 * commands to build only one component
   $ ./MRA-build.py -n -s alive
-     bazel build --jobs 4 --test_env=MRA_LOGGER_CONTEXT=testsuite --color=yes //components/robotsports/proof_is_alive/...
-* test a single test case with tracing enabled (while using a handy alias)
-     w=`pwd`
-     alias b='$w/MRA-codegen.py && $w/MRA-build.py -t'
-     b -T -s vision -- --test_arg=--gtest_filter=FalconsLocalizationVisionTest.basicTick
+     bazel build --color=yes //robotsports/proof_is_alive
 '''
 
 # python modules
@@ -36,7 +31,8 @@ MRA_ROOT = pathlib.Path(__file__).parent.resolve()
 DEBUG_OPTIONS = ['--subcommands', '--verbose_failures', '--sandbox_debug']
 ENV_OPTIONS = ['--test_env=MRA_LOGGER_CONTEXT=testsuite']
 TEST_OPTIONS = ['--test_output', 'all', '--nocache_test_results']
-TRACING_OPTIONS = ['--test_env=MRA_LOG_LEVEL=TRACE', '--test_env=MRA_LOGGER_KEEP_TESTSUITE_TRACING=1']
+TRACING_OPTIONS = ['--test_env=MRA_LOGGER_KEEP_TESTSUITE_TRACING=1']
+TESTSUITE_SHM_FILE = '/dev/shm/testsuite_mra_logging_shared_memory'
 BAZEL_ALL = '...' # see bazel syntax / cheatsheet
 DEFAULT_SCOPE = BAZEL_ALL
 DEFAULT_NUM_PARALLEL_JOBS = 4 # TODO guess? building is nowadays quite memory-intensive ... easy to lock/swap
@@ -47,7 +43,7 @@ class BazelBuilder():
         self.verbose = verbose
         self.debug = debug
         self.dryrun = dryrun
-    def run(self, clean: bool = False, test: bool = False, tracing: bool = False, extra_args: list = [], scope: str = DEFAULT_SCOPE, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
+    def run(self, clean: bool = False, test: bool = False, tracing: bool = False, scope: str = DEFAULT_SCOPE, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
         """
         Perform the work:
         1. clean (optional)
@@ -56,26 +52,34 @@ class BazelBuilder():
         """
         if clean:
             self.run_clean()
-        self.run_build(scope, tracing, extra_args, jobs)
+        self.run_build(scope, tracing, jobs)
         if test or tracing:
-            self.run_test(scope, tracing, extra_args)
+            self.run_test(scope, tracing)
     def run_clean(self) -> None:
         self.run_cmd('bazel clean --color=yes')
-    def run_build(self, scope: list, tracing: bool = False, extra_args: list = [], jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
-        cmd_parts = ['bazel', 'build', '--jobs', str(jobs)] + extra_args + ENV_OPTIONS
+    def run_build(self, scope: list, tracing: bool = False, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
+        cmd_parts = ['bazel', 'build', '--jobs', str(jobs)] + ENV_OPTIONS
         if self.debug:
             cmd_parts += DEBUG_OPTIONS
         if tracing:
             cmd_parts += TRACING_OPTIONS
         for s in scope:
             self.run_cmd(' '.join(cmd_parts + ['--color=yes', f'//{s}']))
-    def run_test(self, scope: list, tracing: bool = False, extra_args: list = []) -> None:
-        for s in scope:
-            # wipe /tmp/testsuite_mra_logging, used via MRA_LOGGER_CONTEXT action_env, for post-testsuite inspection
-            # (note how unittest test_mra_logger uses a different environment)
-            cmd = 'rm -rf /tmp/testsuite_mra_logging'
+    def run_test(self, scope: list, tracing: bool = False) -> None:
+        # wipe /tmp/testsuite_mra_logging, used via MRA_LOGGER_CONTEXT action_env, for post-testsuite inspection
+        # (note how unittest test_mra_logger uses a different environment)
+        cmd = 'rm -rf /tmp/testsuite_mra_logging'
+        self.run_cmd(cmd)
+        # also wipe configuration
+        cmd = 'rm -rf ' + TESTSUITE_SHM_FILE
+        self.run_cmd(cmd)
+        # set test configuration (maybe we need some scripting for this ... ?)
+        if tracing:
+            cmd = 'echo \'{"folder":"/tmp/testsuite_mra_logging","filename":"\u003cmaincomponent\u003e_\u003cpid\u003e.log","general":{"component":"MRA","level":"TRACE","enabled":true,"dumpTicks":true,"maxLineSize":1000,"maxFileSizeMB":10,"pattern":"[%Y-%m-%dT%H:%M:%S.%f] [%P/%t/%k] [%^%l%$] [%s:%#,%!] %v"}}\' > ' + TESTSUITE_SHM_FILE
             self.run_cmd(cmd)
-            test_options = extra_args + TEST_OPTIONS + ENV_OPTIONS
+        # iterate over scope
+        for s in scope:
+            test_options = TEST_OPTIONS + ENV_OPTIONS
             if tracing:
                 test_options += TRACING_OPTIONS
             cmd = f'bazel test //{s} ' + ' '.join(test_options)
@@ -133,7 +137,7 @@ def main(**kwargs) -> None:
     os.chdir(MRA_ROOT)
     b = BazelBuilder(verbose = not kwargs.get('quiet'), debug = kwargs.get('debug'), dryrun = kwargs.get('dryrun'))
     scope = resolve_scope(kwargs.get('scope'))
-    b.run(clean = kwargs.get('clean'), test = kwargs.get('test'), scope = scope, jobs = kwargs.get('jobs'), tracing = kwargs.get('tracing'), extra_args = kwargs.get('extra_args'))
+    b.run(clean = kwargs.get('clean'), test = kwargs.get('test'), scope = scope, jobs = kwargs.get('jobs'), tracing = kwargs.get('tracing'))
 
 
 def parse_args(args: list) -> argparse.Namespace:
@@ -151,7 +155,6 @@ def parse_args(args: list) -> argparse.Namespace:
     parser.add_argument('-d', '--debug', help='enable some debug flags', action='store_true')
     parser.add_argument('-j', '--jobs', help='number of parallel build jobs (threads) to run', type=int, default=DEFAULT_NUM_PARALLEL_JOBS)
     parser.add_argument('-q', '--quiet', help='suppress output on what is happening', action='store_true')
-    parser.add_argument('extra_args', help='extra arguments, passed to bazel', nargs='*')
     return parser.parse_args(args)
 
 

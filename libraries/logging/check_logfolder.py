@@ -115,6 +115,8 @@ def get_folder_contents(folder_path, load_all=False):
     result = {}
     for root, _, files in os.walk(folder_path):
         for file in files:
+            if not file.endswith('.log'):
+                continue
             file_path = os.path.join(root, file)
             if load_all:
                 with open(file_path) as fh:
