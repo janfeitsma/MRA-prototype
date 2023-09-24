@@ -20,7 +20,37 @@ std::ofstream *logTickBinFile(
     std::string const &componentName,
     int counter)
 {
+    if (cfg.enabled() && cfg.dumpticks())
+    {
+        std::string binfolder = MRA::Logging::control::getLogFolder() + "/tickbins";
+        if (!std::filesystem::exists(binfolder)) {
+            std::filesystem::create_directory(binfolder);
+        }
+        std::string filename = binfolder + "/" + "tick_" + componentName + "_" + std::to_string(counter) + ".bin";
+        if (std::filesystem::exists(filename)) {
+            // TODO: with nested components, this can happen, may need some context/folder?
+            return NULL; // hack it for now
+            throw std::runtime_error("file already exists: " + filename);
+        }
+        LOGDEBUG("dumping binary data to %s", filename.c_str());
+        return new std::ofstream(filename);
+    }
     return NULL;
+}
+
+// dump protobuf data to binary file
+template <typename T>
+void dumpToFile(T const &pbObject, std::ofstream *fp)
+{
+    if (!fp || !fp->is_open()) return;
+    // serialize the protobuf object to a string
+    std::ostringstream oss;
+    pbObject.SerializeToOstream(&oss);
+    std::string serializedData = oss.str();
+    // write the byte count followed by the serialized object
+    int byteCount = static_cast<int>(serializedData.size());
+    fp->write(reinterpret_cast<const char*>(&byteCount), sizeof(int));
+    fp->write(serializedData.c_str(), byteCount);
 }
 
 // tick logging: write logging/data at start of tick
@@ -53,7 +83,13 @@ void logTickStart(
         std::string traceStr = infoStr + ",\"state_in\":" + stateStr;
         logger->log(loc, MRA::Logging::TRACE, "> {%s}", traceStr.c_str());
         logger->log(loc, MRA::Logging::INFO, "start {%s}", infoStr.c_str());
-        // TODO tick bindump, if configured
+        // tick .bin dump
+        if (cfg.dumpticks() && (binfile != NULL))
+        {
+            dumpToFile(input, binfile);
+            dumpToFile(params, binfile);
+            dumpToFile(state, binfile);
+        }
     }
 }
 
@@ -87,14 +123,21 @@ void logTickEnd(
         std::string traceStr = infoStr + ",\"state_out\":" + stateStr;
         logger->log(loc, MRA::Logging::INFO, "end {%s}", infoStr.c_str());
         logger->log(loc, MRA::Logging::TRACE, "< {%s}", traceStr.c_str());
-        // TODO tick bindump, if configured
+        // tick .bin dump
+        if (cfg.dumpticks() && (binfile != NULL))
+        {
+            dumpToFile(output, binfile);
+            dumpToFile(diag, binfile);
+            dumpToFile(state, binfile);
+            binfile->close();
+            delete binfile;
+        }
     }
 }
 
 // configuration management
 void reconfigure(MRA::Datatypes::LogSpec const &cfg)
 {
-    // TODO: this might not yet support multiple components in the same process
     // keep current configuration in memory
     static MRA::Datatypes::LogSpec currentCfg;
     // only reconfigure upon change
