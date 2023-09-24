@@ -4,6 +4,7 @@
 
 #include "spdlog/pattern_formatter.h"
 #include "logdebug.hpp"
+#include "context.hpp"
 
 
 class ComponentNameFlagFormatter : public spdlog::custom_flag_formatter
@@ -11,7 +12,7 @@ class ComponentNameFlagFormatter : public spdlog::custom_flag_formatter
 public:
     void format(const spdlog::details::log_msg &, const std::tm &, spdlog::memory_buf_t &dest) override
     {
-        std::string txt = "TODO_COMPONENTNAME";
+        std::string txt = MRA::Logging::getComponentName();
         dest.append(txt.data(), txt.data() + txt.size());
     }
 
