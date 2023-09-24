@@ -123,6 +123,7 @@ TEST(RobotsportsGetballFetchTest, matchKickoff)
 
 int main(int argc, char **argv)
 {
+	setenv("MRA_LOGGER_CONTEXT", "unittest", 1);
     InitGoogleTest(&argc, argv);
     int r = RUN_ALL_TESTS();
     return r;

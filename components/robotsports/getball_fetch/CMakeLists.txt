@@ -43,6 +43,6 @@ target_link_libraries(
 
 
 gtest_discover_tests(
-	robotsports_getball_fetch_test
+	robotsports_getball_fetch_test   WORKING_DIRECTORY ${MRA_SOURCE_DIR}
 )
 

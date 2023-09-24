@@ -43,6 +43,6 @@ target_link_libraries(
 
 
 gtest_discover_tests(
-	falcons_getball_intercept_test
+	falcons_getball_intercept_test   WORKING_DIRECTORY ${MRA_SOURCE_DIR}
 )
 
