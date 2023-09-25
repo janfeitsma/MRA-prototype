@@ -7,7 +7,6 @@ add_library(MRA-libraries-logging
     control.cpp
 )
 
-message("MRA_BINARY_DIR = ${MRA_BINARY_DIR}")
 target_include_directories(MRA-libraries-logging PUBLIC 
 		${MRA_BINARY_DIR}
 		${CMAKE_SOURCE_DIR}/base
