@@ -11,7 +11,13 @@ set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror -Wno-address -Wno-reorder")
  # to prevent compiler errors added the not preferred flags: -Wno-address -Wno-reorder
 
 # dependency: ProtoBuf
+# check if ProtoBuf is installed
+# install on Ubuntu: sudo apt-get install protobuf-compiler
 find_package(Protobuf REQUIRED)
+if(NOT PROTOBUF_FOUND)
+message(FATAL_ERROR, "Protobuf could not be find. Install protobuf (e.g. sudo apt-get install protobuf-compiler)")
+endif(NOT PROTOBUF_FOUND)
+
 find_library(PROTOBUF_LIBRARY protobuf)
 
 # check if spdlog is installed
