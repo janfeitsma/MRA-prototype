@@ -43,6 +43,8 @@ target_link_libraries(
 
 
 gtest_discover_tests(
-	robotsports_proof_is_alive_test   WORKING_DIRECTORY ${MRA_SOURCE_DIR}
+	robotsports_proof_is_alive_test
+	WORKING_DIRECTORY ${MRA_SOURCE_DIR}
+	PROPERTIES ENVIRONMENT "MRA_LOGGER_CONTEXT=unittest"
 )
 

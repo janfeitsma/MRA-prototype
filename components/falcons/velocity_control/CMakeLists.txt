@@ -57,6 +57,8 @@ target_link_libraries(
 
 
 gtest_discover_tests(
-	falcons_velocity_control_test WORKING_DIRECTORY ${MRA_SOURCE_DIR} 
+	falcons_velocity_control_test
+	WORKING_DIRECTORY ${MRA_SOURCE_DIR}
+	PROPERTIES ENVIRONMENT "MRA_LOGGER_CONTEXT=unittest"
 )
 

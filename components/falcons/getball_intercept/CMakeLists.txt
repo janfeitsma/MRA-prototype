@@ -43,6 +43,8 @@ target_link_libraries(
 
 
 gtest_discover_tests(
-	falcons_getball_intercept_test   WORKING_DIRECTORY ${MRA_SOURCE_DIR}
+	falcons_getball_intercept_test
+	WORKING_DIRECTORY ${MRA_SOURCE_DIR}
+	PROPERTIES ENVIRONMENT "MRA_LOGGER_CONTEXT=unittest"
 )
 
