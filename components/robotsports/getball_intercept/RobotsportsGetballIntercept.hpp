@@ -10,7 +10,7 @@
 #include "logging.hpp"
 
 // generated protobuf types from interface of this component
-#include "datatypes.hpp"
+#include "RobotsportsGetballIntercept_datatypes.hpp"
 
 
 // used in tracing
