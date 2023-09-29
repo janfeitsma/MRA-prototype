@@ -196,9 +196,10 @@ def parse_args(args: list) -> argparse.Namespace:
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
         pass
     parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=CustomFormatter)
-    parser.add_argument('-s', '--scope', help='build scope, comma-separated lists of (brief) component names', type=str, default=DEFAULT_SCOPE)
+    parser.add_argument('-s', '--scope', help='bazel build scope, comma-separated lists of (brief) component names', type=str, default=DEFAULT_SCOPE)
+    # TODO: scope should not be exclusively a bazel option, instead also work in combination with --cmake
     parser.add_argument('-c', '--clean', help='start with cleaning', action='store_true')
-    parser.add_argument('--cmake', help='full cmake build and test', action='store_true')
+    parser.add_argument('--cmake', help='use cmake build system instead of bazel', action='store_true')
     parser.add_argument('-t', '--test', help='also run tests', action='store_true')
     parser.add_argument('-T', '--tracing', help='enable/keep tracing during tests', action='store_true')
     parser.add_argument('-n', '--dryrun', help='only print commands', action='store_true')
