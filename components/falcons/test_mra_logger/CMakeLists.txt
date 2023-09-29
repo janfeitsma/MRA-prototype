@@ -24,11 +24,15 @@ protobuf_generate(TARGET MRA-components-falcons-test-mra-logger-proto PROTOS ${M
 
 add_library(MRA-components-falcons-test-mra-logger
     tick.cpp
+    src/demofunctions.cpp
+    src/test_helpers.cpp
 )
 target_include_directories(MRA-components-falcons-test-mra-logger PUBLIC
     ${MRA_SOURCE_DIR}/libraries/logging
     ${CMAKE_SOURCE_DIR}/base
-    ${CMAKE_CURRENT_BINARY_DIR}/interface)
+    ${CMAKE_CURRENT_BINARY_DIR}/interface
+    ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 target_link_libraries(MRA-components-falcons-test-mra-logger MRA-libraries MRA-components-falcons-test-mra-logger-proto MRA-base nlohmann_json::nlohmann_json)
 
 

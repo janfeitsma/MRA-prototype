@@ -26,11 +26,24 @@ protobuf_generate(TARGET MRA-components-falcons-velocity-control-proto PROTOS ${
 
 add_library(MRA-components-falcons-velocity-control
     tick.cpp
+    internal/src/VelocityControl.cpp
+    internal/src/controllers/LinearVelocitySetpointController.cpp
+    internal/src/controllers/SPGVelocitySetpointController.cpp
+    internal/src/algorithms/CheckPrepareInputs.cpp
+    internal/src/algorithms/CheckStop.cpp
+    internal/src/algorithms/ConfigureLimits.cpp
+    internal/src/algorithms/Deadzone.cpp
+    internal/src/algorithms/SelectVelocityController.cpp
+    internal/src/algorithms/ShiftBallOffset.cpp
+    internal/src/algorithms/CalculateVelocity.cpp
+    internal/src/algorithms/SetOutputsPrepareNext.cpp
 )
 target_include_directories(MRA-components-falcons-velocity-control PUBLIC
     ${MRA_SOURCE_DIR}/libraries/logging
     ${CMAKE_SOURCE_DIR}/base
-    ${CMAKE_CURRENT_BINARY_DIR}/interface)
+    ${CMAKE_CURRENT_BINARY_DIR}/interface
+    ${CMAKE_CURRENT_SOURCE_DIR}/internal/include
+)
 target_link_libraries(MRA-components-falcons-velocity-control MRA-libraries MRA-components-falcons-velocity-control-proto MRA-base nlohmann_json::nlohmann_json)
 
 
