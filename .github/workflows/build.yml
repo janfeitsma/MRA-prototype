@@ -37,9 +37,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y cmake
 
-    - name: Set up library dependencies
+    - name: Set up dependencies
       run: |
-        sudo apt-get install -y protobuf-compiler libspdlog-dev
+        sudo apt-get install -y protobuf-compiler libspdlog-dev libgtest-dev
 
     - name: Create build folder
       run: mkdir build
