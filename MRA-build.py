@@ -115,9 +115,9 @@ class CmakeBuilder():
         if test:
             self.run_test(tracing)
     def run_clean(self) -> None:
-        self.run_cmd('rm -rf build;mkdir build;')
+        self.run_cmd('rm -rf build; mkdir build')
     def run_build(self, tracing: bool = False, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
-        self.run_cmd('cd build; cmake ..;')
+        self.run_cmd('cd build; cmake .. -G "Unix Makefiles"') # TODO: also support ninja?
         self.run_cmd(f'cd build; make -j {jobs}')
     def run_test(self, tracing: bool = False) -> None:
         # wipe /tmp/testsuite_mra_logging, used via MRA_LOGGER_CONTEXT action_env, for post-testsuite inspection
