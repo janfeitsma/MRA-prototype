@@ -37,7 +37,7 @@ DEFAULT_SCOPE = BAZEL_ALL
 DEFAULT_NUM_PARALLEL_JOBS = 4 # TODO guess? building is nowadays quite memory-intensive ... easy to lock/swap
 
 
-class BazelBuilder():
+class Builder():
     def __init__(self, verbose: bool = True, debug: bool = False, dryrun: bool = False):
         self.verbose = verbose
         self.debug = debug
@@ -53,7 +53,43 @@ class BazelBuilder():
             self.run_clean()
         self.run_build(scope, tracing, jobs)
         if test or tracing:
+            self.run_pre_test()
             self.run_test(scope, tracing)
+    def run_clean(self) -> None:
+        raise NotImplementedError('to be implemented by cmake/bazel specific instance')
+    def run_build(self, scope: list, tracing: bool = False, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
+        raise NotImplementedError('to be implemented by cmake/bazel specific instance')
+    def run_test(self, scope: list, tracing: bool = False) -> None:
+        raise NotImplementedError('to be implemented by cmake/bazel specific instance')
+    def run_pre_test(self) -> None:
+        # wipe /tmp/testsuite_mra_logging, used via MRA_LOGGER_CONTEXT action_env, for post-testsuite inspection
+        # (note how unittest test_mra_logger uses a different environment)
+        cmd = 'rm -rf /tmp/testsuite_mra_logging'
+        self.run_cmd(cmd)
+        # also wipe configuration
+        cmd = 'rm -rf /dev/shm/testsuite_mra_logging_shared_memory'
+        self.run_cmd(cmd)
+    def run_cmd(self, cmd: str) -> None:
+        extra_opts = {}
+        if self.dryrun:
+            print(cmd)
+            return
+        if self.verbose:
+            print(f'running command: {cmd}')
+        else:
+            extra_opts = {'capture_output': True}
+        r = subprocess.run(cmd, shell=True, **extra_opts)
+        if r.returncode != 0:
+            if not self.verbose:
+                print('STDOUT:\n{}\n\nSTDERR:\n{}\n'.format(r.stdout.decode(), r.stderr.decode()))
+            print(f'command "{cmd}" failed with returncode {r.returncode}')
+            # no need to raise an Exception with a long uninteresting stacktrace
+            sys.exit(1)
+
+
+class BazelBuilder(Builder):
+    def __init__(self, **kwargs):
+        Builder.__init__(self, **kwargs)
     def run_clean(self) -> None:
         self.run_cmd('bazel clean --color=yes')
     def run_build(self, scope: list, tracing: bool = False, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
@@ -65,13 +101,6 @@ class BazelBuilder():
         for s in scope:
             self.run_cmd(' '.join(cmd_parts + ['--color=yes', f'//{s}']))
     def run_test(self, scope: list, tracing: bool = False) -> None:
-        # wipe /tmp/testsuite_mra_logging, used via MRA_LOGGER_CONTEXT action_env, for post-testsuite inspection
-        # (note how unittest test_mra_logger uses a different environment)
-        cmd = 'rm -rf /tmp/testsuite_mra_logging'
-        self.run_cmd(cmd)
-        # also wipe configuration
-        cmd = 'rm -rf /dev/shm/testsuite_mra_logging_shared_memory'
-        self.run_cmd(cmd)
         # iterate over scope
         for s in scope:
             test_options = TEST_OPTIONS + ENV_OPTIONS
@@ -79,73 +108,21 @@ class BazelBuilder():
                 test_options += TRACING_OPTIONS
             cmd = f'bazel test //{s} ' + ' '.join(test_options)
             self.run_cmd(cmd)
-    def run_cmd(self, cmd: str) -> None:
-        extra_opts = {}
-        if self.dryrun:
-            print(cmd)
-            return
-        if self.verbose:
-            print(f'running command: {cmd}')
-        else:
-            extra_opts = {'capture_output': True}
-        r = subprocess.run(cmd, shell=True, **extra_opts)
-        if r.returncode != 0:
-            if not self.verbose:
-                print('STDOUT:\n{}\n\nSTDERR:\n{}\n'.format(r.stdout.decode(), r.stderr.decode()))
-            print(f'command "{cmd}" failed with returncode {r.returncode}')
-            # no need to raise an Exception with a long uninteresting stacktrace
-            sys.exit(1)
 
 
-class CmakeBuilder():
-    def __init__(self, verbose: bool = True, debug: bool = False, dryrun: bool = False):
-        self.verbose = verbose
-        self.debug = debug
-        self.dryrun = dryrun
-    def run(self, clean: bool = False, test: bool = False, tracing: bool = False, scope: str = DEFAULT_SCOPE, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
-        """
-        Perform the work:
-        1. clean (optional)
-        2. build
-        3. test (optional)
-        """
-        if clean:
-            self.run_clean()
-        self.run_build(tracing, jobs)
-        if test:
-            self.run_test(tracing)
+class CmakeBuilder(Builder):
+    def __init__(self, **kwargs):
+        Builder.__init__(self, **kwargs)
     def run_clean(self) -> None:
         self.run_cmd('rm -rf build; mkdir build')
-    def run_build(self, tracing: bool = False, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
+    def run_build(self, scope: list, tracing: bool = False, jobs: int = DEFAULT_NUM_PARALLEL_JOBS) -> None:
+        # TODO: do something with scope, it currently only works for bazel, so now everyone gets a "full" build
         self.run_cmd('cd build; cmake .. -G "Unix Makefiles"') # TODO: also support ninja?
         self.run_cmd(f'cd build; make -j {jobs}')
-    def run_test(self, tracing: bool = False) -> None:
-        # wipe /tmp/testsuite_mra_logging, used via MRA_LOGGER_CONTEXT action_env, for post-testsuite inspection
-        # (note how unittest test_mra_logger uses a different environment)
-        cmd = 'rm -rf /tmp/testsuite_mra_logging'
-        self.run_cmd(cmd)
-        # also wipe configuration
-        cmd = 'rm -rf /dev/shm/testsuite_mra_logging_shared_memory'
-        self.run_cmd(cmd)
+    def run_test(self, scope: list, tracing: bool = False) -> None:
         cmd = f'cd build; ctest'
         self.run_cmd(cmd)
-    def run_cmd(self, cmd: str) -> None:
-        extra_opts = {}
-        if self.dryrun:
-            print('dry command')
-            print(cmd)
-            return
-        if self.verbose:
-            print(f'running command: {cmd}')
-        else:
-            extra_opts = {'capture_output': True}
-        r = subprocess.run(cmd, shell=True, **extra_opts)
-        if r.returncode != 0:
-            if not self.verbose:
-                print('STDOUT:\n{}\n\nSTDERR:\n{}\n'.format(r.stdout.decode(), r.stderr.decode()))
-            print(f'command "{cmd}" failed with returncode {r.returncode}')
-            # no need to raise an Exception with a long uninteresting stacktrace
-            sys.exit(1)
+
 
 def is_component(d: str) -> bool:
     """Guess if a folder is a component. Allow nesting."""
@@ -196,9 +173,10 @@ def parse_args(args: list) -> argparse.Namespace:
     class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
         pass
     parser = argparse.ArgumentParser(description=descriptionTxt, epilog=exampleTxt, formatter_class=CustomFormatter)
-    parser.add_argument('-s', '--scope', help='build scope, comma-separated lists of (brief) component names', type=str, default=DEFAULT_SCOPE)
+    parser.add_argument('-s', '--scope', help='bazel build scope, comma-separated lists of (brief) component names', type=str, default=DEFAULT_SCOPE)
+    # TODO: scope should not be exclusively a bazel option, instead also work in combination with --cmake
     parser.add_argument('-c', '--clean', help='start with cleaning', action='store_true')
-    parser.add_argument('--cmake', help='full cmake build and test', action='store_true')
+    parser.add_argument('--cmake', help='use cmake build system instead of bazel', action='store_true')
     parser.add_argument('-t', '--test', help='also run tests', action='store_true')
     parser.add_argument('-T', '--tracing', help='enable/keep tracing during tests', action='store_true')
     parser.add_argument('-n', '--dryrun', help='only print commands', action='store_true')
