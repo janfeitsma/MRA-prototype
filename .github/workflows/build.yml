@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build_bazel:
     runs-on: ubuntu-20.04
 
     steps:
@@ -23,6 +23,20 @@ jobs:
     - name: Build and test with Bazel
       run: ./MRA-build.py -t
 
-      # TODO: add also cmake build steps here, or as separate action/yml
-      # TODO: configure a cache
+      # TODO: configure a cache?
+
+  build_cmake:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up CMake
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake
+
+    - name: Build and test with Bazel
+      run: ./MRA-build.py -t --cmake
 
