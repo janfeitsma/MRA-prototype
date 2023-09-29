@@ -31,11 +31,11 @@ The creation of a new component is supported via the tool "MRA-codegen.py" in th
 
 This script creates from templates the files needed for a component.
 To make a new component a developer need to create a new component folder and a subfolder "interface".
-In the subfolder "interface" the interface files must be present.  The files "Input.proto" and "Output.proto"
+In the subfolder "interface" the interface files must be present. The files "Input.proto" and "Output.proto"
 are mandatory (For details see MRA-codegen.py -h).
 
 After the creation of the files, the script generates the files.
-A staring point for adding own code to the component is "tick.cpp"
+A starting point for adding own code to the component is "tick.cpp"
 
 
 # Roadmap

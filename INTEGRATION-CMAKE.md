@@ -11,7 +11,8 @@ The following chapters describe how to make `@MRA` available in your repository'
 The [CMakeLists.txt](#cmakeliststxt) chapter describes how to depend on targets defined by MRA repo.
 
 ## Use only
-no (explicit) git checkout, just download and use the code.
+
+No (explicit) git checkout, just download and use the code.
 
 ## Use & develop via subrepo
 
@@ -19,9 +20,7 @@ Make a checkout at `some-path-to/MRA-prototype` and let CMake build it via `add_
 
 ## Use & develop via standalone repo
 
-refer to a git repository checkout elsewhere on your system.
-
-
+Refer to a git repository checkout elsewhere on your system.
 
 ## Integrate with own code using cmake
 
