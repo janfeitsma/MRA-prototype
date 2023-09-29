@@ -60,7 +60,7 @@ See `trajectory.py -h`.
         final velocity vx           :    0.0086
 
     # rotate, cross the angle wrap-around at pi, show values in a rz-only table
-    $ ./trajectory.py --rz=3.13 --trz=-3.13 --dofs rz table 
+    $ ./trajectory.py --rz=3.13 --trz=-3.13 --dofs rz table
          iter         t    pos.rz    vel.rz
     =======================================
             1    0.0250    3.1309    0.0375

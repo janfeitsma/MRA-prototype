@@ -1,8 +1,4 @@
 # CMake
-
-*Disclaimer: this page and the code is a hacky mess. Expert input and pull requests would be appreciated. 
-Author (Jan) does not want to come back and learn cmake, after having migrated away from cmake to bazel.*
-
 This page tries to describe how to setup MRA for your CMake build system.
 
 For general C++ coding examples using MRA: see [here](INTEGRATION.md#Coding).
@@ -16,13 +12,17 @@ The [CMakeLists.txt](#cmakeliststxt) chapter describes how to depend on targets 
 
 ## Use only
 
-TODO
-
-Something with `FetchContent`??
+No (explicit) git checkout, just download and use the code.
 
 ## Use & develop via subrepo
 
 Make a checkout at `some-path-to/MRA-prototype` and let CMake build it via `add_subdirectory`.
+
+## Use & develop via standalone repo
+
+Refer to a git repository checkout elsewhere on your system.
+
+## Integrate with own code using cmake
 
 Put something like the following into a file like `cmake/MRAConfig.cmake` such that CMake can find all required things.
 
@@ -38,7 +38,7 @@ include_directories(${MRA_DIR}) # for including external component headers
 include_directories(${MRA_DIR}/base) # for including internal headers
 
 set(MRA_BUILD_DIR build/some-path-to/MRA-prototype)
-include_directories(${MRA_BUILD_DIR}) # for generated protobuf headers 
+include_directories(${MRA_BUILD_DIR}) # for generated protobuf headers
 
 # dependency: json
 include(FetchContent)
@@ -49,16 +49,13 @@ include_directories(build/_deps/json-src/include/) # hack, dont know why it erro
 #link_directories(${MRA_BUILD_DIR})
 ```
 
-## Use & develop via standalone repo
 
-TODO
-
-## CMakeLists.txt
-
-To make MRA targets available in CMakeLists.txt, use
+To make MRA targets available in the root CMakeLists.txt, use
 ```
 find_package(MRA)
 ```
 
 Then, you can link against targets like `MRA-components` and `MRA-datatypes`, provided the dependency to MRA has been configured.
+
+
 

@@ -29,7 +29,7 @@ TEST(FalconsGetballInterceptTest, basicTick)
 
 int main(int argc, char **argv)
 {
-    InitGoogleTest(&argc, argv);
+	InitGoogleTest(&argc, argv);
     int r = RUN_ALL_TESTS();
     return r;
 }

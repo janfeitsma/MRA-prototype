@@ -9,7 +9,7 @@ int run(
     auto m = MRA::FalconsTrajectoryGeneration::FalconsTrajectoryGeneration();
 
     int error_value = m.tick(input, params, output);
-    
+
     if (error_value)
     {
         std::cerr << "ERROR: model returned error_value " << error_value << std::endl;

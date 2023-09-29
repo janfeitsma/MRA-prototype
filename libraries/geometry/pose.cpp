@@ -45,7 +45,7 @@ void Pose::reset()
 double Pose::size() const
 {
     return sqrt(x * x + y * y + z * z);
-}    
+}
 
 std::string Pose::xyrz_str() const
 {
