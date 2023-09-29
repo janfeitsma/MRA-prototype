@@ -3,22 +3,34 @@
 '''
 Generate files for all components, so that 'bazel build' can do its job.
 
+
 This script is intended to help MRA developers to create a new component.
 Developers first need to define the name (folder) and interface (.proto files).
 
 Example output for a new component:
     file components/falcons/getball_fetch/interface/BUILD has been copied (and modified) from base/codegen/template_interface.BUILD
     file components/falcons/getball_fetch/BUILD has been copied (and modified) from base/codegen/template_implementation.BUILD
+    file components/falcons/getball_fetch/CMakeLists.txt has been copied (and modified) from base/codegen/template_CMakeLists.txt
     file components/falcons/getball_fetch/FalconsGetballFetch.hpp has been copied (and modified) from base/codegen/template_instance.hpp
     file components/falcons/getball_fetch/tick.cpp has been copied (and modified) from base/codegen/template_tick.cpp
     file components/falcons/getball_fetch/test.cpp has been copied (and modified) from base/codegen/template_test.cpp
 
+
 Example output for a finished component:
     file components/falcons/getball_fetch/interface/BUILD already exists, skipping (content unchanged)
     file components/falcons/getball_fetch/BUILD already exists, skipping (content unchanged)
+    file components/falcons/getball_fetch/CMakeLists.txt already exists, skipping (content unchanged)
     file components/falcons/getball_fetch/FalconsGetballFetch.hpp already exists, skipping (content unchanged)
     file components/falcons/getball_fetch/tick.cpp already exists, skipping (overwrite disabled)
     file components/falcons/getball_fetch/test.cpp already exists, skipping (overwrite disabled)
+
+Notes for new components:
+    For a new component interface/Input.proto and interface/Output.proto are required.
+    The generator performs a check if these files have the correct package name (MRA.<Component-parent><Component>
+    A CMakeLists.txt will be created in the component directory.
+    In the component-parent folder the CMakeLists.txt must be updated to build the new component
+    (an example is <MRA-root>/components/robotsports/CMakeLists.txt)
+
 '''
 
 # python modules
@@ -41,6 +53,11 @@ DEFAULT_VERBOSE_LEVEL = 1
 def component_name_underscore(component: str) -> str:
     """Mangle (relative) component name. Example: falcons/getball_intercept -> FALCONS_GETBALL_INTERCEPT"""
     return component.replace('/', '_').replace('-', '_').upper()
+
+def component_name_dash(component: str) -> str:
+    """Mangle (relative) component name. Example: falcons/getball_intercept -> falcons-getball-intercept"""
+    return component.replace('/', '-').replace('_', '-').lower()
+
 def component_name_camelcase(component: str) -> str:
     """Mangle (relative) component name. Example: falcons/getball_intercept -> FalconsGetballIntercept"""
     return ''.join([s.capitalize() for s in re.split('/|-|_', component)])
@@ -64,6 +81,7 @@ class ComponentGenerator():
         self.verbosity = verbosity
         self.cname_underscore = component_name_underscore(component) # example: FALCONS_GETBALL_INTERCEPT
         self.cname_camelcase = component_name_camelcase(component) # example: FalconsGetballIntercept
+        self.cname_dash = component_name_dash(component) # example: falcons-getball-intercept
         self.template_folder = MRA_ROOT / 'base/codegen'
         self.components_folder = MRA_ROOT / 'components'
         self.component_folder = self.components_folder / self.component
@@ -97,7 +115,7 @@ class ComponentGenerator():
             # TODO: strict checks on correctness & completeness? (allow empty file?)
         # dependencies to other libraries / components w.r.t. MRA_ROOT
         self.component_dependencies = []
-        self.library_dependencies = []
+        self.library_dependencies = ["libraries/logging"]
         self.internal_dependencies = []
         deps_file = os.path.join(self.component_folder, 'dependencies')
         if os.path.isfile(deps_file):
@@ -131,7 +149,7 @@ class ComponentGenerator():
         self.handle_header_datatypes_hpp()
         self.handle_header_hpp()
         self.generate_copy_files_unless_existing()
-        # TODO: cmake generators?
+        self.handle_cmakelists_txt()
         return self.changed
 
     def notify_copy(self, src: str, tgt: str, level: int = 1) -> None:
@@ -251,6 +269,13 @@ class ComponentGenerator():
             result.append(f'"//{dep}",')
         return '\n        '.join(result)
 
+    def make_cmake_deps_interface(self) -> str:
+        """Make a dict to be used when replacing content of template files during code generation."""
+        result = []
+        for dep in self.interface_parts:
+            result.append(f'    interface/{dep}.proto')
+        return '\n'.join(result)
+
     def make_replace_dict(self) -> None:
         """Make a dict to be used when replacing content of template files during code generation."""
         self.replace_dict = {
@@ -264,6 +289,9 @@ class ComponentGenerator():
             'CODEGEN_NOTE': 'this file was produced by MRA-codegen.py from SOURCEFILE',
             'BAZEL_INTERFACE_DEPENDENCIES': self.make_build_deps_interface(),
             'BAZEL_IMPLEMENTATION_DEPENDENCIES': self.make_build_deps_implementation(),
+            'CMAKE_COMPONENT_TEST_NAME': self.cname_underscore.lower()+'_test',
+            'CMAKE_COMPONENT_LIBRARY_NAME': self.cname_dash,
+            'CMAKE_INTERFACE_DEPENDENCIES': self.make_cmake_deps_interface(),
         }
 
     def handle_interface_bazel_build(self) -> None:
@@ -277,6 +305,12 @@ class ComponentGenerator():
         src = self.template_folder / 'template_implementation.BUILD'
         tgt = os.path.join(self.component_folder, 'BUILD')
         self.check_copy_and_modify(src, tgt)
+
+    def handle_cmakelists_txt(self) -> None:
+        """Generate CMakeLists.txt for the ."""
+        src = self.template_folder / 'template_CMakeLists.txt'
+        tgt = os.path.join(self.component_folder, 'CMakeLists.txt')
+        self.check_copy_and_modify(src, tgt, overwrite=False)
 
     def handle_header_hpp(self) -> None:
         """Generate C++ header file, using generated protobuf types and deriving from base class."""

@@ -33,7 +33,7 @@ add_library(MRA-libraries-reflexxes
     RMLTypeII/src/TypeIIRML/TypeIIRMLStep2IntermediateProfiles.cpp
 )
 
-target_include_directories(MRA-libraries-reflexxes PUBLIC 
+target_include_directories(MRA-libraries-reflexxes PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/RMLTypeII/include
-	${MRA_SOURCE_DIR}/libraries/geometry	
+	${MRA_SOURCE_DIR}/libraries/geometry
 )

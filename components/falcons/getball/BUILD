@@ -25,9 +25,9 @@ cc_library(
     deps = [
         "//base:abstract_interface",
         ":datatypes",
-        "//libraries/logging",
         "//components/falcons/getball_fetch:implementation",
         "//components/falcons/getball_intercept:implementation",
+        "//libraries/logging",
     ],
 )
 

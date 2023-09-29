@@ -26,7 +26,7 @@ void ConfigureLimits::execute(VelocityControlData &data)
             + " (number of configured motionprofiles: " + std::to_string(num_motionprofiles) + ")");
     }
 
-    // when robot has the ball, and if input motion profile is default (0), 
+    // when robot has the ball, and if input motion profile is default (0),
     // then automatically choose a set of motion profiles called 'withBall' from the configured non-default motion profiles
     std::string expected_withball_name = "withBall"; // TODO: allow more names? this is a little bit magic.
     if (data.input.worldstate().robot().hasball() && motionprofile == 0)

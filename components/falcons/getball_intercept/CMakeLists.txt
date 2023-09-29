@@ -1,13 +1,14 @@
+# this file was produced by MRA-codegen.py from template_CMakeLists.txt
+# it should NOT be modified by user
+
 ##########################################################
 # component interfaces
 ##########################################################
 
 set(MESSAGE_PROTOS_COMPONENTS
     interface/Input.proto
-    # UNDEFINED: interface/State.proto
     interface/Params.proto
     interface/Output.proto
-    # UNDEFINED: interface/Local.proto    
 )
 
 add_library(MRA-components-falcons-getball-intercept-proto)
@@ -22,27 +23,29 @@ protobuf_generate(TARGET MRA-components-falcons-getball-intercept-proto PROTOS $
 ##########################################################
 
 add_library(MRA-components-falcons-getball-intercept
-	tick.cpp
+    tick.cpp
 )
-target_include_directories(MRA-components-falcons-getball-intercept PUBLIC 
-	${MRA_SOURCE_DIR}/libraries/logging 
-	${CMAKE_SOURCE_DIR}/base
-	${CMAKE_CURRENT_BINARY_DIR}/interface	)
+target_include_directories(MRA-components-falcons-getball-intercept PUBLIC
+    ${MRA_SOURCE_DIR}/libraries/logging
+    ${CMAKE_SOURCE_DIR}/base
+    ${CMAKE_CURRENT_BINARY_DIR}/interface)
 target_link_libraries(MRA-components-falcons-getball-intercept MRA-libraries MRA-components-falcons-getball-intercept-proto MRA-base nlohmann_json::nlohmann_json)
 
 
 add_executable(
-	falcons_getball_intercept_test
-	test.cpp
+    falcons_getball_intercept_test
+    test.cpp
 )
-target_include_directories(falcons_getball_intercept_test PRIVATE ${MRA_SOURCE_DIR}/base ${MRA_SOURCE_DIR}/libraries/logging) 
+target_include_directories(falcons_getball_intercept_test PRIVATE ${MRA_SOURCE_DIR}/base ${MRA_SOURCE_DIR}/libraries/logging)
 target_link_libraries(
-	falcons_getball_intercept_test
-	MRA-components MRA-libraries nlohmann_json::nlohmann_json rt GTest::gtest_main gmock
+    falcons_getball_intercept_test
+    MRA-components MRA-libraries nlohmann_json::nlohmann_json rt GTest::gtest_main gmock
 )
 
 
 gtest_discover_tests(
-	falcons_getball_intercept_test   WORKING_DIRECTORY ${MRA_SOURCE_DIR}
+    falcons_getball_intercept_test
+    WORKING_DIRECTORY ${MRA_SOURCE_DIR}
+    PROPERTIES ENVIRONMENT "MRA_LOGGER_CONTEXT=unittest"
 )
 
