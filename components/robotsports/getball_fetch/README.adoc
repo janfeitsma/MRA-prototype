@@ -13,15 +13,15 @@ This variant is RobotSport variant of getball_fetch.
 
 * **purpose**: get the ball
 * **inputs**: See link:./interface/Input.proto[Input.proto] for the exact definition.
-	** WorldState  
+	** WorldState
 
-* **outputs**:  See link:./interface/Output.proto[Output.proto] for the exact definition.  
+* **outputs**:  See link:./interface/Output.proto[Output.proto] for the exact definition.
 	** robot target set-point (type posvel in FCS) [to PathPlanning]
 	** actionResult [to Reasoning]
 
-* *parameters*:  
-The action has some configuration parameters. These parameters are specific for this variant of get ball fetch, 
-see link:./interface/Params.proto[Params.proto] and 
+* *parameters*:
+The action has some configuration parameters. These parameters are specific for this variant of get ball fetch,
+see link:./interface/Params.proto[Params.proto] and
 link:./interface/DefaultParams.json[DefaultParams.json].
 
 == Design
@@ -32,4 +32,4 @@ The calculated setpoint contains a X, Y and Rz. The Rz setpoint rotates the robo
 == History
 
 Original code from Robotsports. Slightly re-factored for MRA.
- 
+

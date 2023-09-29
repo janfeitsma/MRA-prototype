@@ -115,7 +115,7 @@ class ComponentGenerator():
             # TODO: strict checks on correctness & completeness? (allow empty file?)
         # dependencies to other libraries / components w.r.t. MRA_ROOT
         self.component_dependencies = []
-        self.library_dependencies = []
+        self.library_dependencies = ["libraries/logging"]
         self.internal_dependencies = []
         deps_file = os.path.join(self.component_folder, 'dependencies')
         if os.path.isfile(deps_file):

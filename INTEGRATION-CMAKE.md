@@ -23,7 +23,7 @@ refer to a git repository checkout elsewhere on your system.
 
 
 
-## Integrate with own code using cmake 
+## Integrate with own code using cmake
 
 Put something like the following into a file like `cmake/MRAConfig.cmake` such that CMake can find all required things.
 
@@ -39,7 +39,7 @@ include_directories(${MRA_DIR}) # for including external component headers
 include_directories(${MRA_DIR}/base) # for including internal headers
 
 set(MRA_BUILD_DIR build/some-path-to/MRA-prototype)
-include_directories(${MRA_BUILD_DIR}) # for generated protobuf headers 
+include_directories(${MRA_BUILD_DIR}) # for generated protobuf headers
 
 # dependency: json
 include(FetchContent)

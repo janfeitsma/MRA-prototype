@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 '''
-Build and optionally test. 
+Build and optionally test.
 
 Default uses bazel build system.
 

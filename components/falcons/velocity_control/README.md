@@ -31,4 +31,4 @@ A sequence of sub-algorithms is applied. They are somewhat configurable.
 Original Falcons source: https://github.com/Falcons-Robocup/code/tree/master/packages/velocityControl/src.
 
 PID controllers and configuration have been removed, in favour of Reflexxes.
- 
+

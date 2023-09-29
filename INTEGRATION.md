@@ -4,7 +4,7 @@ There are several ways of integrating MRA into your repository, depending on whi
 
 Chapter [Coding](#Coding) shows examples of how to make use of MRA in your C++ source code.
 
-To get the code to compile, first consider which build system you use. 
+To get the code to compile, first consider which build system you use.
 1. **bazel**: integration with [bazel](https://bazel.build/) is easy, see [here](INTEGRATION-BAZEL.md).
 2. **cmake**: integration with cmake is possible (but currently not straightforward!), see [here](INTEGRATION-CMAKE.md).
 3. **other**: not supported - why not contribute, or make an issue/request?

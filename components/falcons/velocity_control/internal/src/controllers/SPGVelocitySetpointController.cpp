@@ -41,7 +41,7 @@ bool SPGVelocitySetpointController::calculate(VelocityControlData &data)
     // This means currentPosFCS.Rz = 0, and previousPosSetpointFCS.Rz is the difference to currentPosFCS.Rz.
     // At this point, take the weighted factor from previousPosSetpointFCS.Rz -> deltaAngle projected between [-pi, pi]
     // This weighted factor can be rotated back from currentPosFCS.Rz.
-    // The final average angle between the two is then currentPosFCS.Rz + deltaAngle 
+    // The final average angle between the two is then currentPosFCS.Rz + deltaAngle
 
     float w_pos = data.config.spg().weightfactorclosedlooppos();
     double deltaRz = MRA::Geometry::wrap_pi(data.previousPositionSetpointFcs.rz - data.currentPositionFcs.rz) * w_pos;
@@ -580,7 +580,7 @@ bool SPGVelocitySetpointController::calculateVelXYRzPhaseSynchronized(VelocityCo
             resultVelocity.rz = OP->NewVelocityVector->VecData[2];
         }
     }
-    
+
     // Diag data
     /*TODO
     data.spgCurrentPosition.x  = IP->CurrentPositionVector->VecData[0];
