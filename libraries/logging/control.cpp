@@ -26,7 +26,11 @@ namespace
 
 std::string _getenv()
 {
-    return getenv(ENVIRONMENT_KEY.c_str());
+    const char* env_value = getenv(ENVIRONMENT_KEY.c_str());
+    if (env_value != nullptr) {
+        return std::string(env_value);
+    }
+    return "";
 }
 
 std::string _mkShmFile()
