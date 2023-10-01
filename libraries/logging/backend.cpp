@@ -4,6 +4,7 @@
 #include "spdlogformatter.hpp" // our customizations
 #include "logdebug.hpp"
 #include <memory>
+#include <unistd.h>
 #include "spdlog/spdlog.h"  // spdlog API: https://github.com/gabime/spdlog
 #include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"

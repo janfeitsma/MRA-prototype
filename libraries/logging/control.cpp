@@ -1,6 +1,7 @@
 #include "control.hpp"
 #include "google/protobuf/util/json_util.h"
 #include "json_convert.hpp"
+#include "logdebug.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -26,7 +27,11 @@ namespace
 
 std::string _getenv()
 {
-    return getenv(ENVIRONMENT_KEY.c_str());
+    const char* env_value = getenv(ENVIRONMENT_KEY.c_str());
+    if (env_value != nullptr) {
+        return std::string(env_value);
+    }
+    return "";
 }
 
 std::string _mkShmFile()
@@ -134,12 +139,18 @@ MRA::Datatypes::LogControl getConfiguration()
 
 void setConfiguration(MRA::Datatypes::LogControl const &config)
 {
+    LOGDEBUG("setConfiguration start");
     // Open shared memory
     int shm_fd = shm_open(_mkShmFile().c_str(), O_CREAT | O_RDWR, 0666);
     if (shm_fd == -1) {
         throw std::runtime_error(std::string("Error opening shared memory: ") + strerror(errno));
     }
-    ftruncate(shm_fd, SHARED_MEMORY_SIZE);
+
+    // Truncate the shared memory to the desired size
+    if (ftruncate(shm_fd, SHARED_MEMORY_SIZE) == -1) {
+        close(shm_fd);
+        throw std::runtime_error(std::string("Error truncating shared memory: ") + strerror(errno));
+    }
 
     // Map shared memory
     void* shared_memory = mmap(NULL, SHARED_MEMORY_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
@@ -161,7 +172,7 @@ void setConfiguration(MRA::Datatypes::LogControl const &config)
         throw std::runtime_error(std::string("Error serializing configuration, shm size is too small (need ")
             + std::to_string(n) + ", got " + std::to_string(SHARED_MEMORY_SIZE) + " bytes)");
     }
-    serialized_config += std::string(SHARED_MEMORY_SIZE - n, ' ');
+    serialized_config += '\0';
 
     // Copy the serialized configuration to the shared memory buffer
     memcpy(shared_memory, serialized_config.c_str(), serialized_config.size());
@@ -169,6 +180,7 @@ void setConfiguration(MRA::Datatypes::LogControl const &config)
     // Done
     munmap(shared_memory, SHARED_MEMORY_SIZE);
     close(shm_fd);
+    LOGDEBUG("setConfiguration end (%d bytes): %s", (int)serialized_config.size(), serialized_config.c_str());
 }
 
 MRA::Datatypes::LogSpec getConfiguration(std::string const &component)

@@ -7,8 +7,8 @@ cmake_minimum_required(VERSION 3.5.1)
 project(MRA LANGUAGES CXX)
 
 # use C++17 standard, or suffer errors re. using std::filesystem
-set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror -Wno-address -Wno-reorder")
- # to prevent compiler errors added the not preferred flags: -Wno-address -Wno-reorder
+set(CMAKE_CXX_FLAGS "-std=c++17 -Wall -Werror -Wno-address -Wno-reorder -Wno-array-bounds")
+ # to prevent compiler errors added the not preferred flags: -Wno-address -Wno-reorder -Wno-array-bounds
 
 # dependency: ProtoBuf
 # check if ProtoBuf is installed
@@ -17,12 +17,8 @@ find_package(Protobuf REQUIRED)
 if(NOT PROTOBUF_FOUND)
 message(FATAL_ERROR, "Protobuf could not be find. Install protobuf (e.g. sudo apt-get install protobuf-compiler)")
 endif(NOT PROTOBUF_FOUND)
-
 find_library(PROTOBUF_LIBRARY protobuf)
 
-# check if spdlog is installed
-# install on Ubuntu: sudo apt-get install libspdlog-dev
-find_package(spdlog REQUIRED)
 
 # dependency: json
 include(FetchContent)

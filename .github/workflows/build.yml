@@ -39,7 +39,7 @@ jobs:
 
     - name: Set up dependencies
       run: |
-        sudo apt-get install -y protobuf-compiler libspdlog-dev libgtest-dev
+        sudo apt-get install -y protobuf-compiler libgtest-dev
 
     - name: Create build folder
       run: mkdir build
