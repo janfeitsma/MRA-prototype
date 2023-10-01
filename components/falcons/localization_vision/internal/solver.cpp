@@ -307,10 +307,10 @@ int Solver::run()
 
         // run the fit algorithm (multithreaded), update trackers, update _fitResult
         runFitUpdateTrackers();
-
-        // create and optionally dump of diagnostics data for plotting
-        dumpDiagnosticsMat();
     }
+
+    // create and optionally dump of diagnostics data for plotting
+    dumpDiagnosticsMat();
 
     // prepare for next tick
     _state.set_tick(1 + _state.tick());
