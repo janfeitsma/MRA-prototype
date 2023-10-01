@@ -1,6 +1,7 @@
 #include "control.hpp"
 #include "google/protobuf/util/json_util.h"
 #include "json_convert.hpp"
+#include "logdebug.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -138,6 +139,7 @@ MRA::Datatypes::LogControl getConfiguration()
 
 void setConfiguration(MRA::Datatypes::LogControl const &config)
 {
+    LOGDEBUG("setConfiguration start");
     // Open shared memory
     int shm_fd = shm_open(_mkShmFile().c_str(), O_CREAT | O_RDWR, 0666);
     if (shm_fd == -1) {
@@ -165,7 +167,7 @@ void setConfiguration(MRA::Datatypes::LogControl const &config)
         throw std::runtime_error(std::string("Error serializing configuration, shm size is too small (need ")
             + std::to_string(n) + ", got " + std::to_string(SHARED_MEMORY_SIZE) + " bytes)");
     }
-    serialized_config += std::string(SHARED_MEMORY_SIZE - n, ' ');
+    serialized_config += '\0';
 
     // Copy the serialized configuration to the shared memory buffer
     memcpy(shared_memory, serialized_config.c_str(), serialized_config.size());
@@ -173,6 +175,7 @@ void setConfiguration(MRA::Datatypes::LogControl const &config)
     // Done
     munmap(shared_memory, SHARED_MEMORY_SIZE);
     close(shm_fd);
+    LOGDEBUG("setConfiguration end (%d bytes): %s", (int)serialized_config.size(), serialized_config.c_str());
 }
 
 MRA::Datatypes::LogSpec getConfiguration(std::string const &component)
