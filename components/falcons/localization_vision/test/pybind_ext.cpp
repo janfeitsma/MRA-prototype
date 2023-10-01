@@ -4,6 +4,7 @@
 #include "pybind11_protobuf/native_proto_caster.h"
 
 #include "FalconsLocalizationVision.hpp"
+#include "logging.hpp"
 
 
 using namespace MRA::FalconsLocalizationVision;
@@ -17,6 +18,7 @@ int pywrap_tick_standalone(
         LocalType                  &local        // local/diagnostics data, type generated from Local.proto
     )
 {
+    MRA_TRACE_FUNCTION();
     int result = FalconsLocalizationVision().tick(input, params, state, output, local);
     return result;
 }
@@ -27,6 +29,7 @@ PYBIND11_MODULE(pybind_ext, m) {
     m.def("tick",
         [](InputType input, ParamsType params, StateType state)
         {
+            MRA_TRACE_FUNCTION_INPUTS(input, params, state);
             // input and params are pure inputs
             // state is an inout parameter
             // output and local are pure outputs
@@ -38,6 +41,7 @@ PYBIND11_MODULE(pybind_ext, m) {
             result_tuple[1] = state;
             result_tuple[2] = out;
             result_tuple[3] = loc;
+            MRA_TRACE_FUNCTION_OUTPUTS(error_code, out, loc, state);
             return result_tuple;
         },
         //pybind11::call_guard<pybind11::gil_scoped_release>(),
