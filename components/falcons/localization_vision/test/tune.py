@@ -164,11 +164,14 @@ class TuningTool():
         self.data.state = return_tuple[1]
         self.data.output = return_tuple[2]
         self.data.local = return_tuple[3] # local is a synonym for diagnostics. If too confusing, then lets bulk-rename? (Naming came from FMI standard.)
-        print(self.data.output)
+        logging.info('output = ' + str(self.data.output))
         # convert CvMatProto object to opencv object
         c = self.data.local.floor
-        np_data = np.frombuffer(c.data, dtype=np.uint8)
-        self.image = cv2.cvtColor(np_data.reshape(c.height, c.width, -1), cv2.COLOR_BGR2RGB)
+        if c.width * c.height:
+            np_data = np.frombuffer(c.data, dtype=np.uint8)
+            self.image = cv2.cvtColor(np_data.reshape(c.height, c.width, -1), cv2.COLOR_BGR2RGB)
+        else:
+            logging.warning('no local.floor (yet?)')
 
     def make_info_lines(self):
         # Determine text lines to show
