@@ -113,8 +113,8 @@ int RobotsportsGetballIntercept::RobotsportsGetballIntercept::tick
             if (distanceXY(target_position, robot_pos) > params.actionradius())
             {
                 // To far from interception point:
-                // - Mark as failed. 
-                // - Stay at current position (safe output values). 
+                // - Mark as failed.
+                // - Stay at current position (safe output values).
                 output.set_actionresult(MRA::Datatypes::FAILED);
                 output.mutable_target()->mutable_position()->set_x(robot_pos.x());
                 output.mutable_target()->mutable_position()->set_y(robot_pos.y());

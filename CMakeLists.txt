@@ -37,8 +37,8 @@ include(CTest)
 
 include(FetchContent)
 FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
 )
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
@@ -67,13 +67,14 @@ target_link_libraries(MRA-datatypes protobuf)
 
 protobuf_generate(TARGET MRA-datatypes PROTOS ${MESSAGE_PROTOS_COMMON} LANGUAGE cpp IMPORT_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
 
-# mark the protobuf files as generated source to ensure generation is finished by before building sources. 
+# mark the protobuf files as generated source to ensure generation is finished by before building sources.
 foreach (protobuf_file ${MESSAGE_PROTOS_COMMON})
-	 get_filename_component(proto_name ${protobuf_file} NAME_WE)  
-	 get_filename_component(proto_path ${MRA_SOURCE_DIR}/datatypes ABSOLUTE)
-	 set_source_files_properties("${proto_path}/${proto_name}.pb.cc"  
-					 			 "${proto_path}/${proto_name}.pb.h"
-								 PROPERTIES GENERATED TRUE)
+    get_filename_component(proto_name ${protobuf_file} NAME_WE)
+    get_filename_component(proto_path ${MRA_SOURCE_DIR}/datatypes ABSOLUTE)
+    set_source_files_properties(
+        "${proto_path}/${proto_name}.pb.cc"
+        "${proto_path}/${proto_name}.pb.h"
+        PROPERTIES GENERATED TRUE)
 endforeach()
 
 # create dummy file for creating libraries with only ohter libraries
@@ -83,7 +84,7 @@ file(TOUCH ${MRA_BINARY_DIR}/dummy.cpp)
 ##########################################################
 # subdirectories
 ##########################################################
-#TODO use datatypes/CMakeLists.txt: 
+#TODO use datatypes/CMakeLists.txt:
 # add_subdirectory(datatypes)
 add_subdirectory(base)
 add_subdirectory(components)
@@ -96,25 +97,19 @@ add_subdirectory(libraries)
 ##########################################################
 # TODO use datatypes/CMakeLists.txt
 #add_library(MRA-datatypes ${MRA_BINARY_DIR}/dummy.cpp)
-#target_link_libraries(MRA-datatypes 
-#   				   MRA-libraries-dir)
-#target_link_directories(MRA-datatypes PUBLIC 
-#	${MRA_BINARY_DIR}/datatypes
+#target_link_libraries(MRA-datatypes
+#    MRA-libraries-dir)
+#target_link_directories(MRA-datatypes PUBLIC
+#    ${MRA_BINARY_DIR}/datatypes
 #)
 
 add_library(MRA-components ${MRA_BINARY_DIR}/dummy.cpp)
-target_link_libraries(MRA-components 
-   				   MRA-components-dir)
-target_link_directories(MRA-components PUBLIC 
-	${MRA_BINARY_DIR}/components
-)
+target_link_libraries(MRA-components MRA-components-dir)
+target_link_directories(MRA-components PUBLIC ${MRA_BINARY_DIR}/components)
 
 add_library(MRA-libraries ${MRA_BINARY_DIR}/dummy.cpp)
-target_link_libraries(MRA-libraries 
-   				   MRA-libraries-dir)
-target_link_directories(MRA-libraries PUBLIC 
-	${MRA_BINARY_DIR}/libraries
-)
+target_link_libraries(MRA-libraries MRA-libraries-dir)
+target_link_directories(MRA-libraries PUBLIC ${MRA_BINARY_DIR}/libraries)
 
 
 

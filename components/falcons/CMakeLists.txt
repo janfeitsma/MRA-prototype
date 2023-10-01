@@ -6,7 +6,7 @@ add_subdirectory(test_mra_logger)
 add_subdirectory(velocity_control)
 
 add_library(MRA-components-falcons ${MRA_BINARY_DIR}/dummy.cpp)
-target_link_libraries(MRA-components-falcons 
+target_link_libraries(MRA-components-falcons
 					  # TODO: MRA-falcons-getball
 					  MRA-components-falcons-getball-fetch
 					  MRA-components-falcons-getball-intercept
@@ -15,7 +15,7 @@ target_link_libraries(MRA-components-falcons
 					  MRA-components-falcons-velocity-control
 )
 
-target_link_directories(MRA-components-falcons PUBLIC 
+target_link_directories(MRA-components-falcons PUBLIC
 	${MRA_BINARY_DIR}/components/falcons/getball_fetch
 	${MRA_BINARY_DIR}/components/falcons/getball_intercept
 	${MRA_BINARY_DIR}/components/falcons/test_mra_logger

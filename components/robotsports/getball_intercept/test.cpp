@@ -40,7 +40,7 @@ TEST(RobotsportsGetballInterceptTest, simpleIntercept)
     input.mutable_worldstate()->mutable_ball()->mutable_position()->set_x(-0.05);
     input.mutable_worldstate()->mutable_ball()->mutable_position()->set_y(-8.0);
     input.mutable_worldstate()->mutable_ball()->mutable_velocity()->set_y(1.0);
-    
+
     params.set_actionradius(2.0);
 
     // Act
@@ -67,14 +67,14 @@ TEST(RobotsportsGetballInterceptTest, intercept_outside_actionradius)
     input.mutable_worldstate()->mutable_ball()->mutable_position()->set_x(-0.05);
     input.mutable_worldstate()->mutable_ball()->mutable_position()->set_y(-8.0);
     input.mutable_worldstate()->mutable_ball()->mutable_velocity()->set_y(1.0);
-    
+
     params.set_actionradius(0.1);  // small action radius
 
     // Act
     int error_value = m.tick(input, params, output);
 
     // Assert
-    // expect starting position    
+    // expect starting position
     EXPECT_EQ(error_value, 0);
     EXPECT_EQ(output.actionresult(), MRA::Datatypes::FAILED);
     EXPECT_NEAR(output.target().position().x(), -1.0, 1e-2);

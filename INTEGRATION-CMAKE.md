@@ -11,7 +11,8 @@ The following chapters describe how to make `@MRA` available in your repository'
 The [CMakeLists.txt](#cmakeliststxt) chapter describes how to depend on targets defined by MRA repo.
 
 ## Use only
-no (explicit) git checkout, just download and use the code.
+
+No (explicit) git checkout, just download and use the code.
 
 ## Use & develop via subrepo
 
@@ -19,11 +20,9 @@ Make a checkout at `some-path-to/MRA-prototype` and let CMake build it via `add_
 
 ## Use & develop via standalone repo
 
-refer to a git repository checkout elsewhere on your system.
+Refer to a git repository checkout elsewhere on your system.
 
-
-
-## Integrate with own code using cmake 
+## Integrate with own code using cmake
 
 Put something like the following into a file like `cmake/MRAConfig.cmake` such that CMake can find all required things.
 
@@ -39,7 +38,7 @@ include_directories(${MRA_DIR}) # for including external component headers
 include_directories(${MRA_DIR}/base) # for including internal headers
 
 set(MRA_BUILD_DIR build/some-path-to/MRA-prototype)
-include_directories(${MRA_BUILD_DIR}) # for generated protobuf headers 
+include_directories(${MRA_BUILD_DIR}) # for generated protobuf headers
 
 # dependency: json
 include(FetchContent)

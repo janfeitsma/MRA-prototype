@@ -23,29 +23,29 @@ protobuf_generate(TARGET MRA-components-falcons-getball-proto PROTOS ${MESSAGE_P
 ##########################################################
 
 add_library(MRA-components-falcons-getball
-	tick.cpp
+    tick.cpp
 )
 target_include_directories(MRA-components-falcons-getball PUBLIC
-	${MRA_SOURCE_DIR}/libraries/logging
-	${CMAKE_SOURCE_DIR}/base
-	${CMAKE_CURRENT_BINARY_DIR}/interface	)
+    ${MRA_SOURCE_DIR}/libraries/logging
+    ${CMAKE_SOURCE_DIR}/base
+    ${CMAKE_CURRENT_BINARY_DIR}/interface)
 target_link_libraries(MRA-components-falcons-getball MRA-libraries MRA-components-falcons-getball-proto MRA-base nlohmann_json::nlohmann_json)
 
 
 add_executable(
-	falcons_getball_test
-	test.cpp
+    falcons_getball_test
+    test.cpp
 )
 target_include_directories(falcons_getball_test PRIVATE ${MRA_SOURCE_DIR}/base ${MRA_SOURCE_DIR}/libraries/logging)
 target_link_libraries(
-	falcons_getball_test
-	MRA-components MRA-libraries nlohmann_json::nlohmann_json rt GTest::gtest_main gmock
+    falcons_getball_test
+    MRA-components MRA-libraries nlohmann_json::nlohmann_json rt GTest::gtest_main gmock
 )
 
 
 gtest_discover_tests(
-	falcons_getball_test
-	WORKING_DIRECTORY ${MRA_SOURCE_DIR}
-	PROPERTIES ENVIRONMENT "MRA_LOGGER_CONTEXT=unittest"
+    falcons_getball_test
+    WORKING_DIRECTORY ${MRA_SOURCE_DIR}
+    PROPERTIES ENVIRONMENT "MRA_LOGGER_CONTEXT=unittest"
 )
 

@@ -48,7 +48,7 @@ int RobotsportsProofIsAlive::RobotsportsProofIsAlive::tick
     auto const ws = input.worldstate();
 	double rotation_angle_rad = deg2rad(params.angle_in_degrees());
 
-	if (state.phase() == StateType::TO_BE_STARTED) 
+	if (state.phase() == StateType::TO_BE_STARTED)
 	{
         *state.mutable_timestamp_start_phase() = timestamp;
 	}

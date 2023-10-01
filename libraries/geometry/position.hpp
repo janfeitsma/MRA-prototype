@@ -6,7 +6,7 @@
 namespace MRA::Geometry
 {
 
-// MRA::Geometry::Position is special version of Pose that adds coordinate transformations, 
+// MRA::Geometry::Position is special version of Pose that adds coordinate transformations,
 //    ensuring angles are wrapped to [-pi,pi)
 //    NOTE: this deviates from the 2014 standard of wrapping rz to [0,2pi), for the following reasons:
 //    1. practical, ease of coding (for instance abs-and-compare)

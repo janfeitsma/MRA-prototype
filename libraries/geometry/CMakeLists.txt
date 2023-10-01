@@ -9,6 +9,6 @@ add_library(MRA-libraries-geometry
     velocity.cpp
 )
 
-target_include_directories(MRA-libraries-geometry PUBLIC 
+target_include_directories(MRA-libraries-geometry PUBLIC
 	${MRA_BINARY_DIR}
 )
