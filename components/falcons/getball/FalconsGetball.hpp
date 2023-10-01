@@ -4,6 +4,14 @@
 #ifndef _MRA_FALCONS_GETBALL_HPP
 #define _MRA_FALCONS_GETBALL_HPP
 
+
+// component name definition goes on top
+// (when logging.hpp is used internally in a component, then component name may resolve to "unknown")
+#ifndef MRA_COMPONENT_NAME
+#define MRA_COMPONENT_NAME "FalconsGetball"
+#endif
+
+
 #include "abstract_interface.hpp"
 #include "params_loader.hpp"
 #include <google/protobuf/empty.pb.h>
@@ -13,11 +21,6 @@
 #include "datatypes.hpp"
 
 
-// used in tracing
-#ifdef MRA_COMPONENT_NAME
-#undef MRA_COMPONENT_NAME
-#endif
-#define MRA_COMPONENT_NAME "FalconsGetball"
 
 
 namespace MRA::FalconsGetball
