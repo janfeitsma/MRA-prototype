@@ -145,7 +145,12 @@ void setConfiguration(MRA::Datatypes::LogControl const &config)
     if (shm_fd == -1) {
         throw std::runtime_error(std::string("Error opening shared memory: ") + strerror(errno));
     }
-    ftruncate(shm_fd, SHARED_MEMORY_SIZE);
+
+    // Truncate the shared memory to the desired size
+    if (ftruncate(shm_fd, SHARED_MEMORY_SIZE) == -1) {
+        close(shm_fd);
+        throw std::runtime_error(std::string("Error truncating shared memory: ") + strerror(errno));
+    }
 
     // Map shared memory
     void* shared_memory = mmap(NULL, SHARED_MEMORY_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
