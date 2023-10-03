@@ -1,14 +1,16 @@
 #include "backend.hpp"
 #include "control.hpp"
 #include "json_convert.hpp"
+#include "spdlogformatter.hpp" // our customizations
+#include "logdebug.hpp"
 #include <memory>
+#include <unistd.h>
 #include "spdlog/spdlog.h"  // spdlog API: https://github.com/gabime/spdlog
 #include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include <stdarg.h>
 #include <errno.h> // for program_invocation_name
 
-//#define LOGDEBUG
 
 namespace MRA::Logging::backend
 {
@@ -96,13 +98,11 @@ void reconfigure(MRA::Datatypes::LogSpec const &cfg)
     // TODO: this might not yet support multiple components in the same process
     // keep current configuration in memory
     static MRA::Datatypes::LogSpec currentCfg;
-#ifdef LOGDEBUG
-    printf("logdebug RECONFIGURE %s\n", MRA::convert_proto_to_json_str(currentCfg).c_str()); fflush(stdout);
-#endif
     // only reconfigure upon change
     // protobuf c++ API does not provide (in-)equality operators - use json conversion (or create a Configuration class?)
     if (MRA::convert_proto_to_json_str(currentCfg) != MRA::convert_proto_to_json_str(cfg) || s_logger == NULL)
     {
+        LOGDEBUG("reconfigure %s -> %s", MRA::convert_proto_to_json_str(currentCfg).c_str(), MRA::convert_proto_to_json_str(cfg).c_str());
         MraLogger::getInstance()->setup(cfg);
         currentCfg = cfg;
     }
@@ -139,9 +139,7 @@ void clear()
 
 MraLogger::MraLogger()
 {
-#ifdef LOGDEBUG
-    printf("logdebug CONSTRUCT\n"); fflush(stdout);
-#endif
+    LOGDEBUG("construct MraLogger");
     m_active = false;
     m_filename_pattern = MRA::Logging::control::getFileNamePattern();
     // for the remainder: lazy setup: at first logger call
@@ -203,14 +201,12 @@ std::string MraLogger::determineFileName(std::string const &cname)
 void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
 {
     m_active = cfg.enabled();
-#ifdef LOGDEBUG
-    printf("logdebug SETUP m_active=%d\n", m_active); fflush(stdout);
-#endif
+    LOGDEBUG("setup m_active=%d", m_active);
     if (!m_active) return;
 
     auto log_level_mra = (MRA::Logging::LogLevel)(int)cfg.level();
     auto log_level_spd = convert_log_level(log_level_mra);
-    spdlog::set_pattern(cfg.pattern().c_str());
+    spdlog::set_formatter(make_formatter(cfg.pattern()));
     spdlog::set_level(log_level_spd);
 
     // Logger construction only happens once per process.
@@ -221,9 +217,7 @@ void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
         m_log_file = MRA::Logging::control::getLogFolder() + "/" + determineFileName(cfg.component());
 
         // Create the logger
-        #ifdef LOGDEBUG
-            printf("logdebug SPDLOG_CREATE %s %s\n", m_log_name.c_str(), m_log_file.c_str()); fflush(stdout);
-        #endif
+        LOGDEBUG("spdlog create %s %s", m_log_name.c_str(), m_log_file.c_str());
         m_spdlog_logger = spdlog::basic_logger_mt(m_log_name, m_log_file);
         // TODO: consider using <spdlog::async_factory> for performance?
         // but then check that __FILE__ logging does not become garbage
@@ -231,7 +225,6 @@ void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
     }
 
     // Configure logger
-    m_spdlog_logger->set_pattern(cfg.pattern());
     m_spdlog_logger->set_level(log_level_spd);
     if (cfg.hotflush()) {
         m_spdlog_logger->flush_on(log_level_spd);
@@ -257,10 +250,9 @@ std::string sanitize(std::string const &s)
 void MraLogger::log(source_loc loc, MRA::Logging::LogLevel loglevel, const char *fmt,...)
 {
     spdlog::source_loc loc_spd{loc.filename, loc.line, loc.funcname};
-#ifdef LOGDEBUG
-    printf("logdebug LOG %d %d %s %d %s\n", m_active, loglevel, loc.filename, loc.line, loc.funcname); fflush(stdout);
-#endif
     if (m_active) {
+        LOGDEBUG("log[%s] %s(%d):%s()", spdlog::level::to_string_view(convert_log_level(loglevel)).data(), loc.filename, loc.line, loc.funcname);
+        MRA::Logging::setComponentName(loc.componentname); // for %k custom formatter
         const int MAXTEXT = 4096; // TODO use configuration
         char buffer[MAXTEXT];
         buffer[MAXTEXT-1] = '\0';
@@ -303,15 +295,16 @@ void MraLogger::log(source_loc loc, MRA::Logging::LogLevel loglevel, const char 
         // TODO: why is flush needed here, why doesn't flush_on at setup() seem to work?
         m_spdlog_logger->flush();
     }
+    else {
+        LOGDEBUG("log INACTIVE");
+    }
 }
 
 
 MraLogger::FunctionRecord::FunctionRecord(source_loc loc)
     : _loc(loc)
 {
-#ifdef LOGDEBUG
-    printf("logdebug FUNCTIONRECORD\n"); fflush(stdout);
-#endif
+    LOGDEBUG("FunctionRecord");
     auto cfg = control::getConfiguration(loc.componentname);
     if (cfg.enabled())
     {

@@ -4,6 +4,14 @@
 #ifndef _MRA_ROBOTSPORTS_GETBALL_FETCH_HPP
 #define _MRA_ROBOTSPORTS_GETBALL_FETCH_HPP
 
+
+// component name definition goes on top
+// (when logging.hpp is used internally in a component, then component name may resolve to "unknown")
+#ifndef MRA_COMPONENT_NAME
+#define MRA_COMPONENT_NAME "RobotsportsGetballFetch"
+#endif
+
+
 #include "abstract_interface.hpp"
 #include "params_loader.hpp"
 #include <google/protobuf/empty.pb.h>
@@ -13,11 +21,6 @@
 #include "RobotsportsGetballFetch_datatypes.hpp"
 
 
-// used in tracing
-#ifdef MRA_COMPONENT_NAME
-#undef MRA_COMPONENT_NAME
-#endif
-#define MRA_COMPONENT_NAME "RobotsportsGetballFetch"
 
 
 namespace MRA::RobotsportsGetballFetch
