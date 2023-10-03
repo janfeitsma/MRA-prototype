@@ -67,6 +67,7 @@ target_link_libraries(MRA-datatypes protobuf)
 
 protobuf_generate(TARGET MRA-datatypes PROTOS ${MESSAGE_PROTOS_COMMON} LANGUAGE cpp IMPORT_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
 
+
 # mark the protobuf files as generated source to ensure generation is finished by before building sources.
 foreach (protobuf_file ${MESSAGE_PROTOS_COMMON})
     get_filename_component(proto_name ${protobuf_file} NAME_WE)
@@ -76,6 +77,20 @@ foreach (protobuf_file ${MESSAGE_PROTOS_COMMON})
         "${proto_path}/${proto_name}.pb.h"
         PROPERTIES GENERATED TRUE)
 endforeach()
+
+##########################################################
+# component proto files
+##########################################################
+# generate source from component proto files from toplevel to get correct header file guard 
+
+# collect proto files from sub-directories below directory component
+FILE(GLOB_RECURSE MESSAGE_PROTOS_COMPONENTS ABSOLUTE ${CMAKE_CURRENT_SOURCE_DIR}/components *.proto)
+# create single library with all generated sources from component proto files
+add_library(MRA-components-proto)
+target_include_directories(MRA-components-proto PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(MRA-components-proto MRA-datatypes protobuf)
+protobuf_generate(TARGET MRA-components-proto PROTOS ${MESSAGE_PROTOS_COMPONENTS} LANGUAGE cpp IMPORT_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${MRA_SOURCE_DIR})
+
 
 # create dummy file for creating libraries with only ohter libraries
 file(TOUCH ${MRA_BINARY_DIR}/dummy.cpp)

@@ -321,7 +321,7 @@ class ComponentGenerator():
     def handle_header_datatypes_hpp(self) -> None:
         """Generate C++ header file which only exposes the generated protobuf datatypes."""
         src = self.template_folder / 'template_datatypes.hpp'
-        tgt = os.path.join(self.component_folder, 'datatypes.hpp')
+        tgt = os.path.join(self.component_folder, self.cname_camelcase +'_datatypes.hpp')
         self.check_copy_and_modify(src, tgt)
 
     def generate_copy_files_unless_existing(self) -> None:
