@@ -15,7 +15,7 @@ def create_standard_gui_params(params=None):
     params.add('reset', bool, slider=False)
     # sliders: name, type, min, max, default
     params.add('frequency', float, 0.1, 50.0, 10.0)
-    params.add('zoom', float, 0.5, 5.0, 1.0)
+    params.add('zoom', float, 0.2, 4.0, 0.7)
     return params
 
 
