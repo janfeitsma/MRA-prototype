@@ -32,6 +32,9 @@ import parameters
 from components.falcons.localization_vision.test import pybind_ext
 
 
+# logging format when not using --debug advanced logging/tracing
+LOGGING_FORMAT = '%(asctime)s - %(levelname)-8s - %(message)s'
+
 # parameter range hints, used to determine min/max limits of the GUI sliders
 # TODO: find a more structural way, maybe in .proto comments and parse somehow?
 RANGE_HINTS = {
@@ -146,7 +149,8 @@ class TuningTool():
         # Make info lines; these are important enough to also dump to stdout
         info_lines = self.make_info_lines()
         if self.params.gui_params.get('active'):
-            print('\n'.join(info_lines))
+            for line in info_lines:
+                logging.info(line)
 
         # Optional overlay
         if self.params.gui_params.get('overlay'):
@@ -222,6 +226,9 @@ def main(args: argparse.Namespace) -> None:
         # JFEI-private debugging (based on autologging extensions in my repo https://github.com/janfeitsma/extendedlogging)
         # slap some tracing decorators onto our code, automagically!
         import tracing
+    else:
+        logging.basicConfig(format=LOGGING_FORMAT)
+        logging.getLogger().setLevel(logging.INFO)
     # setup and run the tuning tool
     t = TuningTool(args.datafile)
     t.max_ticks = args.ticks
