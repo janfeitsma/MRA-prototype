@@ -10,11 +10,11 @@ template <typename T_InputType, typename T_ParamsType, typename T_StateType, typ
 class MRAInterface
 {
 public:
-	using InputType = T_InputType;
-	using ParamsType = T_ParamsType;
-	using StateType = T_StateType;
-	using OutputType = T_OutputType;
-	using LocalType = T_LocalType;
+    using InputType = T_InputType;
+    using ParamsType = T_ParamsType;
+    using StateType = T_StateType;
+    using OutputType = T_OutputType;
+    using LocalType = T_LocalType;
 
     MRAInterface() {};
     ~MRAInterface() {};
