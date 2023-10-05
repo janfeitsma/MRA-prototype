@@ -1,33 +1,15 @@
 # CODEGEN_NOTE
 # it should NOT be modified by user
 
-##########################################################
-# component interfaces
-##########################################################
-
-set(MESSAGE_PROTOS_COMPONENTS
-CMAKE_INTERFACE_DEPENDENCIES
-)
-
-add_library(MRA-components-CMAKE_COMPONENT_LIBRARY_NAME-proto)
-target_include_directories(MRA-components-CMAKE_COMPONENT_LIBRARY_NAME-proto PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/interface ${MRA_SOURCE_DIR})
-target_link_libraries(MRA-components-CMAKE_COMPONENT_LIBRARY_NAME-proto MRA-datatypes protobuf)
-
-protobuf_generate(TARGET MRA-components-CMAKE_COMPONENT_LIBRARY_NAME-proto PROTOS ${MESSAGE_PROTOS_COMPONENTS} LANGUAGE cpp IMPORT_DIRS ${CMAKE_CURRENT_SOURCE_DIR} ${MRA_SOURCE_DIR})
-
-
-##########################################################
-# component implementations
-##########################################################
-
 add_library(MRA-components-CMAKE_COMPONENT_LIBRARY_NAME
     tick.cpp
 )
 target_include_directories(MRA-components-CMAKE_COMPONENT_LIBRARY_NAME PUBLIC
     ${MRA_SOURCE_DIR}/libraries/logging
+    ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/base
     ${CMAKE_CURRENT_BINARY_DIR}/interface)
-target_link_libraries(MRA-components-CMAKE_COMPONENT_LIBRARY_NAME MRA-libraries MRA-components-CMAKE_COMPONENT_LIBRARY_NAME-proto MRA-base nlohmann_json::nlohmann_json)
+target_link_libraries(MRA-components-CMAKE_COMPONENT_LIBRARY_NAME MRA-libraries MRA-components-proto MRA-base nlohmann_json::nlohmann_json)
 
 
 add_executable(
@@ -37,7 +19,8 @@ add_executable(
 target_include_directories(CMAKE_COMPONENT_TEST_NAME PRIVATE ${MRA_SOURCE_DIR}/base ${MRA_SOURCE_DIR}/libraries/logging)
 target_link_libraries(
     CMAKE_COMPONENT_TEST_NAME
-    MRA-components MRA-libraries nlohmann_json::nlohmann_json rt GTest::gtest_main gmock
+    MRA-components-CMAKE_COMPONENT_LIBRARY_NAME
+    MRA-libraries MRA-components-proto nlohmann_json::nlohmann_json rt GTest::gtest_main gmock
 )
 
 

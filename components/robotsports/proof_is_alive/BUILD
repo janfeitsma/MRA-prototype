@@ -4,7 +4,7 @@
 cc_library(
     name = "datatypes",
     hdrs = [
-        "datatypes.hpp",
+        "RobotsportsProofIsAlive_datatypes.hpp",
     ],
     visibility = ["//visibility:public"],
     deps = [

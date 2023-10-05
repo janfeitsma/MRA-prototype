@@ -4,7 +4,7 @@
 cc_library(
     name = "datatypes",
     hdrs = [
-        "datatypes.hpp",
+        "COMPONENT_CPP_NAME_CAMELCASE_datatypes.hpp",
     ],
     visibility = ["//visibility:public"],
     deps = [
