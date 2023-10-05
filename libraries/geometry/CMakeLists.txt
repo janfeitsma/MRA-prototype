@@ -12,3 +12,4 @@ add_library(MRA-libraries-geometry
 target_include_directories(MRA-libraries-geometry PUBLIC
 	${MRA_BINARY_DIR}
 )
+add_dependencies(MRA-libraries-geometry MRA-datatypes)
