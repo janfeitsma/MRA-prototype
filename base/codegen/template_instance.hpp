@@ -18,7 +18,7 @@
 #include "logging.hpp"
 
 // generated protobuf types from interface of this component
-#include "datatypes.hpp"
+#include "COMPONENT_CPP_NAME_CAMELCASE_datatypes.hpp"
 
 
 

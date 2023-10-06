@@ -21,3 +21,4 @@ target_include_directories(MRA-libraries-logging PUBLIC
 		${CMAKE_SOURCE_DIR}/base
 )
 target_link_libraries(MRA-libraries-logging MRA-base nlohmann_json::nlohmann_json rt spdlog::spdlog)
+add_dependencies(MRA-libraries-logging MRA-datatypes)

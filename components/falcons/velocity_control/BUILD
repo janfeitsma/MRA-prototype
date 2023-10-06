@@ -4,7 +4,7 @@
 cc_library(
     name = "datatypes",
     hdrs = [
-        "datatypes.hpp",
+        "FalconsVelocityControl_datatypes.hpp",
     ],
     visibility = ["//visibility:public"],
     includes = ["."],

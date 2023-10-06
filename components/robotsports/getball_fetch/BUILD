@@ -4,7 +4,7 @@
 cc_library(
     name = "datatypes",
     hdrs = [
-        "datatypes.hpp",
+        "RobotsportsGetballFetch_datatypes.hpp",
     ],
     visibility = ["//visibility:public"],
     includes = ["."],
