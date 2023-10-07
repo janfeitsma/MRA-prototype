@@ -2,7 +2,7 @@
 #define _MRA_FALCONS_LOCALIZATION_VISION_FLOOR_HPP
 
 #include <opencv2/opencv.hpp>
-#include "datatypes.hpp"
+#include "FalconsLocalizationVision_datatypes.hpp"
 
 
 namespace MRA::FalconsLocalizationVision

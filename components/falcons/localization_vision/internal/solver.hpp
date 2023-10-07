@@ -1,7 +1,7 @@
 #ifndef _MRA_FALCONS_LOCALIZATION_VISION_SOLVER_HPP
 #define _MRA_FALCONS_LOCALIZATION_VISION_SOLVER_HPP
 
-#include "datatypes.hpp"
+#include "FalconsLocalizationVision_datatypes.hpp"
 #include "floor.hpp"
 #include "fit.hpp"
 #include "tracker.hpp"

@@ -1,7 +1,7 @@
 #ifndef _MRA_FALCONS_LOCALIZATION_VISION_TRACKER_HPP
 #define _MRA_FALCONS_LOCALIZATION_VISION_TRACKER_HPP
 
-#include "datatypes.hpp"
+#include "FalconsLocalizationVision_datatypes.hpp"
 #include "geometry.hpp"
 
 namespace MRA::FalconsLocalizationVision

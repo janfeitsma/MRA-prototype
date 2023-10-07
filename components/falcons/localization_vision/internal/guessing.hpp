@@ -1,7 +1,7 @@
 #ifndef _MRA_FALCONS_LOCALIZATION_VISION_GUESSING_HPP
 #define _MRA_FALCONS_LOCALIZATION_VISION_GUESSING_HPP
 
-#include "datatypes.hpp"
+#include "FalconsLocalizationVision_datatypes.hpp"
 #include "tracker.hpp"
 
 namespace MRA::FalconsLocalizationVision
