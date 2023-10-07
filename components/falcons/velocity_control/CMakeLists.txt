@@ -17,8 +17,8 @@ add_library(MRA-components-falcons-velocity-control
 )
 target_include_directories(MRA-components-falcons-velocity-control PUBLIC
     ${MRA_SOURCE_DIR}/libraries/logging
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/base
+    ${MRA_SOURCE_DIR}
+    ${MRA_SOURCE_DIR}/base
     ${CMAKE_CURRENT_BINARY_DIR}/interface
     ${CMAKE_CURRENT_SOURCE_DIR}/internal/include
 )

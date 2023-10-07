@@ -6,8 +6,8 @@ add_library(MRA-components-falcons-trajectory-generation
 )
 target_include_directories(MRA-components-falcons-trajectory-generation PUBLIC
     ${MRA_SOURCE_DIR}/libraries/logging
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/base
+    ${MRA_SOURCE_DIR}
+    ${MRA_SOURCE_DIR}/base
     ${CMAKE_CURRENT_BINARY_DIR}/interface)
 target_link_libraries(MRA-components-falcons-trajectory-generation MRA-libraries MRA-components-proto MRA-base nlohmann_json::nlohmann_json)
 
