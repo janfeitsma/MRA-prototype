@@ -6,8 +6,8 @@ add_library(MRA-components-robotsports-getball-intercept
 )
 target_include_directories(MRA-components-robotsports-getball-intercept PUBLIC
     ${MRA_SOURCE_DIR}/libraries/logging
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/base
+    ${MRA_SOURCE_DIR}
+    ${MRA_SOURCE_DIR}/base
     ${CMAKE_CURRENT_BINARY_DIR}/interface)
 target_link_libraries(MRA-components-robotsports-getball-intercept MRA-libraries MRA-components-proto MRA-base nlohmann_json::nlohmann_json)
 
