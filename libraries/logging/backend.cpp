@@ -147,8 +147,10 @@ MraLogger::MraLogger()
 
 MraLogger::~MraLogger()
 {
-    m_spdlog_logger.reset();
+    LOGDEBUG(("destructing MraLogger " + m_log_name).c_str());
     spdlog::drop(m_log_name);
+    m_spdlog_logger.reset();
+    LOGDEBUG("destruction of MraLogger done");
 }
 
 void MraLogger::setFileName(std::string const &f)
