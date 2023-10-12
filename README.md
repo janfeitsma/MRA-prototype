@@ -2,6 +2,13 @@
 
 MRA (Robocup MSL Reference Architecture) prototype.
 
+<br/>
+
+October 2023: this repo is now **OBSOLETE**. New location: https://github.com/RoboCup-MSL/MRA-components
+
+<br/>
+
+
 After the MSL workshop 2022 at Eindhoven (material reference needed!), Jurge (from VDL RobotSports team) took initiative to drive this forward.
 
 This repository is intended to move from concept idea to demo. Connect with existing Falcons- and RobotSports code bases, facilitate the first demonstration(s) and trigger detailed discussion on how we should proceed.
