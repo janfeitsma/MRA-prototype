@@ -23,12 +23,12 @@ protected:
     }
 
     void TearDown() override {
+        MRA::Logging::backend::clear();
         // switch back to standard config&folder
         if (!getenv("MRA_LOGGER_KEEP_TESTSUITE_TRACING")) {
             cleanupLogFolder();
         }
         MRA::Logging::control::resetConfiguration();
-        MRA::Logging::backend::clear();
     }
 
     void cleanupLogFolder() {
@@ -37,6 +37,7 @@ protected:
         if (std::filesystem::exists(logFolderPath)) {
             std::filesystem::remove_all(logFolderPath);
         }
+        assert(!std::filesystem::exists(logFolderPath));
     }
 };
 

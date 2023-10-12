@@ -134,7 +134,14 @@ std::shared_ptr<MraLogger> MraLogger::getInstance()
 
 void clear()
 {
+    s_logger->clear();
     s_logger.reset();
+    s_spdlog_logger.reset();
+}
+
+void MraLogger::clear()
+{
+    spdlog::drop_all();
 }
 
 MraLogger::MraLogger()
@@ -147,8 +154,7 @@ MraLogger::MraLogger()
 
 MraLogger::~MraLogger()
 {
-    m_spdlog_logger.reset();
-    spdlog::drop(m_log_name);
+    LOGDEBUG("deconstruct MraLogger");
 }
 
 void MraLogger::setFileName(std::string const &f)
@@ -211,23 +217,23 @@ void MraLogger::setup(MRA::Datatypes::LogSpec const &cfg)
 
     // Logger construction only happens once per process.
     // No runtime reconfiguration for this part.
-    if (m_spdlog_logger == NULL) {
+    if (s_spdlog_logger == NULL) {
         // Determine log name and file.
         m_log_name = "MRA:" + cfg.component();
         m_log_file = MRA::Logging::control::getLogFolder() + "/" + determineFileName(cfg.component());
 
         // Create the logger
         LOGDEBUG("spdlog create %s %s", m_log_name.c_str(), m_log_file.c_str());
-        m_spdlog_logger = spdlog::basic_logger_mt(m_log_name, m_log_file);
+        s_spdlog_logger = spdlog::basic_logger_mt(m_log_name, m_log_file);
         // TODO: consider using <spdlog::async_factory> for performance?
         // but then check that __FILE__ logging does not become garbage
         // see also https://github.com/gabime/spdlog/issues/2867
     }
 
     // Configure logger
-    m_spdlog_logger->set_level(log_level_spd);
+    s_spdlog_logger->set_level(log_level_spd);
     if (cfg.hotflush()) {
-        m_spdlog_logger->flush_on(log_level_spd);
+        s_spdlog_logger->flush_on(log_level_spd);
     }
 }
 
@@ -273,27 +279,27 @@ void MraLogger::log(source_loc loc, MRA::Logging::LogLevel loglevel, const char 
         std::string s = sanitize(m_pretext + buffer);
         switch (loglevel) {
         case MRA::Logging::CRITICAL:
-            m_spdlog_logger->log(loc_spd, spdlog::level::critical, s);
+            s_spdlog_logger->log(loc_spd, spdlog::level::critical, s);
             break;
         case MRA::Logging::ERROR:
-            m_spdlog_logger->log(loc_spd, spdlog::level::err, s);
+            s_spdlog_logger->log(loc_spd, spdlog::level::err, s);
             break;
         case MRA::Logging::WARNING:
-            m_spdlog_logger->log(loc_spd, spdlog::level::warn, s);
+            s_spdlog_logger->log(loc_spd, spdlog::level::warn, s);
             break;
         case MRA::Logging::INFO:
-            m_spdlog_logger->log(loc_spd, spdlog::level::info, s);
+            s_spdlog_logger->log(loc_spd, spdlog::level::info, s);
             break;
         case MRA::Logging::DEBUG:
-            m_spdlog_logger->log(loc_spd, spdlog::level::debug, s);
+            s_spdlog_logger->log(loc_spd, spdlog::level::debug, s);
             break;
         case MRA::Logging::TRACE:
-            m_spdlog_logger->log(loc_spd, spdlog::level::trace, s);
+            s_spdlog_logger->log(loc_spd, spdlog::level::trace, s);
             break;
         }
         va_end(argptr);
         // TODO: why is flush needed here, why doesn't flush_on at setup() seem to work?
-        m_spdlog_logger->flush();
+        s_spdlog_logger->flush();
     }
     else {
         LOGDEBUG("log INACTIVE");
